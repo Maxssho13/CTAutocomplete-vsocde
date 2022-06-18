@@ -1,0 +1,15 @@
+{
+  "name": "tsserver-plugin",
+  "private": true,
+  "version": "0.0.1",
+  "main": "./dist/index",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "vscode": "^1.64.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.5"
+  }
+}

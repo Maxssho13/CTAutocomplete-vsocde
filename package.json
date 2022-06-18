@@ -1,0 +1,90 @@
+{
+  "name": "vsctautocomplete",
+  "displayName": "VSCTAutocomplete",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.64.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onCommand:vsctautocomplete.initialize"
+  ],
+  "main": "./client/dist/main.js",
+  "contributes": {
+    "configuration": [
+      {
+        "title": "VSCTAutocomplete",
+        "properties": {
+          "vsctautocomplete.defaultCreator": {
+            "type": "string",
+            "description": "The default for the creator field used by the interactive module initialization command."
+          }
+        }
+      },
+      {
+        "title": "VSCTAutocomplete",
+        "properties": {
+          "vsctautocomplete.enabled": {
+            "type": "boolean",
+            "markdownDescription": "Controls if CTAutocomplete is enabled.\n\n **Not recommended to be enabled globally.** ",
+            "default": false
+          }
+        }
+      },
+      {
+        "title": "VSCTAutocomplete",
+        "properties": {
+          "vsctautocomplete.detectWorkspaces": {
+            "type": "boolean",
+            "markdownDescription": "Automatically detect ChatTriggers workspaces by looking for a `metadata.json` file. If not set, `vsctautocomplete.enabled` setting must be set.",
+            "default": true
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "vsctautocomplete.initialize",
+        "category": "CTAutocomplete",
+        "title": "Initialize CT module"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "metadata.json",
+        "url": "./schema.json"
+      }
+    ],
+    "typescriptServerPlugins": [
+      {
+        "name": "tsserver-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "esbuild-base": "esbuild ./client/src/extension.ts --bundle --outfile=client/dist/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild-plugin": "esbuild ./tsserver-plugin/src/index.ts --bundle --outfile=tsserver-plugin/dist/index.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-plugin -- --sourcemap && npm run esbuild-base -- --sourcemap"
+  },
+  "devDependencies": {
+    "@types/node": "14.x",
+    "@types/vscode": "^1.64.0",
+    "eslint": "^8.6.0",
+    "esbuild": "^0.12.24"
+  },
+  "dependencies": {
+    "tsserver-plugin": "./tsserver-plugin"
+  }
+}
