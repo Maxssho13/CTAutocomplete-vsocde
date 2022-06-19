@@ -7,15 +7,12 @@ let config: PluginConfig = {
 };
 
 function init(modules: { typescript: typeof import("typescript/lib/tsserverlibrary") }) {
-  const completionsPath = path.join(__dirname, "../../lib/index.d.ts");
+  const completionsPath = path.join(__dirname, "../../../index.d.ts");
   const ts = modules.typescript;
-
-  let logger: ts.server.Logger;
 
   let pluginInfo: ts.server.PluginCreateInfo;
 
   function create(info: ts.server.PluginCreateInfo) {
-    logger = info.project.projectService.logger;
     pluginInfo = info;
 
     const getScriptFileNames = info.languageServiceHost.getScriptFileNames.bind(

@@ -68,15 +68,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run esbuild",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
     "esbuild-base": "esbuild ./client/src/extension.ts --bundle --outfile=client/dist/main.js --external:vscode --format=cjs --platform=node",
     "esbuild-plugin": "esbuild ./tsserver-plugin/src/index.ts --bundle --outfile=tsserver-plugin/dist/index.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run esbuild-plugin -- --sourcemap && npm run esbuild-base -- --sourcemap"
+    "esbuild": "npm run esbuild-plugin && npm run esbuild-base -- --sourcemap"
   },
   "devDependencies": {
     "@types/node": "14.x",

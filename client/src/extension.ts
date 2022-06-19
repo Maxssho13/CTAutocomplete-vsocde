@@ -22,7 +22,6 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions,
   );
 
-  // vscode.workspace.onDidOpenTextDocument(handleChangeTextDocument, null, context.subscriptions);
   vscode.workspace.onDidChangeTextDocument(handleChangeTextDocument, null, context.subscriptions);
   context.subscriptions.push(
     vscode.commands.registerCommand("vsctautocomplete.initialize", handleInitializeCommand),
@@ -55,7 +54,7 @@ async function handleInitializeCommand() {
     ["Javascript", "Typescript"],
     {
       ignoreFocusOut: true,
-      placeHolder: "Module language",
+      placeHolder: "Module language template",
     },
   );
   if (!selectedLanguage) return;
