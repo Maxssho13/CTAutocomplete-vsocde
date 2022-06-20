@@ -11,7 +11,7 @@ export async function activate(context: vscode.ExtensionContext) {
   let api = await getTsApi();
   if (!api) {
     return vscode.window.showErrorMessage(
-      "CTAutocomplete unable to start. Make sure that typescript language features is enabled.",
+      "Chattriggers unable to start. Make sure that typescript language features is enabled.",
     );
   }
   tsApi = api;
@@ -245,7 +245,7 @@ function refreshPluginConfig() {
 function showEnableNotification() {
   const progressOptions = {
     location: vscode.ProgressLocation.Notification,
-    title: "Enabling CTAutocomplete...",
+    title: "Enabling Chattriggers...",
     cancellable: false,
   };
   vscode.window.withProgress(progressOptions, async () => {
