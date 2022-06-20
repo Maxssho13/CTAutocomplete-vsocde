@@ -50,13 +50,10 @@ async function handleInitializeCommand() {
     return;
   }
 
-  const selectedLanguage: String | undefined = await vscode.window.showQuickPick(
-    ["Javascript", "Typescript"],
-    {
-      ignoreFocusOut: true,
-      placeHolder: "Module language template",
-    },
-  );
+  const selectedLanguage = await vscode.window.showQuickPick(["Javascript", "Typescript(WIP)"], {
+    ignoreFocusOut: true,
+    placeHolder: "Module language template",
+  });
   if (!selectedLanguage) return;
 
   let configCreator = vscode.workspace
@@ -98,7 +95,7 @@ async function handleInitializeCommand() {
   let metadataContent;
   let indexPath;
 
-  if (selectedLanguage === "Typescript") {
+  if (selectedLanguage === "Typescript(WIP)") {
     const tsconfigPath = vscode.Uri.file(workspacePath + "/tsconfig.json");
     const tsconfigContent = `\
 {
