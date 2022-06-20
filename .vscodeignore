@@ -9,5 +9,6 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 tsserver-plugin/**
+screenshots/**
 
 !**/tsserver-plugin/index.d.ts
