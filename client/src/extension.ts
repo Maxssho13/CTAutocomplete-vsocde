@@ -22,11 +22,12 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions,
   );
 
-  vscode.workspace.onDidChangeTextDocument(handleChangeTextDocument, null, context.subscriptions);
+  vscode.window.onDidChangeActiveTextEditor(handleChangeTextEditor, null, context.subscriptions);
   context.subscriptions.push(
     vscode.commands.registerCommand("chattriggers.initialize", handleInitializeCommand),
   );
 
+  await handleChangeTextEditor();
   const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
   if (enabled) {
     showEnableNotification();
@@ -79,7 +80,7 @@ async function handleInitializeCommand() {
 
   pluginConfig.enabled = true;
   refreshPluginConfig();
-  await handleChangeTextDocument();
+  await handleChangeTextEditor();
 
   const configuration = vscode.workspace.getConfiguration("chattriggers");
   // If automatic detection of workspaces isn't enabled and global enabled isn't set,
@@ -184,11 +185,11 @@ async function handleConfigurationChanged(event: vscode.ConfigurationChangeEvent
   }
 
   if (event.affectsConfiguration("chattriggers.detectWorkspaces")) {
-    await handleChangeTextDocument();
+    await handleChangeTextEditor();
   }
 }
 
-async function handleChangeTextDocument() {
+async function handleChangeTextEditor() {
   const configuration = vscode.workspace.getConfiguration("chattriggers");
   const detectWorkspaces = configuration.get<boolean>("detectWorkspaces");
   const enabledSetting = configuration.get<boolean>("enabled");
