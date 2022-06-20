@@ -7,6 +7,7 @@
     "type": "git",
     "url": "https://github.com/Maxssho13/Chattriggers-vscode"
   },
+  "icon": "ctlogo.png",
   "publisher": "maxssho13",
   "license": "MIT",
   "engines": {
