@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "main": "./dist/index",
   "files": [
-    "dist"
+    "dist",
+    "index.d.ts"
   ],
   "engines": {
     "vscode": "^1.64.0"

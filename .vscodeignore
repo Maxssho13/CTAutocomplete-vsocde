@@ -8,5 +8,6 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+tsserver-plugin/**
 
-!index.d.ts
+!**/tsserver-plugin/index.d.ts

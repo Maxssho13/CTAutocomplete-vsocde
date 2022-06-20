@@ -6,9 +6,8 @@ let config: PluginConfig = {
   enabled: false,
 };
 
-function init(modules: { typescript: typeof import("typescript/lib/tsserverlibrary") }) {
-  const completionsPath = path.join(__dirname, "../../../index.d.ts");
-  const ts = modules.typescript;
+function init(modules: { typescript: typeof ts }) {
+  const completionsPath = path.join(__dirname, "../index.d.ts");
 
   let pluginInfo: ts.server.PluginCreateInfo;
 
