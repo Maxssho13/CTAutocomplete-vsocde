@@ -75,13 +75,9 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm i && npm run esbuild-plugin && npm i && npm run esbuild-base",
+    "vscode:prepublish": "npm i && npm run esbuild",
     "esbuild-base": "esbuild ./client/src/extension.ts --bundle --outfile=client/dist/main.js --external:vscode --format=cjs --platform=node",
     "esbuild-plugin": "esbuild ./tsserver-plugin/src/index.ts --bundle --outfile=tsserver-plugin/dist/index.js --external:vscode --format=cjs --platform=node",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
     "esbuild": "npm run esbuild-plugin -- --sourcemap && npm run esbuild-base -- --sourcemap",
     "postinstall": "cd tsserver-plugin && npm i && cd ../client && npm i && cd .."
   },
