@@ -1,8 +1,14 @@
 {
-  "name": "vsctautocomplete",
-  "displayName": "VSCTAutocomplete",
-  "description": "",
+  "name": "chattriggers",
+  "displayName": "ChatTriggers",
+  "description": "Visual Studio Code extension for the Minecraft ChatTriggers mod.",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maxssho13/Chattriggers-vscode"
+  },
+  "publisher": "maxssho13",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.64.0"
   },
@@ -12,24 +18,24 @@
   "activationEvents": [
     "onLanguage:typescript",
     "onLanguage:javascript",
-    "onCommand:vsctautocomplete.initialize"
+    "onCommand:chattriggers.initialize"
   ],
   "main": "./client/dist/main.js",
   "contributes": {
     "configuration": [
       {
-        "title": "VSCTAutocomplete",
+        "title": "ChatTriggers",
         "properties": {
-          "vsctautocomplete.defaultCreator": {
+          "chattriggers.defaultCreator": {
             "type": "string",
             "description": "The default for the creator field used by the interactive module initialization command."
           }
         }
       },
       {
-        "title": "VSCTAutocomplete",
+        "title": "ChatTriggers",
         "properties": {
-          "vsctautocomplete.enabled": {
+          "chattriggers.enabled": {
             "type": "boolean",
             "markdownDescription": "Controls if CTAutocomplete is enabled.\n\n **Not recommended to be enabled globally.** ",
             "default": false
@@ -37,11 +43,11 @@
         }
       },
       {
-        "title": "VSCTAutocomplete",
+        "title": "ChatTriggers",
         "properties": {
-          "vsctautocomplete.detectWorkspaces": {
+          "chattriggers.detectWorkspaces": {
             "type": "boolean",
-            "markdownDescription": "Automatically detect ChatTriggers workspaces by looking for a `metadata.json` file. If not set, `vsctautocomplete.enabled` setting must be set.",
+            "markdownDescription": "Automatically detect ChatTriggers workspaces by looking for a `metadata.json` file. If not set, `chattriggers.enabled` setting must be set.",
             "default": true
           }
         }
@@ -49,7 +55,7 @@
     ],
     "commands": [
       {
-        "command": "vsctautocomplete.initialize",
+        "command": "chattriggers.initialize",
         "category": "CTAutocomplete",
         "title": "Initialize CT module"
       }
@@ -75,7 +81,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "esbuild": "npm run esbuild-plugin -- --sourcemap && npm run esbuild-base -- --sourcemap"
+    "esbuild": "npm run esbuild-plugin -- --sourcemap && npm run esbuild-base -- --sourcemap",
+    "postinstall": "cd tsserver-plugin && npm i && cd ../client && npm i && cd .."
   },
   "devDependencies": {
     "@types/node": "14.x",

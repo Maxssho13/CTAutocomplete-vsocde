@@ -24,10 +24,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeTextDocument(handleChangeTextDocument, null, context.subscriptions);
   context.subscriptions.push(
-    vscode.commands.registerCommand("vsctautocomplete.initialize", handleInitializeCommand),
+    vscode.commands.registerCommand("chattriggers.initialize", handleInitializeCommand),
   );
 
-  const enabled = vscode.workspace.getConfiguration("vsctautocomplete").get<boolean>("enabled")!;
+  const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
   if (enabled) {
     showEnableNotification();
     pluginConfig.enabled = true;
@@ -57,7 +57,7 @@ async function handleInitializeCommand() {
   if (!selectedLanguage) return;
 
   let configCreator = vscode.workspace
-    .getConfiguration("vsctautocomplete")
+    .getConfiguration("chattriggers")
     .get<string>("defaultCreator");
 
   let creator;
@@ -81,7 +81,7 @@ async function handleInitializeCommand() {
   refreshPluginConfig();
   await handleChangeTextDocument();
 
-  const configuration = vscode.workspace.getConfiguration("vsctautocomplete");
+  const configuration = vscode.workspace.getConfiguration("chattriggers");
   // If automatic detection of workspaces isn't enabled and global enabled isn't set,
   // then set workspace enabled to true.
   if (!configuration.get<boolean>("detectWorkspaces") && !configuration.get<boolean>("enabled")) {
@@ -173,8 +173,8 @@ async function handleInitializeCommand() {
 }
 
 async function handleConfigurationChanged(event: vscode.ConfigurationChangeEvent) {
-  if (event.affectsConfiguration("vsctautocomplete.enabled")) {
-    const enabled = vscode.workspace.getConfiguration("vsctautocomplete").get<boolean>("enabled")!;
+  if (event.affectsConfiguration("chattriggers.enabled")) {
+    const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
 
     if (enabled && !pluginConfig.enabled) {
       showEnableNotification();
@@ -183,13 +183,13 @@ async function handleConfigurationChanged(event: vscode.ConfigurationChangeEvent
     refreshPluginConfig();
   }
 
-  if (event.affectsConfiguration("vsctautocomplete.detectWorkspaces")) {
+  if (event.affectsConfiguration("chattriggers.detectWorkspaces")) {
     await handleChangeTextDocument();
   }
 }
 
 async function handleChangeTextDocument() {
-  const configuration = vscode.workspace.getConfiguration("vsctautocomplete");
+  const configuration = vscode.workspace.getConfiguration("chattriggers");
   const detectWorkspaces = configuration.get<boolean>("detectWorkspaces");
   const enabledSetting = configuration.get<boolean>("enabled");
 
