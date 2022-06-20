@@ -10,5 +10,6 @@ vsc-extension-quickstart.md
 **/*.ts
 tsserver-plugin/**
 screenshots/**
+secrets.txt
 
 !**/tsserver-plugin/index.d.ts
