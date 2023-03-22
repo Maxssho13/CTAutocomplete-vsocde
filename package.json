@@ -48,7 +48,7 @@
         "properties": {
           "chattriggers.detectWorkspaces": {
             "type": "boolean",
-            "markdownDescription": "Automatically detect ChatTriggers workspaces by looking for a `metadata.json` file. If not set, `chattriggers.enabled` setting must be set.",
+            "markdownDescription": "Automatically detect ChatTriggers workspaces by looking for a `metadata.json` file. If not set, `chattriggers.enabled` setting must be set. Enabled by default.",
             "default": true
           }
         }
