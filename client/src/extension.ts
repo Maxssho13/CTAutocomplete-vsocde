@@ -1,6 +1,7 @@
 import { TextEncoder } from "util";
 import * as vscode from "vscode";
 import { PluginConfig, TsLanguageFeaturesApiV0, TsLanguageFeatures } from "../../types";
+import { exec } from "child_process";
 
 const pluginConfig: PluginConfig = {
   enabled: false,
@@ -76,6 +77,17 @@ async function handleInitializeCommand() {
   }
   if (!creator) return;
 
+  const initializeGit = await vscode.window.showQuickPick(["Yes", "No"], {
+    ignoreFocusOut: true,
+    title: "Initialize Empty Git Repository",
+    placeHolder: "Initialize Empty Git Repository",
+  });
+  if (initializeGit == null) return;
+
+  if (initializeGit === "Yes") {
+    bootstrapGit();
+  }
+
   enablePlugin();
 
   // If automatic detection of workspaces isn't enabled and global enabled isn't set,
@@ -91,6 +103,23 @@ async function handleInitializeCommand() {
     await bootstrapJavascript(name, creator);
   }
   await handleChangeTextEditor();
+}
+
+async function bootstrapGit() {
+  const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+
+  exec("git init", { cwd: workspacePath }, async err => {
+    if (err) {
+      vscode.window.showErrorMessage("Unable to initialize git repository");
+      return;
+    }
+
+    const workspace = new vscode.WorkspaceEdit();
+    const gitIgnorePath = vscode.Uri.file(workspacePath + "/.gitignore");
+    workspace.createFile(gitIgnorePath, { ignoreIfExists: true, overwrite: false });
+    await vscode.workspace.applyEdit(workspace);
+    await vscode.workspace.fs.writeFile(gitIgnorePath, new TextEncoder().encode(".vscode/\ndist/"));
+  });
 }
 
 async function bootstrapTypescript(moduleName: string, creatorName: string) {
