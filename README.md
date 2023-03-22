@@ -31,6 +31,10 @@ None are known right now but this extension is still very young and there are li
 
 ## Release Notes
 
+### 0.0.3
+
+- Update typings for real this time.
+
 ### 0.0.2
 
 - Fixed bug where extension would not activate until typing.
