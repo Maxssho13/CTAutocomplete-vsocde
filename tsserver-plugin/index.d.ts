@@ -13,6 +13,8 @@ declare global {
   const TriggerRegister: ITriggerRegister;
   const InteractAction: typeof ForgePlayerInteractEvent.Action;
   const Console: Console;
+  const Client: Client;
+  const NBT: NBT;
   const Config: Config;
   const ChatTriggers: Reference;
   const console: console;
@@ -35,7 +37,19 @@ declare global {
   const GL44: JavaGL44;
   const GL45: JavaGL45;
 
+  const OnChatTrigger: typeof ChatTrigger;
+  const OnCommandTrigger: typeof CommandTrigger;
+  const OnRegularTrigger: typeof RegularTrigger;
+  const OnRenderTrigger: typeof EventTrigger;
+  const OnSoundPlayTrigger: typeof SoundPlayTrigger;
+  const OnStepTrigger: typeof StepTrigger;
+  const OnTrigger: typeof Trigger;
+  const Priority: typeof Trigger.Priority;
+
   // obfuscated type types
+  type MCTScoreboard = MCScoreboard;
+  type MCTScoreObjective = MCScoreObjective;
+  type MCTScorePlayerTeam = MCScorePlayerTeam;
   type MCTTileEntity = MCTileEntity;
   type MCTGuiContainer = MCGuiContainer;
   type MCTSlot = MCSlot;
@@ -133,17 +147,10 @@ declare global {
 
   function cancel(
     event:
-      | CancellableEvent
-      | ForgeBlockEvent
-      | (string | ForgeClientChatReceivedEvent)
-      | ForgeClientChatReceivedEvent
-      | ForgeDrawBlockHighlightEvent
-      | ForgeEntityItemPickupEvent
-      | ForgeGuiOpenEvent
-      | ForgeNoteBlockEvent
       | ForgePlaySoundEvent
-      | ForgePlayerInteractEvent
-      | ForgeRenderGameOverlayEvent,
+      | CancellableEvent
+      | ForgeEvent
+      | (string | ForgeClientChatReceivedEvent),
   ): void;
   // extend prototype
   interface String {
@@ -170,9 +177,9 @@ declare global {
     jump: number,
   ): number;
 
-  function sync(func: Function, lock: any): object;
+  function sync(func: Function, lock: any): any;
 
-  function print(toPrint: any): void;
+  function print(toPrint: any, end?: string, color?: JavaColor): void;
 
   function setTimeout(func: () => void, delay: number): void;
 
@@ -182,44 +189,70 @@ declare global {
     easeColor(to: number, speed: number, jump: number): number;
   }
 
+  enum LogType {
+    INFO,
+    WARN,
+    ERROR,
+  }
+
+  class Slot {
+    constructor(mcSlot: MCSlot);
+
+    readonly mcSlot: MCSlot;
+
+    getMcSlot(): MCSlot;
+
+    getIndex(): number;
+
+    getDisplayX(): number;
+
+    getDisplayY(): number;
+
+    getInventory(): Inventory;
+
+    getItem(): Item | null;
+
+    toString(): string;
+  }
+
   class Renderer {
-    readonly colorized: long;
+    readonly colorized: number;
 
-    BLACK: long;
-    static BLACK: long;
-    DARK_BLUE: long;
-    static DARK_BLUE: long;
-    DARK_GREEN: long;
-    static DARK_GREEN: long;
-    DARK_AQUA: long;
-    static DARK_AQUA: long;
-    DARK_RED: long;
-    static DARK_RED: long;
-    DARK_PURPLE: long;
-    static DARK_PURPLE: long;
-    GOLD: long;
-    static GOLD: long;
-    GRAY: long;
-    static GRAY: long;
-    DARK_GRAY: long;
-    static DARK_GRAY: long;
-    BLUE: long;
-    static BLUE: long;
-    GREEN: long;
-    static GREEN: long;
-    AQUA: long;
-    static AQUA: long;
-    RED: long;
-    static RED: long;
-    LIGHT_PURPLE: long;
-    static LIGHT_PURPLE: long;
-    YELLOW: long;
-    static YELLOW: long;
-    WHITE: long;
-    static WHITE: long;
+    BLACK: number;
+    static BLACK: number;
+    DARK_BLUE: number;
+    static DARK_BLUE: number;
+    DARK_GREEN: number;
+    static DARK_GREEN: number;
+    DARK_AQUA: number;
+    static DARK_AQUA: number;
+    DARK_RED: number;
+    static DARK_RED: number;
+    DARK_PURPLE: number;
+    static DARK_PURPLE: number;
+    GOLD: number;
+    static GOLD: number;
+    GRAY: number;
+    static GRAY: number;
+    DARK_GRAY: number;
+    static DARK_GRAY: number;
+    BLUE: number;
+    static BLUE: number;
+    GREEN: number;
+    static GREEN: number;
+    AQUA: number;
+    static AQUA: number;
+    RED: number;
+    static RED: number;
+    LIGHT_PURPLE: number;
+    static LIGHT_PURPLE: number;
+    YELLOW: number;
+    static YELLOW: number;
+    WHITE: number;
+    static WHITE: number;
 
-    getColor(color: int): long;
-    static getColor(color: int): long;
+    getColor(color: number): number;
+    static getColor(color: number): number;
 
     getFontRenderer(): MCFontRenderer;
     static getFontRenderer(): MCFontRenderer;
@@ -227,121 +260,136 @@ declare global {
     getRenderManager(): MCRenderManager;
     static getRenderManager(): MCRenderManager;
 
-    getStringWidth(text: string): int;
-    static getStringWidth(text: string): int;
+    getStringWidth(text: string): number;
+    static getStringWidth(text: string): number;
 
-    color(red: long, green: long, blue: long, alpha?: long): long;
-    static color(red: long, green: long, blue: long, alpha?: long): long;
+    color(red: number, green: number, blue: number, alpha?: number): number;
+    static color(
+      red: number,
+      green: number,
+      blue: number,
+      alpha?: number,
+    ): number;
 
-    getRainbow(step: float, speed?: float): long;
-    static getRainbow(step: float, speed?: float): long;
+    getRainbow(step: number, speed?: number): number;
+    static getRainbow(step: number, speed?: number): number;
 
-    getRainbowColors(step: float, speed?: float): int[];
-    static getRainbowColors(step: float, speed?: float): int[];
+    getRainbowColors(step: number, speed?: number): number[];
+    static getRainbowColors(step: number, speed?: number): number[];
 
     retainTransforms(retain: boolean): void;
     static retainTransforms(retain: boolean): void;
 
-    translate(x: float, y: float, z?: float): void;
-    static translate(x: float, y: float, z?: float): void;
+    translate(x: number, y: number, z?: number): void;
+    static translate(x: number, y: number, z?: number): void;
 
-    scale(scaleX: float, scaleY?: float): void;
-    static scale(scaleX: float, scaleY?: float): void;
+    scale(scaleX: number, scaleY?: number): void;
+    static scale(scaleX: number, scaleY?: number): void;
 
-    rotate(angle: float): void;
-    static rotate(angle: float): void;
+    rotate(angle: number): void;
+    static rotate(angle: number): void;
 
-    colorize(red: float, green: float, blue: float, alpha?: float): void;
-    static colorize(red: float, green: float, blue: float, alpha?: float): void;
+    colorize(red: number, green: number, blue: number, alpha?: number): void;
+    static colorize(
+      red: number,
+      green: number,
+      blue: number,
+      alpha?: number,
+    ): void;
 
-    setDrawMode(drawMode: int): Renderer;
-    static setDrawMode(drawMode: int): Renderer;
+    setDrawMode(drawMode: number): Renderer;
+    static setDrawMode(drawMode: number): Renderer;
 
-    getDrawMode(): int;
-    static getDrawMode(): int;
+    getDrawMode(): number;
+    static getDrawMode(): number;
 
-    fixAlpha(color: long): long;
-    static fixAlpha(color: long): long;
+    fixAlpha(color: number): number;
+    static fixAlpha(color: number): number;
 
     drawRect(
-      color: long,
-      x: float,
-      y: float,
-      width: float,
-      height: float,
+      color: number,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
     ): void;
     static drawRect(
-      color: long,
-      x: float,
-      y: float,
-      width: float,
-      height: float,
+      color: number,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
     ): void;
 
-    drawShape(color: long, ...vertexes: float[][]): void;
-    static drawShape(color: long, ...vertexes: float[][]): void;
+    drawShape(color: number, ...vertexes: number[][]): void;
+    static drawShape(color: number, ...vertexes: number[][]): void;
 
     drawLine(
-      color: long,
-      x1: float,
-      y1: float,
-      x2: float,
-      y2: float,
-      thickness: float,
-      drawMode?: int,
+      color: number,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      thickness: number,
+      drawMode?: number,
     ): void;
     static drawLine(
-      color: long,
-      x1: float,
-      y1: float,
-      x2: float,
-      y2: float,
-      thickness: float,
-      drawMode?: int,
+      color: number,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      thickness: number,
+      drawMode?: number,
     ): void;
 
     drawCircle(
-      color: long,
-      x: float,
-      y: float,
-      radius: float,
-      steps: int,
-      drawMode?: int,
+      color: number,
+      x: number,
+      y: number,
+      radius: number,
+      steps: number,
+      drawMode?: number,
     ): void;
     static drawCircle(
-      color: long,
-      x: float,
-      y: float,
-      radius: float,
-      steps: int,
-      drawMode?: int,
+      color: number,
+      x: number,
+      y: number,
+      radius: number,
+      steps: number,
+      drawMode?: number,
     ): void;
 
-    drawString(text: string, x: float, y: float): void;
-    static drawString(text: string, x: float, y: float): void;
+    drawString(text: string, x: number, y: number, shadow?: boolean): void;
+    static drawString(
+      text: string,
+      x: number,
+      y: number,
+      shadow?: boolean,
+    ): void;
 
-    drawStringWithShadow(text: string, x: float, y: float): void;
-    static drawStringWithShadow(text: string, x: float, y: float): void;
+    drawStringWithShadow(text: string, x: number, y: number): void;
+    static drawStringWithShadow(text: string, x: number, y: number): void;
 
     drawImage(
       image: Image,
-      x: double,
-      y: double,
-      width: double,
-      height: double,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
     ): void;
     static drawImage(
       image: Image,
-      x: double,
-      y: double,
-      width: double,
-      height: double,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
     ): void;
 
     drawPlayer(
       player: PlayerMP | MCEntityPlayer | MCEntityLivingBase,
-      x: int,
-      y: int,
+      x: number,
+      y: number,
       rotate?: boolean,
       showNametag?: boolean,
       showCape?: boolean,
@@ -350,8 +398,8 @@ declare global {
     ): void;
     static drawPlayer(
       player: PlayerMP | MCEntityPlayer | MCEntityLivingBase,
-      x: int,
-      y: int,
+      x: number,
+      y: number,
       rotate?: boolean,
       showNametag?: boolean,
       showCape?: boolean,
@@ -365,28 +413,28 @@ declare global {
 
   namespace Renderer {
     class screen {
-      getWidth(): int;
-      static getWidth(): int;
+      getWidth(): number;
+      static getWidth(): number;
 
-      getHeight(): int;
-      static getHeight(): int;
+      getHeight(): number;
+      static getHeight(): number;
 
-      getScale(): int;
-      static getScale(): int;
+      getScale(): number;
+      static getScale(): number;
     }
   }
 
   class Shape {
-    constructor(color: int);
+    constructor(color: number);
 
     copy(): Shape;
 
     clone(): Shape;
 
-    getColor(): int;
-    setColor(color: int): Shape;
+    getColor(): number;
+    setColor(color: number): Shape;
 
-    getDrawMode(): int;
+    getDrawMode(): number;
 
     /**
      * Sets the GL draw mode of the shape. Possible draw modes are:
@@ -401,82 +449,88 @@ declare global {
      * 8 = quad strip
      * 9 = polygon
      */
-    setDrawMode(drawMode: int): Shape;
+    setDrawMode(drawMode: number): Shape;
 
     getVertexes(): Vector2f[];
 
-    addVertex(x: float, y: float): Shape;
+    addVertex(x: number, y: number): Shape;
 
-    insertVertex(index: int, x: float, y: float): Shape;
+    insertVertex(index: number, x: number, y: number): Shape;
 
-    removeVertex(index: int): Shape;
+    removeVertex(index: number): Shape;
 
     /**
      * Sets the shape as a line pointing from [x1, y1] to [x2, y2] with a thickness
      */
     setLine(
-      x1: float,
-      y1: float,
-      x2: float,
-      y2: float,
-      thickness: float,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      thickness: number,
     ): Shape;
 
     /**
      * Sets the shape as a circle with a center at [x, y]
      * with radius and number of steps around the circle
      */
-    setCircle(x: float, y: float, radius: float, steps: int): Shape;
+    setCircle(x: number, y: number, radius: number, steps: number): Shape;
 
     draw(): Shape;
   }
 
   class Rectangle {
-    constructor(color: long, x: float, y: float, width: float, height: float);
+    constructor(
+      color: number,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+    );
 
-    getColor(): long;
-    setColor(color: long): Rectangle;
+    getColor(): number;
+    setColor(color: number): Rectangle;
 
-    getX(): float;
-    setX(x: float): Rectangle;
+    getX(): number;
+    setX(x: number): Rectangle;
 
-    getY(): float;
-    setY(y: float): Rectangle;
+    getY(): number;
+    setY(y: number): Rectangle;
 
-    getWidth(): float;
-    setWidth(width: float): Rectangle;
+    getWidth(): number;
+    setWidth(width: number): Rectangle;
 
-    getHeight(): float;
-    setHeight(height: float): Rectangle;
+    getHeight(): number;
+    setHeight(height: number): Rectangle;
 
     isShadow(): boolean;
     setShadow(shadow: boolean): Rectangle;
 
     getShadowOffset(): Vector2f;
 
-    getShadowOffsetX(): float;
-    getShadowOffsetY(): float;
+    getShadowOffsetX(): number;
+    getShadowOffsetY(): number;
 
-    setShadowOffset(x: float, y: float): Rectangle;
+    setShadowOffset(x: number, y: number): Rectangle;
 
-    setShadowOffsetX(x: float): Rectangle;
-    setShadowOffsetY(y: float): Rectangle;
+    setShadowOffsetX(x: number): Rectangle;
+    setShadowOffsetY(y: number): Rectangle;
 
-    getShadowColor(): long;
-    setShadowColor(color: long): Rectangle;
+    getShadowColor(): number;
+    setShadowColor(color: number): Rectangle;
 
-    setShadow(color: long, x: float, y: float): Rectangle;
+    setShadow(color: number, x: number, y: number): Rectangle;
 
     getOutline(): boolean;
     setOutline(outline: boolean): Rectangle;
 
-    getOutlineColor(): long;
-    setOutlineColor(color: long): Rectangle;
+    getOutlineColor(): number;
+    setOutlineColor(color: number): Rectangle;
 
-    getThickness(): float;
-    setThickness(thickness: float): Rectangle;
+    getThickness(): number;
+    setThickness(thickness: number): Rectangle;
 
-    setOutline(color: long, thickness: float): Rectangle;
+    setOutline(color: number, thickness: number): Rectangle;
 
     draw(): Rectangle;
   }
@@ -548,10 +602,10 @@ declare global {
     popMatrix(): Tessellator;
     static popMatrix(): Tessellator;
 
-    static getPartialTicks(): float;
-    getPartialTicks(): float;
-    static setPartialTicks(p: float): void;
-    setPartialTicks(p: float): void;
+    static getPartialTicks(): number;
+    getPartialTicks(): number;
+    static setPartialTicks(p: number): void;
+    setPartialTicks(p: number): void;
 
     /**
      * Binds a texture to the client for the Tessellator to use.
@@ -577,7 +631,7 @@ declare global {
      * @return the Tessellator to allow for method chaining
      * @see com.chattriggers.ctjs.minecraft.libs.renderer.Shape.setDrawMode
      */
-    begin(drawMode?: int, textured?: boolean): Tessellator;
+    begin(drawMode?: number, textured?: boolean): Tessellator;
     /**
      * Begin drawing with the Tessellator
      * with default draw mode of quads and textured
@@ -587,7 +641,7 @@ declare global {
      * @return the Tessellator to allow for method chaining
      * @see com.chattriggers.ctjs.minecraft.libs.renderer.Shape.setDrawMode
      */
-    static begin(drawMode?: int, textured?: boolean): Tessellator;
+    static begin(drawMode?: number, textured?: boolean): Tessellator;
 
     /**
      * Colorize the Tessellator.
@@ -598,7 +652,12 @@ declare global {
      * @param alpha the alpha value between 0 and 1
      * @return the Tessellator to allow for method chaining
      */
-    colorize(red: float, green: float, blue: float, alpha?: float): Tessellator;
+    colorize(
+      red: number,
+      green: number,
+      blue: number,
+      alpha?: number,
+    ): Tessellator;
     /**
      * Colorize the Tessellator.
      *
@@ -609,10 +668,10 @@ declare global {
      * @return the Tessellator to allow for method chaining
      */
     static colorize(
-      red: float,
-      green: float,
-      blue: float,
-      alpha?: float,
+      red: number,
+      green: number,
+      blue: number,
+      alpha?: number,
     ): Tessellator;
 
     /**
@@ -625,7 +684,7 @@ declare global {
      * @param z if the rotation is around the z axis
      * @return the Tessellator to allow for method chaining
      */
-    rotate(angle: float, x: float, y: float, z: float): Tessellator;
+    rotate(angle: number, x: number, y: number, z: number): Tessellator;
     /**
      * Rotates the Tessellator in 3d space.
      * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.rotate]
@@ -636,7 +695,7 @@ declare global {
      * @param z if the rotation is around the z axis
      * @return the Tessellator to allow for method chaining
      */
-    static rotate(angle: float, x: float, y: float, z: float): Tessellator;
+    static rotate(angle: number, x: number, y: number, z: number): Tessellator;
 
     /**
      * Translates the Tessellator in 3d space.
@@ -647,7 +706,7 @@ declare global {
      * @param z the z position
      * @return the Tessellator to allow for method chaining
      */
-    translate(x: float, y: float, z: float): Tessellator;
+    translate(x: number, y: number, z: number): Tessellator;
     /**
      * Translates the Tessellator in 3d space.
      * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.translate]
@@ -657,7 +716,7 @@ declare global {
      * @param z the z position
      * @return the Tessellator to allow for method chaining
      */
-    static translate(x: float, y: float, z: float): Tessellator;
+    static translate(x: number, y: number, z: number): Tessellator;
 
     /**
      * Scales the Tessellator in 3d space.
@@ -668,7 +727,7 @@ declare global {
      * @param z scale in the z direction
      * @return the Tessellator to allow for method chaining
      */
-    scale(x: float, y?: float, z?: float): Tessellator;
+    scale(x: number, y?: number, z?: number): Tessellator;
     /**
      * Scales the Tessellator in 3d space.
      * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.scale]
@@ -678,7 +737,7 @@ declare global {
      * @param z scale in the z direction
      * @return the Tessellator to allow for method chaining
      */
-    static scale(x: float, y?: float, z?: float): Tessellator;
+    static scale(x: number, y?: number, z?: number): Tessellator;
 
     /**
      * Sets a new vertex in the Tessellator.
@@ -688,7 +747,7 @@ declare global {
      * @param z the z position
      * @return the Tessellator to allow for method chaining
      */
-    pos(x: float, y: float, z: float): Tessellator;
+    pos(x: number, y: number, z: number): Tessellator;
     /**
      * Sets a new vertex in the Tessellator.
      *
@@ -697,7 +756,7 @@ declare global {
      * @param z the z position
      * @return the Tessellator to allow for method chaining
      */
-    static pos(x: float, y: float, z: float): Tessellator;
+    static pos(x: number, y: number, z: number): Tessellator;
 
     /**
      * Sets the texture location on the last defined vertex.
@@ -707,7 +766,7 @@ declare global {
      * @param v the v position in the texture
      * @return the Tessellator to allow for method chaining
      */
-    tex(u: float, v: float): Tessellator;
+    tex(u: number, v: number): Tessellator;
     /**
      * Sets the texture location on the last defined vertex.
      * Use directly after using [Tessellator.pos]
@@ -716,7 +775,7 @@ declare global {
      * @param v the v position in the texture
      * @return the Tessellator to allow for method chaining
      */
-    static tex(u: float, v: float): Tessellator;
+    static tex(u: number, v: number): Tessellator;
 
     /**
      * Finalizes and draws the Tessellator.
@@ -734,7 +793,7 @@ declare global {
      * @param z the Z coordinate
      * @return the Vector3f position to render at
      */
-    getRenderPos(x: float, y: float, z: float): Vector3f;
+    getRenderPos(x: number, y: number, z: number): Vector3f;
     /**
      * Gets a fixed render position from x, y, and z inputs adjusted with partial ticks
      * @param x the X coordinate
@@ -742,7 +801,7 @@ declare global {
      * @param z the Z coordinate
      * @return the Vector3f position to render at
      */
-    static getRenderPos(x: float, y: float, z: float): Vector3f;
+    static getRenderPos(x: number, y: number, z: number): Vector3f;
 
     /**
      * Renders floating lines of text in the 3D world at a specific position.
@@ -758,12 +817,12 @@ declare global {
      */
     drawString(
       text: string,
-      x: float,
-      y: float,
-      z: float,
-      color?: int,
+      x: number,
+      y: number,
+      z: number,
+      color?: number,
       renderBlackBox?: boolean,
-      scale?: float,
+      scale?: number,
       increase?: boolean,
     ): void;
     /**
@@ -780,12 +839,12 @@ declare global {
      */
     static drawString(
       text: string,
-      x: float,
-      y: float,
-      z: float,
-      color?: int,
+      x: number,
+      y: number,
+      z: number,
+      color?: number,
       renderBlackBox?: boolean,
-      scale?: float,
+      scale?: number,
       increase?: boolean,
     ): void;
   }
@@ -802,12 +861,12 @@ declare global {
      * @return the re-mapped number
      */
     map(
-      number: float,
-      in_min: float,
-      in_max: float,
-      out_min: float,
-      out_max: float,
-    ): float;
+      number: number,
+      in_min: number,
+      in_max: number,
+      out_min: number,
+      out_max: number,
+    ): number;
     /**
      * Maps a number from one range to another.
      *
@@ -819,12 +878,12 @@ declare global {
      * @return the re-mapped number
      */
     static map(
-      number: float,
-      in_min: float,
-      in_max: float,
-      out_min: float,
-      out_max: float,
-    ): float;
+      number: number,
+      in_min: number,
+      in_max: number,
+      out_min: number,
+      out_max: number,
+    ): number;
 
     /**
      * Clamps a floating number between two values.
@@ -834,7 +893,7 @@ declare global {
      * @param max the maximum
      * @return the clamped number
      */
-    clampFloat(number: float, min: float, max: float): float;
+    clampFloat(number: number, min: number, max: number): number;
     /**
      * Clamps a floating number between two values.
      *
@@ -843,7 +902,7 @@ declare global {
      * @param max the maximum
      * @return the clamped number
      */
-    static clampFloat(number: float, min: float, max: float): float;
+    static clampFloat(number: number, min: number, max: number): number;
 
     /**
      * Clamps an integer number between two values.
@@ -853,7 +912,7 @@ declare global {
      * @param max the maximum
      * @return the clamped number
      */
-    clamp(number: int, min: int, max: int): int;
+    clamp(number: number, min: number, max: number): number;
     /**
      * Clamps an integer number between two values.
      *
@@ -862,7 +921,7 @@ declare global {
      * @param max the maximum
      * @return the clamped number
      */
-    static clamp(number: int, min: int, max: int): int;
+    static clamp(number: number, min: number, max: number): number;
   }
   /**
    * Instances a new Sound with certain properties. These properties
@@ -904,9 +963,9 @@ declare global {
      *
      * @param volume New volume, float value ( 0.0f - 1.0f ).
      */
-    setVolume(volume: float): Sound;
+    setVolume(volume: number): Sound;
 
-    getVolume(): float;
+    getVolume(): number;
 
     /**
      * Updates the position of this sound
@@ -915,16 +974,16 @@ declare global {
      * @param y the y coordinate
      * @param z the z coordinate
      */
-    setPosition(x: float, y: float, z: float): Sound;
+    setPosition(x: number, y: number, z: number): Sound;
 
     /**
      * Sets this sound's pitch.
      *
      * @param pitch A float value ( 0.5f - 2.0f ).
      */
-    setPitch(pitch: float): Sound;
+    setPitch(pitch: number): Sound;
 
-    getPitch(): float;
+    getPitch(): number;
 
     /**
      * Sets the attenuation (fade out over space) of the song.
@@ -935,7 +994,7 @@ declare global {
      *
      * @param model the model
      */
-    setAttenuation(model: int): Sound;
+    setAttenuation(model: number): Sound;
 
     /**
      * Plays/resumes the sound
@@ -948,12 +1007,12 @@ declare global {
     pause(): void;
 
     /**
-     * Completely stops the song
+     * Completely stops the sound
      */
     stop(): void;
 
     /**
-     * I really don't know what this does
+     * Immediately restarts the sound
      */
     rewind(): void;
   }
@@ -985,32 +1044,32 @@ declare global {
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * volume of the sound, see {@link #setVolume(float)}
      **/
-    volume?: float;
+    volume?: number;
     /**
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * pitch of the sound, see {@link #setPitch(float)}
      */
-    pitch?: float;
+    pitch?: number;
     /**
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * location of the sound, see {@link #setPosition(float, float, float)}. Defaults to the players position
      */
-    x?: float;
+    x?: number;
     /**
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * location of the sound, see {@link #setPosition(float, float, float)}. Defaults to the players position
      */
-    y?: float;
+    y?: number;
     /**
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * location of the sound, see {@link #setPosition(float, float, float)}. Defaults to the players position
      */
-    z?: float;
+    z?: number;
     /**
      * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
      * fade out model of the sound, see {@link #setAttenuation(int)}
      */
-    attenuation?: int;
+    attenuation?: number;
   }
 
   class Chunk {
@@ -1109,11 +1168,11 @@ declare global {
      */
     getLocalizedName(): string;
 
-    getAmplifier(): int;
+    getAmplifier(): number;
 
-    getDuration(): int;
+    getDuration(): number;
 
-    getID(): int;
+    getID(): number;
 
     isAmbient(): boolean;
 
@@ -1286,16 +1345,16 @@ declare global {
     constructor(rawNBT: MCNBTBase);
     readonly rawNBT: MCNBTBase;
     /**Gets the type byte for the tag. */
-    getId(): byte;
+    getId(): number;
     /**Creates a clone of the tag. */
     copy(): MCNBTBase;
     /**Return whether this compound has no tags. */
     hasNoTags(): boolean;
     hasTags(): boolean;
 
-    equals(other: object): boolean;
+    equals(other: any): boolean;
 
-    hashCode(): int;
+    hashCode(): number;
 
     toString(): string;
   }
@@ -1315,17 +1374,17 @@ declare global {
 
     getTag(key: string): NBTBase | NBTTagCompound | null;
 
-    getTagId(key: string): byte;
+    getTagId(key: string): number;
 
-    getByte(key: string): byte;
-    getShort(key: string): short;
-    getInteger(key: string): int;
-    getLong(key: string): long;
-    getFloat(key: string): float;
-    getDouble(key: string): double;
+    getByte(key: string): number;
+    getShort(key: string): number;
+    getInteger(key: string): number;
+    getLong(key: string): number;
+    getFloat(key: string): number;
+    getDouble(key: string): number;
     getString(key: string): string;
-    getByteArray(key: string): byte[];
-    getIntArray(key: string): int[];
+    getByteArray(key: string): number[];
+    getIntArray(key: string): number[];
     getBoolean(key: string): boolean;
     getCompoundTag(key: string): NBTTagCompound;
     getTagList(key: string, type: number): NBTTagList;
@@ -1334,46 +1393,74 @@ declare global {
 
     get(key: string): NBTBase;
 
+    setNBTBase(key: string, value: NBTBase): NBTTagCompound;
+
+    setNBTBase(key: string, value: MCNBTBase): NBTTagCompound;
+
+    setByte(key: string, value: number): NBTTagCompound;
+
+    setShort(key: string, value: number): NBTTagCompound;
+
+    setInteger(key: string, value: number): NBTTagCompound;
+
+    setLong(key: string, value: number): NBTTagCompound;
+
+    setFloat(key: string, value: number): NBTTagCompound;
+
+    setDouble(key: string, value: number): NBTTagCompound;
+
+    setString(key: string, value: string): NBTTagCompound;
+
+    setByteArray(key: string, value: number[]): NBTTagCompound;
+
+    setBoolean(key: string, value: boolean): NBTTagCompound;
+
     set(key: string, value: NBTDataType): NBTTagCompound;
 
     removeTag(key: string): NBTTagCompound;
 
-    toObject(): object;
+    toObject(): NBTType;
   }
 
   class NBTTagList extends NBTBase {
     constructor(rawNBT: MCNBTTagList);
     readonly rawNBT: MCNBTTagList;
 
-    tagCount: int;
-    getTagCount(): int;
+    tagCount: number;
+    getTagCount(): number;
 
     appendTag(nbt: NBTBase): NBTTagList;
 
     appendTag(nbt: MCNBTBase): NBTTagList;
 
-    set(id: int, nbt: NBTBase): void;
+    set(id: number, nbt: NBTBase): void;
 
-    set(id: int, nbt: MCNBTBase): void;
+    set(id: number, nbt: MCNBTBase): void;
 
-    removeTag(index: int): MCNBTBase;
+    insertTag(index: number, nbt: NBTBase): NBTTagList;
 
-    getCompoundTagAt(index: int): MCNBTTagCompound;
+    insertTag(index: number, nbt: MCNBTBase): NBTTagList;
 
-    getIntArrayAt(index: int): int[];
+    removeTag(index: number): MCNBTBase;
 
-    getDoubleAt(index: int): double;
+    getCompoundTagAt(index: number): MCNBTTagCompound;
 
-    getFloatAt(index: int): float;
+    getIntArrayAt(index: number): number[];
 
-    getStringTagAt(index: int): string;
+    getDoubleAt(index: number): number;
 
-    get(index: int): MCNBTBase;
+    getFloatAt(index: number): number;
+
+    getStringTagAt(index: number): string;
+
+    get(index: number): MCNBTBase;
 
     get(
-      index: int,
+      index: number,
       type: NBTTagCompound["NBTDataType"],
-    ): float | double | string | int[] | MCNBTTagCompound | NBTBase;
+    ): number | string | number[] | MCNBTTagCompound | NBTBase;
+
+    toArray(): NBTType[];
   }
 
   class Player {
@@ -1395,14 +1482,17 @@ declare global {
      */
     static getPlayer(): MCEntityPlayerSP;
 
-    getX(): double;
-    static getX(): double;
+    getTeam(): Team | null;
+    static getTeam(): Team | null;
 
-    getY(): double;
-    static getY(): double;
+    getX(): number;
+    static getX(): number;
 
-    getZ(): double;
-    static getZ(): double;
+    getY(): number;
+    static getY(): number;
+
+    getZ(): number;
+    static getZ(): number;
 
     /**
      * Gets the player's x motion.
@@ -1410,14 +1500,14 @@ declare global {
      *
      * @return the player's x motion
      */
-    getMotionX(): double;
+    getMotionX(): number;
     /**
      * Gets the player's x motion.
      * This is the amount the player will move in the x direction next tick.
      *
      * @return the player's x motion
      */
-    static getMotionX(): double;
+    static getMotionX(): number;
 
     /**
      * Gets the player's y motion.
@@ -1425,14 +1515,14 @@ declare global {
      *
      * @return the player's y motion
      */
-    getMotionY(): double;
+    getMotionY(): number;
     /**
      * Gets the player's y motion.
      * This is the amount the player will move in the y direction next tick.
      *
      * @return the player's y motion
      */
-    static getMotionY(): double;
+    static getMotionY(): number;
 
     /**
      * Gets the player's z motion.
@@ -1440,53 +1530,53 @@ declare global {
      *
      * @return the player's z motion
      */
-    getMotionZ(): double;
+    getMotionZ(): number;
     /**
      * Gets the player's z motion.
      * This is the amount the player will move in the z direction next tick.
      *
      * @return the player's z motion
      */
-    static getMotionZ(): double;
+    static getMotionZ(): number;
 
     /**
      * Gets the player's camera pitch.
      *
      * @return the player's camera pitch
      */
-    getPitch(): float;
+    getPitch(): number;
     /**
      * Gets the player's camera pitch.
      *
      * @return the player's camera pitch
      */
-    static getPitch(): float;
+    static getPitch(): number;
 
     /**
      * Gets the player's camera yaw.
      *
      * @return the player's camera yaw
      */
-    getYaw(): float;
+    getYaw(): number;
     /**
      * Gets the player's camera yaw.
      *
      * @return the player's camera yaw
      */
-    static getYaw(): float;
+    static getYaw(): number;
 
     /**
      * Gets the player's yaw rotation without wrapping.
      *
      * @return the yaw
      */
-    getRawYaw(): float;
+    getRawYaw(): number;
     /**
      * Gets the player's yaw rotation without wrapping.
      *
      * @return the yaw
      */
-    static getRawYaw(): float;
+    static getRawYaw(): number;
 
     /**
      * Gets the player's username.
@@ -1504,17 +1594,20 @@ declare global {
     getUUID(): string;
     static getUUID(): string;
 
-    getHP(): float;
-    static getHP(): float;
+    getUUIDObj(): JavaUUID;
+    static getUUIDObj(): JavaUUID;
 
-    getHunger(): int;
-    static getHunger(): int;
+    getHP(): number;
+    static getHP(): number;
 
-    getSaturation(): int;
-    static getSaturation(): int;
+    getHunger(): number;
+    static getHunger(): number;
 
-    getArmorPoints(): int;
-    static getArmorPoints(): int;
+    getSaturation(): number;
+    static getSaturation(): number;
+
+    getArmorPoints(): number;
+    static getArmorPoints(): number;
 
     /**
      * Gets the player's air level.
@@ -1525,7 +1618,7 @@ declare global {
      *
      * @return the player's air level
      */
-    getAirLevel(): int;
+    getAirLevel(): number;
     /**
      * Gets the player's air level.
      *
@@ -1535,13 +1628,13 @@ declare global {
      *
      * @return the player's air level
      */
-    static getAirLevel(): int;
+    static getAirLevel(): number;
 
-    getXPLevel(): int;
-    static getXPLevel(): int;
+    getXPLevel(): number;
+    static getXPLevel(): number;
 
-    getXPProgress(): float;
-    static getXPProgress(): float;
+    getXPProgress(): number;
+    static getXPProgress(): number;
 
     getBiome():
       | "Ocean"
@@ -1631,13 +1724,16 @@ declare global {
      *
      * @return the light level at the player's current position
      */
-    getLightLevel(): int;
+    getLightLevel(): number;
     /**
      * Gets the light level at the player's current position.
      *
      * @return the light level at the player's current position
      */
-    static getLightLevel(): int;
+    static getLightLevel(): number;
+
+    isMoving(): boolean;
+    static isMoving(): boolean;
 
     isSneaking(): boolean;
     static isSneaking(): boolean;
@@ -1717,11 +1813,11 @@ declare global {
     getHeldItem(): Item | null;
     static getHeldItem(): Item | null;
 
-    setHeldItemIndex(index: int): void;
-    static setHeldItemIndex(index: int): void;
+    setHeldItemIndex(index: number): void;
+    static setHeldItemIndex(index: number): void;
 
-    getHeldItemIndex(): int;
-    static getHeldItemIndex(): int;
+    getHeldItemIndex(): number;
+    static getHeldItemIndex(): number;
 
     /**
      * Gets the inventory of the player, i.e. the inventory accessed by 'e'.
@@ -1763,28 +1859,37 @@ declare global {
     static setTabDisplayName(textComponent: TextComponent): void;
 
     /**
-     * Gets the inventory the user currently has open, i.e. a chest.
-     *
-     * @return the currently opened inventory
+     * @deprecated Use the better named method getContainer
      */
-    getOpenedInventory(): Inventory | null;
+    getOpenedInventory(): Inventory | undefined;
     /**
-     * Gets the inventory the user currently has open, i.e. a chest.
-     *
-     * @return the currently opened inventory
+     * @deprecated Use the better named method getContainer
      */
-    static getOpenedInventory(): Inventory | null;
+    static getOpenedInventory(): Inventory | undefined;
+
+    /**
+     * Gets the container the user currently has open, i.e. a chest.
+     *
+     * @return the currently opened container
+     */
+    getContainer(): Inventory | undefined;
+    /**
+     * Gets the container the user currently has open, i.e. a chest.
+     *
+     * @return the currently opened container
+     */
+    static getContainer(): Inventory | undefined;
 
     /**
      * Draws the player in the GUI
      */
-    draw(x: int, y: int, rotate?: boolean): Player;
+    draw(x: number, y: number, rotate?: boolean): Player;
     /**
      * Draws the player in the GUI
      */
     static draw(
-      x: int,
-      y: int,
+      x: number,
+      y: number,
       rotate?: boolean,
       showNametag?: boolean,
       showArmor?: boolean,
@@ -2885,42 +2990,45 @@ declare global {
 
     /**
      * Play a record at location x, y, and z.
-     * Use "null" as name in the same location to stop record.
+     * Use null as name in the same location to stop record.
      *
      * @param name the name of the sound/record
      * @param x the x location
      * @param y the y location
      * @param z the z location
      */
-    playRecord(name: string, x: double, y: double, z: double): void;
+    playRecord(name: string, x: number, y: number, z: number): void;
     /**
      * Play a record at location x, y, and z.
-     * Use "null" as name in the same location to stop record.
+     * Use null as name in the same location to stop record.
      *
      * @param name the name of the sound/record
      * @param x the x location
      * @param y the y location
      * @param z the z location
      */
-    static playRecord(name: string, x: double, y: double, z: double): void;
+    static playRecord(name: string, x: number, y: number, z: number): void;
+
+    stopAllSounds(): void;
+    static stopAllSounds(): void;
 
     isRaining(): boolean;
     static isRaining(): boolean;
 
-    getRainingStrength(): float;
-    static getRainingStrength(): float;
+    getRainingStrength(): number;
+    static getRainingStrength(): number;
 
-    getTime(): long;
-    static getTime(): long;
+    getTime(): number;
+    static getTime(): number;
 
     getDifficulty(): "PEACEFUL" | "EASY" | "NORMAL" | "HARD";
     static getDifficulty(): "PEACEFUL" | "EASY" | "NORMAL" | "HARD";
 
-    getMoonPhase(): int;
-    static getMoonPhase(): int;
+    getMoonPhase(): number;
+    static getMoonPhase(): number;
 
-    getSeed(): long;
-    static getSeed(): long;
+    getSeed(): number;
+    static getSeed(): number;
 
     getType():
       | "default"
@@ -2947,7 +3055,7 @@ declare global {
      * @param z the z position
      * @return the [BlockType] at the location
      */
-    getBlockAt(x: int, y: int, z: int): Block;
+    getBlockAt(x: number, y: number, z: number): Block;
     /**
      * Gets the [Block] at a location in the world.
      *
@@ -2956,7 +3064,7 @@ declare global {
      * @param z the z position
      * @return the [Block] at the location
      */
-    static getBlockAt(x: int, y: int, z: int): Block;
+    static getBlockAt(x: number, y: number, z: number): Block;
 
     /**
      * Gets the [BlockType] at a location in the world.
@@ -3019,8 +3127,8 @@ declare global {
     hasPlayer(name: string): boolean;
     static hasPlayer(name: string): boolean;
 
-    getChunk(x: int, y: int, z: int): Chunk;
-    static getChunk(x: int, y: int, z: int): Chunk;
+    getChunk(x: number, y: number, z: number): Chunk;
+    static getChunk(x: number, y: number, z: number): Chunk;
 
     getAllEntities(): Entity[];
     static getAllEntities(): Entity[];
@@ -3056,65 +3164,65 @@ declare global {
        *
        * @return the border center x location
        */
-      getCenterX(): double;
+      getCenterX(): number;
       /**
        * Gets the border center x location.
        *
        * @return the border center x location
        */
-      static getCenterX(): double;
+      static getCenterX(): number;
 
       /**
        * Gets the border center z location.
        *
        * @return the border center z location
        */
-      getCenterZ(): double;
+      getCenterZ(): number;
       /**
        * Gets the border center z location.
        *
        * @return the border center z location
        */
-      static getCenterZ(): double;
+      static getCenterZ(): number;
 
       /**
        * Gets the border size.
        *
        * @return the border size
        */
-      getSize(): int;
+      getSize(): number;
       /**
        * Gets the border size.
        *
        * @return the border size
        */
-      static getSize(): int;
+      static getSize(): number;
 
       /**
        * Gets the border target size.
        *
        * @return the border target size
        */
-      getTargetSize(): double;
+      getTargetSize(): number;
       /**
        * Gets the border target size.
        *
        * @return the border target size
        */
-      static getTargetSize(): double;
+      static getTargetSize(): number;
 
       /**
        * Gets the border time until the target size is met.
        *
        * @return the border time until target
        */
-      getTimeUntilTarget(): long;
+      getTimeUntilTarget(): number;
       /**
        * Gets the border time until the target size is met.
        *
        * @return the border time until target
        */
-      static getTimeUntilTarget(): long;
+      static getTimeUntilTarget(): number;
     }
 
     /**
@@ -3126,39 +3234,39 @@ declare global {
        *
        * @return the spawn x location.
        */
-      getX(): int;
+      getX(): number;
       /**
        * Gets the spawn x location.
        *
        * @return the spawn x location.
        */
-      static getX(): int;
+      static getX(): number;
 
       /**
        * Gets the spawn y location.
        *
        * @return the spawn y location.
        */
-      getY(): int;
+      getY(): number;
       /**
        * Gets the spawn y location.
        *
        * @return the spawn y location.
        */
-      static getY(): int;
+      static getY(): number;
 
       /**
        * Gets the spawn z location.
        *
        * @return the spawn z location.
        */
-      getZ(): int;
+      getZ(): number;
       /**
        * Gets the spawn z location.
        *
        * @return the spawn z location.
        */
-      static getZ(): int;
+      static getZ(): number;
     }
 
     class particle {
@@ -3192,12 +3300,12 @@ declare global {
        */
       spawnParticle(
         particle: string,
-        x: double,
-        y: double,
-        z: double,
-        xSpeed: double,
-        ySpeed: double,
-        zSpeed: double,
+        x: number,
+        y: number,
+        z: number,
+        xSpeed: number,
+        ySpeed: number,
+        zSpeed: number,
       ): Particle;
       /**
        * Spawns a particle into the world with the given attributes,
@@ -3214,12 +3322,12 @@ declare global {
        */
       static spawnParticle(
         particle: string,
-        x: double,
-        y: double,
-        z: double,
-        xSpeed: double,
-        ySpeed: double,
-        zSpeed: double,
+        x: number,
+        y: number,
+        z: number,
+        xSpeed: number,
+        ySpeed: number,
+        zSpeed: number,
       ): Particle;
 
       spawnParticle(particle: MCEntityFX): void;
@@ -3280,14 +3388,14 @@ declare global {
      *
      * @return The ping to the current server
      */
-    getPing(): long;
+    getPing(): number;
     /**
      * Gets the ping to the current server, or 5 if the player
      * is in a single-player world.
      *
      * @return The ping to the current server
      */
-    static getPing(): long;
+    static getPing(): number;
   }
 
   class TabList {
@@ -3372,14 +3480,21 @@ declare global {
 
   class Scoreboard {
     readonly INSTANCE: Scoreboard;
+
+    getScoreboard(): MCScoreboard | null;
+    static getScoreboard(): MCScoreboard | null;
+
+    getSidebar(): MCScoreObjective | null;
+    static getSidebar(): MCScoreObjective | null;
+
     /**
-     * Alias for [Scoreboard.getTitle].
+     * Alias for [getTitle].
      *
      * @return the scoreboard title
      */
     getScoreboardTitle(): string;
     /**
-     * Alias for [Scoreboard.getTitle].
+     * Alias for [getTitle].
      *
      * @return the scoreboard title
      */
@@ -3399,6 +3514,21 @@ declare global {
      * @return the scoreboard title
      */
     static getTitle(): string;
+
+    /**
+     * Sets the scoreboard title.
+     *
+     * @param title the new title
+     * @return the scoreboard title
+     */
+    setTitle(title: string): void;
+    /**
+     * Sets the scoreboard title.
+     *
+     * @param title the new title
+     * @return the scoreboard title
+     */
+    static setTitle(title: string): void;
 
     /**
      * Get all currently visible strings on the scoreboard. (excluding title)
@@ -3422,7 +3552,7 @@ declare global {
      * @param index the line index
      * @return the score object at the index
      */
-    getLineByIndex(index: int): Scoreboard.Score;
+    getLineByIndex(index: number): Scoreboard.Score;
     /**
      * Gets the line at the specified index (0 based)
      * Equivalent to Scoreboard.getLines().get(index)
@@ -3430,7 +3560,7 @@ declare global {
      * @param index the line index
      * @return the score object at the index
      */
-    static getLineByIndex(index: int): Scoreboard.Score;
+    static getLineByIndex(index: number): Scoreboard.Score;
 
     /**
      * Gets a list of lines that have a certain score,
@@ -3439,7 +3569,7 @@ declare global {
      * @param score the score to look for
      * @return a list of actual score objects
      */
-    getLinesByScore(score: int): Scoreboard.Score[];
+    getLinesByScore(score: number): Scoreboard.Score[];
     /**
      * Gets a list of lines that have a certain score,
      * i.e. the numbers shown on the right
@@ -3447,7 +3577,7 @@ declare global {
      * @param score the score to look for
      * @return a list of actual score objects
      */
-    static getLinesByScore(score: int): Scoreboard.Score[];
+    static getLinesByScore(score: number): Scoreboard.Score[];
 
     /**
      * Sets a line in the scoreboard to the specified name and score.
@@ -3456,7 +3586,7 @@ declare global {
      * @param line the string to display on said line
      * @param override whether to remove old lines with the same score
      */
-    setLine(score: int, line: string, override: boolean): void;
+    setLine(score: number, line: string, override: boolean): void;
     /**
      * Sets a line in the scoreboard to the specified name and score.
      *
@@ -3464,7 +3594,7 @@ declare global {
      * @param line the string to display on said line
      * @param override whether to remove old lines with the same score
      */
-    static setLine(score: int, line: string, override: boolean): void;
+    static setLine(score: number, line: string, override: boolean): void;
 
     setShouldRender(shouldRender: boolean): void;
     static setShouldRender(shouldRender: boolean): void;
@@ -3487,14 +3617,14 @@ declare global {
        *
        * @return the actual point value
        */
-      getPoints(): int;
+      getPoints(): number;
       /**
        * Gets the score point value for this score,
        * i.e. the number on the right of the board
        *
        * @return the actual point value
        */
-      static getPoints(): int;
+      static getPoints(): number;
 
       /**
        * Gets the display string of this score
@@ -3537,14 +3667,14 @@ declare global {
     static getPrivateValue<T, E>(
       classToAccess: JavaClass<T>,
       instance: T,
-      fieldIndex: int,
+      fieldIndex: number,
     ): E;
 
     static setPrivateValue<T, E>(
       classToAccess: JavaClass<T>,
       instance: T,
       value: E,
-      fieldIndex: int,
+      fieldIndex: number,
     ): void;
 
     static setPrivateValue<T, E>(
@@ -3573,11 +3703,11 @@ declare global {
     /**
      * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of milliseconds plus the specified number of nanoseconds, subject to the precision and accuracy of system timers and schedulers.
      */
-    static sleep(millis: long, nanos?: int): void;
+    static sleep(millis: number, nanos?: number): void;
     /**
      * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of milliseconds plus the specified number of nanoseconds, subject to the precision and accuracy of system timers and schedulers.
      */
-    sleep(millis: long, nanos?: int): void;
+    sleep(millis: number, nanos?: number): void;
 
     /**
      * Returns a reference to the currently executing thread object.
@@ -3594,21 +3724,21 @@ declare global {
     start(): void;
   }
 
-  class ArrayList {
+  class ArrayList<T> {
     /**Constructs an empty list with an initial capacity of ten. */
     constructor();
     /**Constructs an empty list with the specified initial capacity. */
-    constructor(initialCapacity: int);
+    constructor(initialCapacity: number);
 
     /**
      * Appends the specified element to the end of this list
      */
-    add(e: object): boolean;
+    add(e: T): boolean;
 
     /**
      * Inserts the specified element at the specified position in this list.
      */
-    add(index: int, element: object): boolean;
+    add(index: number, element: T): boolean;
 
     /**
      * Removes all of the elements from this list.
@@ -3618,27 +3748,27 @@ declare global {
     /**
      * Returns a shallow copy of this ArrayList instance.
      */
-    clone(): object;
+    clone(): ArrayList<T>;
 
     /**
      * Returns true if this list contains the specified element.
      */
-    contains(o: object): boolean;
+    contains(o: T): boolean;
 
     /**
      * Increases the capacity of this ArrayList instance, if necessary, to ensure that it can hold at least the number of elements specified by the minimum capacity argument.
      */
-    ensureCapacity(minCapacity: int): void;
+    ensureCapacity(minCapacity: number): void;
 
     /**
      * Returns the element at the specified position in this list.
      */
-    get(index: int): object;
+    get(index: number): T;
 
     /**
      * Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
      */
-    indexOf(o: object): int;
+    indexOf(o: T): number;
 
     /**
      * Returns true if this list contains no elements.
@@ -3648,42 +3778,42 @@ declare global {
     /**
      * Returns the index of the last occurrence of the specified element in this list, or -1 if this list does not contain the element.
      */
-    lastIndexOf(o: object): int;
+    lastIndexOf(o: T): number;
 
     /**
      * Removes the element at the specified position in this list.
      */
-    remove(index: int): object;
+    remove(index: number): T;
 
     /**
      * Removes the first occurrence of the specified element from this list, if it is present.
      */
-    remove(o: object): boolean;
+    remove(o: T): boolean;
 
     /**
      * Replaces the element at the specified position in this list with the specified element.
      */
-    set(index: int, element: object): object;
+    set(index: number, element: T): T;
 
     /**
      * Returns the number of elements in this list.
      */
-    size(): int;
+    size(): number;
 
     /**
      * Returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex, exclusive.
      */
-    subList(fromIndex: int, toIndex: int): object[];
+    subList(fromIndex: number, toIndex: number): T[];
 
     /**
      * Returns an array containing all of the elements in this list in proper sequence (from first to last element).
      */
-    toArray(): object[];
+    toArray(): T[];
 
     /**
      * Returns an array containing all of the elements in this list in proper sequence (from first to last element); the runtime type of the returned array is that of the specified array.
      */
-    toArray(a: object[]): object[];
+    toArray(a: T[]): T[];
 
     /**
      * Trims the capacity of this ArrayList instance to be the list's current size.
@@ -3691,7 +3821,7 @@ declare global {
     trimToSize(): void;
   }
 
-  class HashMap {
+  class HashMap<K, V> {
     /**
      * Constructs an empty HashMap with the default initial capacity (16) and the default load factor (0.75).
      */
@@ -3700,17 +3830,17 @@ declare global {
     /**
      * Constructs an empty HashMap with the specified initial capacity and the default load factor (0.75).
      */
-    constructor(initialCapacity: int);
+    constructor(initialCapacity: number);
 
     /**
      * Constructs an empty HashMap with the specified initial capacity and load factor.
      */
-    constructor(initialCapacity: int, loadFactor: float);
+    constructor(initialCapacity: number, loadFactor: number);
 
     /**
      * Constructs a new HashMap with the same mappings as the specified Map.
      */
-    constructor(m: Map<any, any>);
+    constructor(m: Map<K, V>);
 
     /**
      * Removes all of the mappings from this map.
@@ -3720,7 +3850,7 @@ declare global {
     /**
      * Returns a shallow copy of this HashMap instance: the keys and values themselves are not cloned.
      */
-    clone(): object;
+    clone(): HashMap<K, V>;
 
     /**
      * Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping).
@@ -3743,12 +3873,12 @@ declare global {
     /**
      * Returns true if this map contains a mapping for the specified key.
      */
-    containsKey(key: object): boolean;
+    containsKey(key: K): boolean;
 
     /**
      * Returns true if this map maps one or more keys to the specified value.
      */
-    containsValue(value: object): boolean;
+    containsValue(value: V): boolean;
 
     /**
      * Returns a Set view of the mappings contained in this map.
@@ -3763,12 +3893,12 @@ declare global {
     /**
      * Returns the value to which the specified key is mapped, or null if this map contains no mapping for the key.
      */
-    get(key: object): any;
+    get(key: K): V;
 
     /**
      * Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.
      */
-    getOrDefault(key: object, defaultValue: any): any;
+    getOrDefault(key: K, defaultValue: V): V;
 
     /**
      * Returns true if this map contains no key-value mappings.
@@ -3778,60 +3908,56 @@ declare global {
     /**
      * Returns a Set view of the keys contained in this map.
      */
-    keySet(): Set<any>;
+    keySet(): Set<K>;
 
     /**
      * If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value.
      */
-    merge(
-      key: any,
-      value: any,
-      remappingFunction: (arg1: any, arg2: any) => any,
-    ): any;
+    merge(key: K, value: V, remappingFunction: (arg1: V, arg2: V) => V): V;
 
     /**
      * Associates the specified value with the specified key in this map.
      */
-    put(key: any, value: any): any;
+    put(key: K, value: V): V;
 
     /**
      * Copies all of the mappings from the specified map to this map.
      */
-    putAll(m: Map<any, any>): void;
+    putAll(m: Map<K, V>): void;
     /**
      * If the specified key is not already associated with a value (or is mapped to null) associates it with the given value and returns null, else returns the current value.
      */
-    putIfAbsent(key: any, value: any): any;
+    putIfAbsent(key: K, value: V): V;
 
     /**
      * Removes the mapping for the specified key from this map if present.
      */
-    remove(key: object): any;
+    remove(key: K): any;
 
     /**
      * Removes the entry for the specified key only if it is currently mapped to the specified value.
      */
-    remove(key: object, value: object): boolean;
+    remove(key: K, value: V): boolean;
 
     /**
      * Replaces the entry for the specified key only if it is currently mapped to some value.
      */
-    replace(key: any, value: any): any;
+    replace(key: K, value: V): any;
 
     /**
      * Replaces the entry for the specified key only if currently mapped to the specified value.
      */
-    replace(key: any, oldValue: any, newValue: any): boolean;
+    replace(key: K, oldValue: V, newValue: V): boolean;
 
     /**
      * Replaces each entry's value with the result of invoking the given function on that entry until all entries have been processed or the function throws an exception.
      */
-    replaceAll(func: (arg1: any, arg2: any) => any): void;
+    replaceAll(func: (arg1: K, arg2: V) => V): void;
 
     /**
      * Returns the number of key-value mappings in this map.
      */
-    size(): int;
+    size(): number;
   }
 
   /**A raw Keyboard interface. This can be used to poll the current state of the keys, or read all the keyboard presses / releases since the last read. */
@@ -3839,157 +3965,157 @@ declare global {
     /**
      * The special character meaning that no character was translated for the event.
      */
-    static readonly CHAR_NONEL: int;
+    static readonly CHAR_NONEL: number;
     /**
      * Internal use - event size in bytes
      */
-    static readonly EVENT_SIZE: int;
+    static readonly EVENT_SIZE: number;
 
-    static KEY_0: int;
-    static KEY_1: int;
-    static KEY_2: int;
-    static KEY_3: int;
-    static KEY_4: int;
-    static KEY_5: int;
-    static KEY_6: int;
-    static KEY_7: int;
-    static KEY_8: int;
-    static KEY_9: int;
-    static KEY_A: int;
-    static KEY_ADD: int;
-    static KEY_APOSTROPHE: int;
-    static KEY_APPS: int;
-    static KEY_AT: int;
-    static KEY_AX: int;
-    static KEY_B: int;
-    static KEY_BACK: int;
-    static KEY_BACKSLASH: int;
-    static KEY_C: int;
-    static KEY_CAPITAL: int;
-    static KEY_CIRCUMFLEX: int;
-    static KEY_CLEAR: int;
-    static KEY_COLON: int;
-    static KEY_COMMA: int;
-    static KEY_CONVERT: int;
-    static KEY_D: int;
-    static KEY_DECIMAL: int;
-    static KEY_DELETE: int;
-    static KEY_DIVIDE: int;
-    static KEY_DOWN: int;
-    static KEY_E: int;
-    static KEY_END: int;
-    static KEY_EQUALS: int;
-    static KEY_ESCAPE: int;
-    static KEY_F: int;
-    static KEY_F1: int;
-    static KEY_F10: int;
-    static KEY_F11: int;
-    static KEY_F12: int;
-    static KEY_F13: int;
-    static KEY_F14: int;
-    static KEY_F15: int;
-    static KEY_F16: int;
-    static KEY_F17: int;
-    static KEY_F18: int;
-    static KEY_F19: int;
-    static KEY_F2: int;
-    static KEY_F3: int;
-    static KEY_F4: int;
-    static KEY_F5: int;
-    static KEY_F6: int;
-    static KEY_F7: int;
-    static KEY_F8: int;
-    static KEY_F9: int;
-    static KEY_FUNCTION: int;
-    static KEY_G: int;
-    static KEY_GRAVE: int;
-    static KEY_H: int;
-    static KEY_HOME: int;
-    static KEY_I: int;
-    static KEY_INSERT: int;
-    static KEY_J: int;
-    static KEY_K: int;
-    static KEY_KANA: int;
-    static KEY_KANJI: int;
-    static KEY_L: int;
-    static KEY_LBRACKET: int;
-    static KEY_LCONTROL: int;
-    static KEY_LEFT: int;
-    static KEY_LMENU: int;
-    static KEY_LMETA: int;
-    static KEY_LSHIFT: int;
+    static KEY_0: number;
+    static KEY_1: number;
+    static KEY_2: number;
+    static KEY_3: number;
+    static KEY_4: number;
+    static KEY_5: number;
+    static KEY_6: number;
+    static KEY_7: number;
+    static KEY_8: number;
+    static KEY_9: number;
+    static KEY_A: number;
+    static KEY_ADD: number;
+    static KEY_APOSTROPHE: number;
+    static KEY_APPS: number;
+    static KEY_AT: number;
+    static KEY_AX: number;
+    static KEY_B: number;
+    static KEY_BACK: number;
+    static KEY_BACKSLASH: number;
+    static KEY_C: number;
+    static KEY_CAPITAL: number;
+    static KEY_CIRCUMFLEX: number;
+    static KEY_CLEAR: number;
+    static KEY_COLON: number;
+    static KEY_COMMA: number;
+    static KEY_CONVERT: number;
+    static KEY_D: number;
+    static KEY_DECIMAL: number;
+    static KEY_DELETE: number;
+    static KEY_DIVIDE: number;
+    static KEY_DOWN: number;
+    static KEY_E: number;
+    static KEY_END: number;
+    static KEY_EQUALS: number;
+    static KEY_ESCAPE: number;
+    static KEY_F: number;
+    static KEY_F1: number;
+    static KEY_F10: number;
+    static KEY_F11: number;
+    static KEY_F12: number;
+    static KEY_F13: number;
+    static KEY_F14: number;
+    static KEY_F15: number;
+    static KEY_F16: number;
+    static KEY_F17: number;
+    static KEY_F18: number;
+    static KEY_F19: number;
+    static KEY_F2: number;
+    static KEY_F3: number;
+    static KEY_F4: number;
+    static KEY_F5: number;
+    static KEY_F6: number;
+    static KEY_F7: number;
+    static KEY_F8: number;
+    static KEY_F9: number;
+    static KEY_FUNCTION: number;
+    static KEY_G: number;
+    static KEY_GRAVE: number;
+    static KEY_H: number;
+    static KEY_HOME: number;
+    static KEY_I: number;
+    static KEY_INSERT: number;
+    static KEY_J: number;
+    static KEY_K: number;
+    static KEY_KANA: number;
+    static KEY_KANJI: number;
+    static KEY_L: number;
+    static KEY_LBRACKET: number;
+    static KEY_LCONTROL: number;
+    static KEY_LEFT: number;
+    static KEY_LMENU: number;
+    static KEY_LMETA: number;
+    static KEY_LSHIFT: number;
     /**
      * Deprecated.
      * Use KEY_LMETA instead
      */
-    static KEY_LWIN: int;
-    static KEY_M: int;
-    static KEY_MINUS: int;
-    static KEY_MULTIPLY: int;
-    static KEY_N: int;
-    static KEY_NEXT: int;
-    static KEY_NOCONVERT: int;
+    static KEY_LWIN: number;
+    static KEY_M: number;
+    static KEY_MINUS: number;
+    static KEY_MULTIPLY: number;
+    static KEY_N: number;
+    static KEY_NEXT: number;
+    static KEY_NOCONVERT: number;
     /**
      * The special keycode meaning that only the translated character is valid.
      */
-    static KEY_NONE: int;
-    static KEY_NUMLOCK: int;
-    static KEY_NUMPAD0: int;
-    static KEY_NUMPAD1: int;
-    static KEY_NUMPAD2: int;
-    static KEY_NUMPAD3: int;
-    static KEY_NUMPAD4: int;
-    static KEY_NUMPAD5: int;
-    static KEY_NUMPAD6: int;
-    static KEY_NUMPAD7: int;
-    static KEY_NUMPAD8: int;
-    static KEY_NUMPAD9: int;
-    static KEY_NUMPADCOMMA: int;
-    static KEY_NUMPADENTER: int;
-    static KEY_NUMPADEQUALS: int;
-    static KEY_O: int;
-    static KEY_P: int;
-    static KEY_PAUSE: int;
-    static KEY_PERIOD: int;
-    static KEY_POWER: int;
-    static KEY_PRIOR: int;
-    static KEY_Q: int;
-    static KEY_R: int;
-    static KEY_RBRACKET: int;
-    static KEY_RCONTROL: int;
-    static KEY_RETURN: int;
-    static KEY_RIGHT: int;
-    static KEY_RMENU: int;
-    static KEY_RMETA: int;
-    static KEY_RSHIFT: int;
+    static KEY_NONE: number;
+    static KEY_NUMLOCK: number;
+    static KEY_NUMPAD0: number;
+    static KEY_NUMPAD1: number;
+    static KEY_NUMPAD2: number;
+    static KEY_NUMPAD3: number;
+    static KEY_NUMPAD4: number;
+    static KEY_NUMPAD5: number;
+    static KEY_NUMPAD6: number;
+    static KEY_NUMPAD7: number;
+    static KEY_NUMPAD8: number;
+    static KEY_NUMPAD9: number;
+    static KEY_NUMPADCOMMA: number;
+    static KEY_NUMPADENTER: number;
+    static KEY_NUMPADEQUALS: number;
+    static KEY_O: number;
+    static KEY_P: number;
+    static KEY_PAUSE: number;
+    static KEY_PERIOD: number;
+    static KEY_POWER: number;
+    static KEY_PRIOR: number;
+    static KEY_Q: number;
+    static KEY_R: number;
+    static KEY_RBRACKET: number;
+    static KEY_RCONTROL: number;
+    static KEY_RETURN: number;
+    static KEY_RIGHT: number;
+    static KEY_RMENU: number;
+    static KEY_RMETA: number;
+    static KEY_RSHIFT: number;
     /**
      * Deprecated.
      * Use KEY_RMETA instead
      */
-    static KEY_RWIN: int;
-    static KEY_S: int;
-    static KEY_SCROLL: int;
-    static KEY_SECTION: int;
-    static KEY_SEMICOLON: int;
-    static KEY_SLASH: int;
-    static KEY_SLEEP: int;
-    static KEY_SPACE: int;
-    static KEY_STOP: int;
-    static KEY_SUBTRACT: int;
-    static KEY_SYSRQ: int;
-    static KEY_T: int;
-    static KEY_TAB: int;
-    static KEY_U: int;
-    static KEY_UNDERLINE: int;
-    static KEY_UNLABELED: int;
-    static KEY_UP: int;
-    static KEY_V: int;
-    static KEY_W: int;
-    static KEY_X: int;
-    static KEY_Y: int;
-    static KEY_YEN: int;
-    static KEY_Z: int;
-    static KEYBOARD_SIZE: int;
+    static KEY_RWIN: number;
+    static KEY_S: number;
+    static KEY_SCROLL: number;
+    static KEY_SECTION: number;
+    static KEY_SEMICOLON: number;
+    static KEY_SLASH: number;
+    static KEY_SLEEP: number;
+    static KEY_SPACE: number;
+    static KEY_STOP: number;
+    static KEY_SUBTRACT: number;
+    static KEY_SYSRQ: number;
+    static KEY_T: number;
+    static KEY_TAB: number;
+    static KEY_U: number;
+    static KEY_UNDERLINE: number;
+    static KEY_UNLABELED: number;
+    static KEY_UP: number;
+    static KEY_V: number;
+    static KEY_W: number;
+    static KEY_X: number;
+    static KEY_Y: number;
+    static KEY_YEN: number;
+    static KEY_Z: number;
+    static KEYBOARD_SIZE: number;
 
     /**
      * Check whether repeat events are currently reported or not.
@@ -4011,11 +4137,11 @@ declare global {
      */
     static enableRepeatEvents(enable: boolean): void;
 
-    static getEventCharacter(): char;
+    static getEventCharacter(): number;
     /**
      * Please not that the key code returned is NOT valid against the current keyboard layout.
      */
-    static getEventKey(): int;
+    static getEventKey(): number;
 
     /**
      * Gets the state of the key that generated the current event
@@ -4025,31 +4151,31 @@ declare global {
     /**
      * Gets the time in nanoseconds of the current event.
      */
-    static getEventNanoseconds(): long;
+    static getEventNanoseconds(): number;
 
-    static getKeyCount(): int;
+    static getKeyCount(): number;
 
     /**
      * Get's a key's index.
      */
-    static getKeyIndex(keyName: string): int;
+    static getKeyIndex(keyName: string): number;
 
     /**
      * Gets a key's name
      */
-    static getKeyName(key: int): string;
+    static getKeyName(key: number): string;
 
     /**
      * Gets the number of keyboard events waiting after doing a buffer enabled poll().
      */
-    static getNumKeyboardEvents(): int;
+    static getNumKeyboardEvents(): number;
 
     static isCreated(): boolean;
 
     /**
      * Checks to see if a key is down.
      */
-    static isKeyDown(key: int): boolean;
+    static isKeyDown(key: number): boolean;
 
     static isRepeatEvent(): boolean;
 
@@ -4065,17 +4191,17 @@ declare global {
   }
 
   class Action {
-    constructor(slot: int, windowId: int);
+    constructor(slot: number, windowId: number);
 
-    setSlot(slot: int): Action;
+    setSlot(slot: number): Action;
 
-    setWindowId(windowId: int): Action;
+    setWindowId(windowId: number): Action;
 
     complete(): void;
 
-    doClick(button: int, mode: int): void;
+    doClick(button: number, mode: number): void;
 
-    getSlot(): int;
+    getSlot(): number;
 
     /**
      * Creates a new action.
@@ -4087,7 +4213,7 @@ declare global {
      * @param typeString the type of action to do (CLICK, DRAG, DROP, KEY)
      * @return the new action
      */
-    static of(inventory: Inventory, slot: int, typeString: string): Action;
+    static of(inventory: Inventory, slot: number, typeString: string): Action;
   }
 
   namespace Action {
@@ -4102,7 +4228,7 @@ declare global {
        * @param typeString the type of action to do (CLICK, DRAG, DROP, KEY)
        * @return the new action
        */
-      static of(inventory: Inventory, slot: int, typeString: string): Action;
+      static of(inventory: Inventory, slot: number, typeString: string): Action;
     }
 
     enum type {
@@ -4177,15 +4303,15 @@ declare global {
      *
      * @return the size of the Inventory
      */
-    getSize(): int;
+    getSize(): number;
 
     /**
      * Gets the item in any slot, starting from 0.
      *
      * @param slot the slot index
-     * @return the Item in that slot
+     * @return the [Item] in that slot
      */
-    getStackInSlot(slot: int): Item | null;
+    getStackInSlot(slot: number): Item | null;
 
     /**
      * Returns the window identifier number of this Inventory.
@@ -4193,7 +4319,7 @@ declare global {
      *
      * @return the window id
      */
-    getWindowId(): int;
+    getWindowId(): number;
 
     doAction(action: Action): void;
 
@@ -4204,7 +4330,7 @@ declare global {
      * @param item the item for checking
      * @return whether it can be shift clicked in
      */
-    isItemValidForSlot(slot: int, item: Item): boolean;
+    isItemValidForSlot(slot: number, item: Item): boolean;
 
     /**
      * @return a list of the [Item]s in an inventory
@@ -4223,9 +4349,9 @@ declare global {
      * Checks whether the inventory contains an item with ID.
      *
      * @param id the ID of the item to match
-     * @retun whether the inventory contains an item with ID
+     * @return whether the inventory contains an item with ID
      */
-    contains(id: int): boolean;
+    contains(id: number): boolean;
 
     /**
      * Gets the index of any item in the inventory, and returns the slot number.
@@ -4234,7 +4360,7 @@ declare global {
      * @param item the item to check for
      * @return the index of the given item
      */
-    indexOf(item: Item): int;
+    indexOf(item: Item): number;
 
     /**
      * Gets the index of any item in the inventory with matching ID, and returns the slot number.
@@ -4243,11 +4369,11 @@ declare global {
      * @param id the item ID to check for
      * @return the index of the given item with ID
      */
-    indexOf(id: int): int;
+    indexOf(id: number): number;
 
     /**
-     * Returns true if this Inventory wraps a Container object
-     * rather than an IInventory object
+     * Returns true if this Inventory wraps a [Container] object
+     * rather than an [IInventory] object
      *
      * @return if this is a container
      */
@@ -4261,7 +4387,7 @@ declare global {
      * @param shift whether shift is being held. False by default
      * @return this inventory for method chaining
      */
-    click(slot: int, shift?: boolean, button?: string): Inventory;
+    click(slot: number, shift?: boolean, button?: string): Inventory;
 
     /**
      * Shorthand for [DropAction]
@@ -4270,7 +4396,7 @@ declare global {
      * @param ctrl whether control should be held (drops whole stack)
      * @return this inventory for method chaining
      */
-    drop(slot: int, ctrl: boolean): Inventory;
+    drop(slot: number, ctrl: boolean): Inventory;
 
     /**
      * Shorthand for [DragAction]
@@ -4279,7 +4405,7 @@ declare global {
      * @param slots all of the slots to drag onto
      * @return this inventory for method chaining
      */
-    drag(type: string, ...slot: int[]): Inventory;
+    drag(type: string, ...slot: number[]): Inventory;
 
     /**
      * Gets the name of the inventory, simply "container" for most chest-like blocks.
@@ -4295,13 +4421,17 @@ declare global {
 
   class Item {
     readonly item: MCItem;
-    readonly itemStack: MCItemStack;
+    getItem(): MCItem;
+
+    itemStack: MCItemStack;
+    getItemStack(): MCItemStack;
+    setItemStack(itemStack: MCItemStack): void;
 
     constructor(itemStack: MCItemStack);
 
     constructor(itemName: string);
 
-    constructor(itemID: int);
+    constructor(itemID: number);
 
     constructor(block: BlockType);
 
@@ -4324,11 +4454,11 @@ declare global {
     /**Deprecated Use the better-named method getNBT*/
     getItemNBT(): NBTTagCompound;
 
-    getID(): int;
+    getID(): number;
 
-    setStackSize(stackSize: int): Item;
+    setStackSize(stackSize: number): Item;
 
-    getStackSize(): int;
+    getStackSize(): number;
 
     /**
      * Gets the item's unlocalized name.
@@ -4354,13 +4484,19 @@ declare global {
      */
     getName(): string;
 
-    getEnchantments(): Map<string, int>;
+    /**
+     * Sets the item's name.
+     * @param name the new name
+     */
+    setName(name: string): Item;
+
+    getEnchantments(): Map<string, number>;
 
     isEnchantable(): boolean;
 
     isEnchanted(): boolean;
 
-    getMetadata(): int;
+    getMetadata(): number;
 
     canPlaceOn(block: BlockType): boolean;
 
@@ -4373,26 +4509,37 @@ declare global {
      *
      * @return the item's durability
      */
-    getDurability(): int;
+    getDurability(): number;
 
-    getDamage(): int;
+    getDamage(): number;
 
-    setDamage(damage: int): Item;
+    setDamage(damage: number): Item;
 
-    getMaxDamage(): int;
+    getMaxDamage(): number;
 
     isDamagable(): boolean;
 
+    /**
+     * Gets the item's name and lore lines.
+     *
+     * @return the item's name and lore lines
+     */
     getLore(): string[];
 
     /**
-     * Renders the item icon to the client's overlay.
+     * Sets the item's lore. Does not set the item's name, use [setName] instead.
+     * @param loreLines the new lore lines
+     */
+    setLore(...loreLines: string[]): Item;
+
+    /**
+     * Renders the item icon to the client's overlay, with customizable overlay information.
      *
      * @param x the x location
      * @param y the y location
      * @param scale the scale
      */
-    draw(x?: float, y?: float, scale?: float): void;
+    draw(x?: number, y?: number, scale?: number, z?: number): void;
 
     /**
      * Checks whether another Item is the same as this one.
@@ -4403,7 +4550,7 @@ declare global {
      */
     equals(other?: any): boolean;
 
-    hashCode(): int;
+    hashCode(): number;
 
     toString(): string;
   }
@@ -4543,19 +4690,19 @@ declare global {
 
     isBurning(): boolean;
 
-    getX(): double;
-    getY(): double;
-    getZ(): double;
+    getX(): number;
+    getY(): number;
+    getZ(): number;
 
     getPos(): Vec3i;
 
-    getLastX(): double;
-    getLastY(): double;
-    getLastZ(): double;
+    getLastX(): number;
+    getLastY(): number;
+    getLastZ(): number;
 
-    getRenderX(): double;
-    getRenderY(): double;
-    getRenderZ(): double;
+    getRenderX(): number;
+    getRenderY(): number;
+    getRenderZ(): number;
 
     face: BlockFace;
 
@@ -4565,7 +4712,7 @@ declare global {
      *
      * @return the entity's pitch
      */
-    getPitch(): double;
+    getPitch(): number;
 
     /**
      * Gets the yaw, the vertical direction the entity is facing towards.
@@ -4573,7 +4720,7 @@ declare global {
      *
      * @return the entity's yaw
      */
-    getYaw(): double;
+    getYaw(): number;
 
     /**
      * Gets the entity's x motion.
@@ -4581,7 +4728,7 @@ declare global {
      *
      * @return the entitys's x motion
      */
-    getMotionX(): double;
+    getMotionX(): number;
 
     /**
      * Gets the entity's y motion.
@@ -4589,7 +4736,7 @@ declare global {
      *
      * @return the entity's y motion
      */
-    getMotionY(): double;
+    getMotionY(): number;
 
     /**
      * Gets the entity's z motion.
@@ -4597,7 +4744,7 @@ declare global {
      *
      * @return the entity's z motion
      */
-    getMotionZ(): double;
+    getMotionZ(): number;
 
     getRiding(): Entity | null;
 
@@ -4619,14 +4766,14 @@ declare global {
      *
      * @return the entity's width
      */
-    getWidth(): float;
+    getWidth(): number;
 
     /**
      * Gets the entire height of the entity's hitbox
      *
      * @return the entity's height
      */
-    getHeight(): float;
+    getHeight(): number;
 
     /**
      * Gets the height of the eyes on the entity,
@@ -4635,7 +4782,7 @@ declare global {
      *
      * @return the height of the entity's eyes
      */
-    getEyeHeight(): float;
+    getEyeHeight(): number;
 
     /**
      * Gets the name of the entity, could be "Villager",
@@ -4823,19 +4970,19 @@ declare global {
     /**
      * Sets a page of the book to the specified message.
      *
-     * @param pageNumber the number of the page to set
+     * @param pageIndex the index of the page to set
      * @param message the message to set the page to
      * @return the current book to allow method chaining
      */
-    setPage(pageNumber: int, message: Message): Book;
+    setPage(pageIndex: number, message: Message): Book;
 
     updateBookScreen(pages: NBTTagList): void;
 
-    display(page?: int): void;
+    display(page?: number): void;
 
     isOpen(): boolean;
 
-    getCurrentPage(): int;
+    getCurrentPage(): number;
   }
 
   class Message {
@@ -4885,12 +5032,12 @@ declare global {
     /**
      * @return the chat line ID of the message
      */
-    getChatLineId(): int;
+    getChatLineId(): number;
 
     /**
      * Sets the chat line ID of the message. Useful for updating an already sent chat message.
      */
-    setChatLineId(id: int): Message;
+    setChatLineId(id: number): Message;
 
     /**
      * @return true if the message can trip other triggers.
@@ -4920,7 +5067,7 @@ declare global {
      * @param component the new TextComponent or String to replace with
      * @return the Message for method chaining
      */
-    setTextComponent(index: int, component: string | TextComponent): Message;
+    setTextComponent(index: number, component: string | TextComponent): Message;
 
     /**
      * Adds a TextComponent or String to the end of the Message.
@@ -4935,7 +5082,7 @@ declare global {
      * @param component the new TextComponent or String to insert
      * @return the Message for method chaining
      */
-    addTextComponent(index: int, component: string | TextComponent): Message;
+    addTextComponent(index: number, component: string | TextComponent): Message;
 
     clone(): Message;
 
@@ -5047,13 +5194,13 @@ declare global {
      *
      * @param chatLineIDs the id(s) to be cleared
      */
-    static clearChat(...chatLineIDs: int[]): void;
+    static clearChat(...chatLineIDs: number[]): void;
     /**
      * Clear chat messages with the specified message ID, or all chat messages if no ID is specified
      *
      * @param chatLineIDs the id(s) to be cleared
      */
-    clearChat(...chatLineIDs: int[]): void;
+    clearChat(...chatLineIDs: number[]): void;
 
     /**
      * Get a message that will be perfectly one line of chat,
@@ -5079,13 +5226,13 @@ declare global {
      *
      * @return the width of chat
      */
-    static getChatWidth(): int;
+    static getChatWidth(): number;
     /**
      * Gets the width of Minecraft's chat
      *
      * @return the width of chat
      */
-    getChatWidth(): int;
+    getChatWidth(): number;
 
     /**
      * Remove all formatting
@@ -5183,14 +5330,14 @@ declare global {
      * @param chatLineId the chat line id of the message to be replaced
      * @param replacements the new message(s) to be put in place of the old one
      */
-    editChat(chatLineId: int, ...replacements: Message[]): void;
+    editChat(chatLineId: number, ...replacements: Message[]): void;
     /**
      * Edits an already sent chat message by its chat line id
      *
      * @param chatLineId the chat line id of the message to be replaced
      * @param replacements the new message(s) to be put in place of the old one
      */
-    static editChat(chatLineId: int, ...replacements: Message[]): void;
+    static editChat(chatLineId: number, ...replacements: Message[]): void;
 
     /**
      * Deletes an already sent chat message matching [regexp].
@@ -5236,13 +5383,13 @@ declare global {
      *
      * @param chatLineId the chat line id of the message to be deleted
      */
-    deleteChat(chatLineId: int): void;
+    deleteChat(chatLineId: number): void;
     /**
      * Deletes an already sent chat message by its chat line id
      *
      * @param chatLineId the chat line id of the message to be deleted
      */
-    static deleteChat(chatLineId: int): void;
+    static deleteChat(chatLineId: number): void;
 
     /**
      * Gets the previous 1000 lines of chat
@@ -5323,7 +5470,7 @@ declare global {
   }
 
   class ClickAction extends Action {
-    constructor(slot: int, windowId: int);
+    constructor(slot: number, windowId: number);
 
     getClickType(): ClickAction.ClickType;
 
@@ -5373,186 +5520,20 @@ declare global {
     }
   }
 
-  class Client {
-    static INSTANCE: Client;
-    static settings: Settings;
-
-    getSettings(): Settings;
-
-    /**
-     * Gets Minecraft's Minecraft object
-     *
-     * @return The Minecraft object
-     */
-    static getMinecraft(): MCMinecraft;
-
-    /**
-     * Gets Minecraft's NetHandlerPlayClient object
-     *
-     * @return The NetHandlerPlayClient object
-     */
-    static getConnection(): MCNetHandlerPlayClient | null;
-
-    /**
-     * Quits the client back to the main menu.
-     * This acts just like clicking the "Disconnect" or "Save and quit to title" button.
-     */
-    static disconnect(): void;
-
-    /**
-     * Gets the Minecraft GuiNewChat object for the chat gui
-     *
-     * @return The GuiNewChat object for the chat gui
-     */
-    static getChatGUI(): MCGuiNewChat;
-
-    static isInChat(): boolean;
-
-    static getTabGui(): MCGuiPlayerTabOverlay;
-
-    static isInTab(): boolean;
-
-    /**
-     * Gets whether the Minecraft window is active
-     * and in the foreground of the user's screen.
-     *
-     * @return true if the game is active, false otherwise
-     */
-    static isTabbedIn(): boolean;
-
-    static isControlDown(): boolean;
-
-    static isShiftDown(): boolean;
-
-    static isAltDown(): boolean;
-
-    /**
-     * Get the [KeyBind] from an already existing
-     * Minecraft KeyBinding, otherwise, returns null.
-     *
-     * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
-     * @return the [KeyBind] from a Minecraft KeyBinding, or null if one doesn't exist
-     * @see [Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
-     */
-    static getKeyBindFromKey(keyCode: int | Keyboard): KeyBind;
-
-    /**
-     * Get the [KeyBind] from an already existing
-     * Minecraft KeyBinding, else, return a new one.
-     *
-     * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
-     * @return the [KeyBind] from a Minecraft KeyBinding, or null if one doesn't exist
-     * @see [Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
-     */
-    static getKeyBindFromKey(
-      keyCode: int | Keyboard,
-      description: string,
-      category?: string,
-    ): KeyBind;
-
-    /**
-     * Get the [KeyBind] from an already existing
-     * Minecraft KeyBinding, else, null.
-     *
-     * @param description the key binding's original description
-     * @return the key bind, or null if one doesn't exist
-     */
-    static getKeyBindFromDescription(description: string): KeyBind;
-
-    static getFPS(): int;
-
-    static getVersion(): string;
-
-    static getMaxMemory(): long;
-
-    static getTotalMemory(): long;
-
-    static getFreeMemory(): long;
-
-    static getMemoryUsage(): int;
-
-    static getSystemTime(): long;
-
-    static getMouseX(): float;
-
-    static getMouseY(): float;
-
-    static isInGui(): boolean;
-
-    /**
-     * Gets the chat message currently typed into the chat gui.
-     *
-     * @return A blank string if the gui isn't open, otherwise, the message
-     */
-    static getCurrentChatMessage(): string;
-
-    /**
-     * Sets the current chat message, if the chat gui is not open, one will be opened.
-     *
-     * @param message the message to put in the chat text box.
-     */
-    static setCurrentChatMessage(message: string): void;
-
-    static sendPacket<T extends MCINetHandler>(packet: MCPacket<T>): void;
-
-    /**
-     * Display a title.
-     *
-     * @param title title text
-     * @param subtitle subtitle text
-     * @param fadeIn time to fade in
-     * @param time time to stay on screen
-     * @param fadeOut time to fade out
-     */
-    static showTitle(
-      title: string,
-      subtitle: string,
-      fadeIn: int,
-      time: int,
-      fadeOut: int,
-    ): void;
-  }
-  namespace Client {
-    class currentGui {
-      /**
-       * Gets the Java class name of the currently open gui, for example, "GuiChest"
-       *
-       * @return the class name of the current gui
-       */
-      static getClassName(): string;
-
-      /**
-       * Gets the Minecraft gui class that is currently open
-       *
-       * @return the Minecraft gui
-       */
-      static get(): MCGuiScreen;
-
-      /**
-       * Closes the currently open gui
-       */
-      static close(): void;
-    }
-    class camera {
-      static getX(): double;
-      static getY(): double;
-      static getZ(): double;
-    }
-  }
   class KeyBind {
+    registerKeyPress(method: Function): RegularTrigger;
+    registerKeyRelease(method: Function): RegularTrigger;
+    registerKeyDown(method: Function): RegularTrigger;
+
     /**
-     * Creates a new key bind, editable in the user's controls.
+     * Creates a new keybind, editable in the user's controls.
      *
+     * @param description what the keybind does
+     * @param keyCode the keycode which the keybind will respond to, see Keyboard below. Ex. Keyboard.KEY_A
      * @param category the keybind category the keybind will be in
-     * @param description what the key bind does
-     * @param keyCode the keycode which the key bind will respond to, see Keyboard below. Ex. Keyboard.KEY_A
-     * @see [Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
+     * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
      */
-    constructor(
-      description: string,
-      keyCode: int | Keyboard,
-      category?: string,
-    );
+    constructor(description: string, keyCode: number, category?: string);
 
     constructor(keyBinding: MCKeyBinding);
 
@@ -5571,11 +5552,25 @@ declare global {
     isPressed(): boolean;
 
     /**
+     * Gets the description of the key.
+     *
+     * @return the description
+     */
+    getDescription(): string;
+
+    /**
      * Gets the key code of the key.
      *
      * @return the integer key code
      */
-    getKeyCode(): int;
+    getKeyCode(): number;
+
+    /**
+     * Gets the category of the key.
+     *
+     * @return the category
+     */
+    getCategory(): string;
 
     /**
      * Sets the state of the key.
@@ -5583,22 +5578,28 @@ declare global {
      * @param pressed True to press, False to release
      */
     setState(pressed: boolean): void;
+
+    removeKeyBind(keyBind: KeyBind): void;
+    static removeKeyBind(keyBind: KeyBind): void;
+
+    clearKeyBinds(): void;
+    static clearKeyBinds(): void;
   }
 
   class CPS {
     static INSTANCE: CPS;
 
-    static getLeftClicksMax(): int;
+    static getLeftClicksMax(): number;
 
-    static getRightClicksMax(): int;
+    static getRightClicksMax(): number;
 
-    static getLeftClicks(): int;
+    static getLeftClicks(): number;
 
-    static getRightClicks(): int;
+    static getRightClicks(): number;
 
-    static getLeftClicksAverage(): int;
+    static getLeftClicksAverage(): number;
 
-    static getRightClicksAverage(): int;
+    static getRightClicksAverage(): number;
   }
 
   class DisplayHandler {
@@ -5606,9 +5607,16 @@ declare global {
 
     clearDisplays(): void;
 
-    renderDisplays(event: ForgeRenderGameOverlayEvent): void;
+    renderDisplayOverlay(event: ForgeRenderGameOverlayEvent): void;
+
+    renderDisplayGui(event: ForgeGuiScreenEvent.DrawScreenEvent.Post): void;
   }
   namespace DisplayHandler {
+    enum RegisterType {
+      RENDER_OVERLAY,
+      POST_GUI_RENDER,
+    }
+
     enum Background {
       NONE,
       FULL,
@@ -5636,13 +5644,13 @@ declare global {
     getText(): Text;
     setText(text: string): DisplayLine;
 
-    getTextColor(): long;
-    setTextColor(color: long): DisplayLine;
+    getTextColor(): number;
+    setTextColor(color: number): DisplayLine;
 
-    getTextWidth(): float;
+    getTextWidth(): number;
 
     setShadow(shadow: boolean): DisplayLine;
-    setScale(scale: float): DisplayLine;
+    setScale(scale: number): DisplayLine;
 
     getAlign(): DisplayHandler.Align;
     setAlign(align: string | DisplayHandler.Align): DisplayLine;
@@ -5650,60 +5658,64 @@ declare global {
     getBackground(): DisplayHandler.Background;
     setBackground(background: string | DisplayHandler.Background): DisplayLine;
 
-    getBackgroundColor(): long;
-    setBackgroundColor(color: long): DisplayLine;
+    getBackgroundColor(): number;
+    setBackgroundColor(color: number): DisplayLine;
 
     registerClicked(
       method: (
         mouseX: number,
         mouseY: number,
-        button: int,
+        button: number,
         pressed: boolean,
       ) => void,
-    ): OnTrigger;
-    registerHovered(
+    ): Trigger;
+
+    registerHovered(method: (mouseX: number, mouseY: number) => void): Trigger;
+
+    registerMouseLeave(
       method: (mouseX: number, mouseY: number) => void,
-    ): OnTrigger;
+    ): Trigger;
+
     registerDragged(
       method: (
         xDist: number,
         yDist: number,
         mouseX: number,
         mouseY: number,
-        button: int,
+        button: number,
       ) => void,
-    ): OnTrigger;
+    ): Trigger;
 
     drawLeft(
-      x: float,
-      y: float,
-      maxWidth: float,
+      x: number,
+      y: number,
+      maxWidth: number,
       background: DisplayHandler.Background,
-      backgroundColor: long,
-      textColor: long,
+      backgroundColor: number,
+      textColor: number,
     ): void;
     drawRight(
-      x: float,
-      y: float,
-      maxWidth: float,
+      x: number,
+      y: number,
+      maxWidth: number,
       background: DisplayHandler.Background,
-      backgroundColor: long,
-      textColor: long,
+      backgroundColor: number,
+      textColor: number,
     ): void;
     drawCenter(
-      x: float,
-      y: float,
-      maxWidth: float,
+      x: number,
+      y: number,
+      maxWidth: number,
       background: DisplayHandler.Background,
-      backgroundColor: long,
-      textColor: long,
+      backgroundColor: number,
+      textColor: number,
     ): void;
 
     toString(): string;
   }
   interface DisplayLineConfig {
-    textColor?: long;
-    backgroundColor?: long;
+    textColor?: number;
+    backgroundColor?: number;
 
     align?: DisplayHandler.Align;
     background?: DisplayHandler.Background;
@@ -5713,11 +5725,11 @@ declare global {
     constructor();
     constructor(config: DisplayConfig);
 
-    getBackgroundColor(): long;
-    setBackgroundColor(backgroundColor: long): Display;
+    getBackgroundColor(): number;
+    setBackgroundColor(backgroundColor: number): Display;
 
-    getTextColor(): long;
-    setTextColor(textColor: long): Display;
+    getTextColor(): number;
+    setTextColor(textColor: number): Display;
 
     getBackground(): DisplayHandler.Background;
     setBackground(background: string | DisplayHandler.Background): Display;
@@ -5728,33 +5740,66 @@ declare global {
     getOrder(): DisplayHandler.Order;
     setOrder(order: string | DisplayHandler.Order): Display;
 
-    getLine(index: int): DisplayLine;
-    setLine(index: int, line: string | DisplayLine): Display;
+    getLine(index: number): DisplayLine;
+    setLine(index: number, line: string | DisplayLine): Display;
 
     getLines(): DisplayLine[];
     setLines(lines: DisplayLine[]): Display;
 
-    addLine(index: int, line: string | DisplayLine): void;
+    addLine(line: string | DisplayLine): Display;
+    addLine(index: number, line: string | DisplayLine): Display;
 
     addLines(...lines: string[] | DisplayLine[]): void;
 
+    removeLine(index: number): Display;
+
     clearLines(): Display;
 
-    getRenderX(): float;
-    setRenderX(renderX: float): Display;
+    getRenderX(): number;
+    setRenderX(renderX: number): Display;
 
-    getRenderY(): float;
-    setRenderY(renderY: float): Display;
+    getRenderY(): number;
+    setRenderY(renderY: number): Display;
 
-    setRenderLoc(renderX: float, renderY: float): Display;
+    setRenderLoc(renderX: number, renderY: number): Display;
 
     getShouldRender(): boolean;
     setShouldRender(shouldRender: boolean): Display;
 
-    getWidth(): float;
-    getHeight(): float;
-    getMinWidth(): float;
-    setMinWidth(minWidth: float): Display;
+    show(): Display;
+
+    hide(): Display;
+
+    getWidth(): number;
+    getHeight(): number;
+    getMinWidth(): number;
+    setMinWidth(minWidth: number): Display;
+
+    /**
+     * Gets the type of register the display will render under.
+     *
+     * The returned value will be a DisplayHandler.RegisterType
+     *      renderOverlayEvent: render overlay
+     *      postGuiRenderEvent: post gui render
+     *
+     * @return the register type
+     */
+    getRegisterType(): DisplayHandler.RegisterType;
+
+    /**
+     * Sets the type of register the display will render under.
+     *
+     * Possible input values are:.
+     *      renderOverlayEvent: render overlay
+     *      postGuiRenderEvent: post gui render
+     */
+    setRegisterType(
+      registerType:
+        | "RENDER_OVERLAY_EVENT"
+        | "POST_GUI_RENDER_EVENT"
+        | DisplayHandler.RegisterType
+        | any,
+    ): Display;
 
     render(): void;
 
@@ -5763,23 +5808,38 @@ declare global {
 
   interface DisplayConfig {
     shouldRender?: boolean;
-    renderX?: float;
-    renderY?: float;
-    backgroundColor?: long;
-    textColor?: long;
+    renderX?: number;
+    renderY?: number;
+    backgroundColor?: number;
+    textColor?: number;
     background?: DisplayHandler.Background;
     align?: DisplayHandler.Align;
     order?: DisplayHandler.Order;
+    minWidth?: number;
+    registerType?: DisplayHandler.RegisterType;
+  }
+
+  interface TextConfig {
+    color?: number;
+    formatted?: boolean;
+    shadow?: boolean;
+    align?: DisplayHandler.Align;
+    x?: number;
+    y?: number;
+    maxLines?: number;
+    scale?: number;
+    maxWidth?: number;
   }
 
   class Text {
-    constructor(string: string, x?: float, y?: float);
+    constructor(string: string, x?: number, y?: number);
+    constructor(string: string, config: TextConfig);
 
     getString(): string;
     setString(string: string): Text;
 
-    getColor(): long;
-    setColor(color: long): Text;
+    getColor(): number;
+    setColor(color: number): Text;
 
     getFormatted(): boolean;
     setFormatted(formatted: boolean): Text;
@@ -5790,11 +5850,11 @@ declare global {
     getAlign(): DisplayHandler.Align;
     setAlign(align: string | DisplayHandler.Align): Text;
 
-    getX(): float;
-    setX(x: float): Text;
+    getX(): number;
+    setX(x: number): Text;
 
-    getY(): float;
-    setY(y: float): Text;
+    getY(): number;
+    setY(y: number): Text;
 
     /**
      * Gets the width of the text
@@ -5802,15 +5862,15 @@ declare global {
      *
      * @return the width of the text
      */
-    getWidth(): int;
+    getWidth(): number;
 
     getLines(): string[];
 
-    getMaxLines(): int;
-    setMaxLines(maxLines: int): Text;
+    getMaxLines(): number;
+    setMaxLines(maxLines: number): Text;
 
-    getScale(): float;
-    setScale(scale: float): Text;
+    getScale(): number;
+    setScale(scale: number): Text;
 
     /**
      * Sets the maximum width of the text, splitting it into multiple lines if necessary.
@@ -5819,21 +5879,21 @@ declare global {
      * @return the Text object for method chaining
      */
     setMaxWidth(maxWidth: number): Text;
-    getMaxWidth(): int;
+    getMaxWidth(): number;
 
-    getHeight(): float;
+    getHeight(): number;
 
     exceedsMaxLines(): boolean;
 
-    draw(x?: float, y?: float): Text;
+    draw(x?: number, y?: number): Text;
 
     toString(): string;
   }
 
   class DragAction extends Action {
-    constructor(slot: int, windowId: int);
-    readonly slot: int;
-    readonly windowId: int;
+    constructor(slot: number, windowId: number);
+    readonly slot: number;
+    readonly windowId: number;
 
     /**
      * The type of click (REQUIRED)
@@ -5887,9 +5947,9 @@ declare global {
   }
 
   class DropAction extends Action {
-    constructor(slot: int, windowId: int);
-    readonly slot: int;
-    readonly windowId: int;
+    constructor(slot: number, windowId: number);
+    readonly slot: number;
+    readonly windowId: number;
 
     getHoldingCtrl(): boolean;
 
@@ -5902,9 +5962,9 @@ declare global {
   }
 
   class KeyAction extends Action {
-    constructor(slot: int, windowId: int);
+    constructor(slot: number, windowId: number);
 
-    getKey(): int;
+    getKey(): number;
 
     /**
      * Which key to act as if has been clicked (REQUIRED).
@@ -5912,7 +5972,7 @@ declare global {
      *
      * @param key which key to "click"
      */
-    setKey(key: int): KeyAction;
+    setKey(key: number): KeyAction;
 
     complete(): void;
   }
@@ -5920,8 +5980,8 @@ declare global {
   class EventLib {
     static readonly INSTANCE: EventLib;
 
-    getType(event: ForgeClientChatReceivedEvent): int;
-    static getType(event: ForgeClientChatReceivedEvent): int;
+    getType(event: ForgeClientChatReceivedEvent): number;
+    static getType(event: ForgeClientChatReceivedEvent): number;
 
     getMessage(event: ForgeClientChatReceivedEvent): MCIChatComponent;
     static getMessage(event: ForgeClientChatReceivedEvent): MCIChatComponent;
@@ -5935,14 +5995,16 @@ declare global {
      * @param event the event to cancel
      * @throws IllegalArgumentException if event can be cancelled "normally"
      */
-    cancel(event: ForgePlaySoundEvent | CancellableEvent): void;
+    cancel(event: ForgePlaySoundEvent | CancellableEvent | ForgeEvent): void;
     /**
      * Cancel an event. Automatically used with `cancel(event)`.
      *
      * @param event the event to cancel
      * @throws IllegalArgumentException if event can be cancelled "normally"
      */
-    static cancel(event: ForgePlaySoundEvent | CancellableEvent): void;
+    static cancel(
+      event: ForgePlaySoundEvent | CancellableEvent | ForgeEvent,
+    ): void;
   }
 
   class FileLib {
@@ -5954,16 +6016,28 @@ declare global {
      * @param importName name of the import
      * @param fileName name of the file
      * @param toWrite string to write in file
+     * @param recursive whether to create folders to the file location if they don't exist
      */
-    write(importName: string, fileName: string, toWrite: string): void;
+    write(
+      importName: string,
+      fileName: string,
+      toWrite: string,
+      recursive?: boolean,
+    ): void;
     /**
      * Writes a file to folder in modules.
      *
      * @param importName name of the import
      * @param fileName name of the file
      * @param toWrite string to write in file
+     * @param recursive whether to create folders to the file location if they don't exist
      */
-    static write(importName: string, fileName: string, toWrite: string): void;
+    static write(
+      importName: string,
+      fileName: string,
+      toWrite: string,
+      recursive?: boolean,
+    ): void;
 
     /**
      * Writes a file to anywhere on the system.
@@ -5971,16 +6045,22 @@ declare global {
      *
      * @param fileLocation the location and file name
      * @param toWrite string to write in file
+     * @param recursive whether to create folders to the file location if they don't exist
      */
-    write(fileLocation: string, toWrite: string): void;
+    write(fileLocation: string, toWrite: string, recursive?: boolean): void;
     /**
      * Writes a file to anywhere on the system.
      * Use "./" for the ".minecraft" folder.
      *
      * @param fileLocation the location and file name
      * @param toWrite string to write in file
+     * @param recursive whether to create folders to the file location if they don't exist
      */
-    static write(fileLocation: string, toWrite: string): void;
+    static write(
+      fileLocation: string,
+      toWrite: string,
+      recursive?: boolean,
+    ): void;
 
     /**
      * Writes a file to folder in modules.
@@ -6115,8 +6195,68 @@ declare global {
      */
     static getUrlContent(theUrl: string, userAgent?: string): string;
 
+    /**
+     * Deletes a file at the specified location
+     *
+     * @param importName name of the import
+     * @param fileName name of the file
+     * @return if the file was deleted
+     */
+    delete(importName: string, fileName: string): boolean;
+    /**
+     * Deletes a file at the specified location
+     *
+     * @param importName name of the import
+     * @param fileName name of the file
+     * @return if the file was deleted
+     */
+    static delete(importName: string, fileName: string): boolean;
+
+    /**
+     * Deletes a file at the specified location
+     *
+     * @param fileLocation the path of the file
+     * @return if the file was deleted
+     */
+    delete(fileLocation: string): boolean;
+    /**
+     * Deletes a file at the specified location
+     *
+     * @param fileLocation the path of the file
+     * @return if the file was deleted
+     */
+    static delete(fileLocation: string): boolean;
+
+    /**
+     * Deletes a directory at the specified location
+     *
+     * @param dir the directory to delete
+     * @return if the directory was deleted
+     */
+    deleteDirectory(dir: string): boolean;
+    /**
+     * Deletes a directory at the specified location
+     *
+     * @param dir the directory to delete
+     * @return if the directory was deleted
+     */
+    static deleteDirectory(dir: string): boolean;
+
+    /**
+     * Deletes a directory at the specified location
+     *
+     * @param dir the directory to delete
+     * @return if the directory was deleted
+     */
     deleteDirectory(dir: JavaFile): boolean;
+    /**
+     * Deletes a directory at the specified location
+     *
+     * @param dir the directory to delete
+     * @return if the directory was deleted
+     */
     static deleteDirectory(dir: JavaFile): boolean;
+
     /**
      * Determines if a file or directory exists at the specified location
      *
@@ -6193,8 +6333,8 @@ declare global {
      * @return the trigger
      */
     registerDraw(
-      method: (mouseX: int, mouseY: int, partialTicks: float) => void,
-    ): OnRegularTrigger;
+      method: (mouseX: number, mouseY: number, partialTicks: number) => void,
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while gui is open.
@@ -6208,8 +6348,8 @@ declare global {
      * @return the trigger
      */
     registerClicked(
-      method: (mouseX: int, mouseY: int, button: int) => void,
-    ): OnRegularTrigger;
+      method: (mouseX: number, mouseY: number, button: number) => void,
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while the gui is open.
@@ -6220,8 +6360,8 @@ declare global {
      * - int scroll direction
      */
     registerScrolled(
-      method: (mouseX: int, mouseY: int, scroll: int) => void,
-    ): OnRegularTrigger;
+      method: (mouseX: number, mouseY: number, scroll: number) => void,
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while gui is open.
@@ -6234,8 +6374,8 @@ declare global {
      * @return the trigger
      */
     registerKeyTyped(
-      method: (typed: string, key: int) => void,
-    ): OnRegularTrigger;
+      method: (typed: string, key: number) => void,
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while gui is open.
@@ -6251,12 +6391,12 @@ declare global {
      */
     registerMouseDragged(
       method: (
-        mouseX: int,
-        mouseY: int,
-        clickedMouseButton: int,
-        timeSinceLastClick: long,
+        mouseX: number,
+        mouseY: number,
+        clickedMouseButton: number,
+        timeSinceLastClick: number,
       ) => void,
-    ): OnRegularTrigger;
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while gui is open.
@@ -6270,8 +6410,8 @@ declare global {
      * @return the trigger
      */
     registerMouseReleased(
-      method: (mouseX: int, mouseY: int, button: int) => void,
-    ): OnRegularTrigger;
+      method: (mouseX: number, mouseY: number, button: number) => void,
+    ): RegularTrigger;
 
     /**
      * Registers a method to be run while gui is open.
@@ -6284,17 +6424,37 @@ declare global {
      */
     registerActionPerformed(
       method: (button: MCGuiButton) => void,
-    ): OnRegularTrigger;
+    ): RegularTrigger;
+
+    /**
+     * Registers a method to be run when the gui is opened.
+     * Arguments passed through to method:
+     * - the guithat is opened
+     *
+     * @param method the method to run
+     * @return the trigger
+     */
+    registerOpened(method: (gui: Gui) => void): RegularTrigger;
+
+    /**
+     * Registers a method to be run when the gui is closed.
+     * Arguments passed through to method:
+     * - the gui that is closed
+     *
+     * @param method the method to run
+     * @return the trigger
+     */
+    registerClosed(method: (gui: Gui) => void): RegularTrigger;
 
     /**
      * Internal method to run trigger. Not meant for public use
      */
-    mouseClicked(mouseX: int, mouseY: int, button: int): void;
+    mouseClicked(mouseX: number, mouseY: number, button: number): void;
 
     /**
      * Internal method to run trigger. Not meant for public use
      */
-    mouseReleased(mouseX: int, mouseY: int, button: int): void;
+    mouseReleased(mouseX: number, mouseY: number, button: number): void;
 
     /**
      * Internal method to run trigger. Not meant for public use
@@ -6305,10 +6465,10 @@ declare global {
      * Internal method to run trigger. Not meant for public use
      */
     mouseClickMove(
-      mouseX: int,
-      mouseY: int,
-      clickedMouseButton: int,
-      timeSinceLastClick: long,
+      mouseX: number,
+      mouseY: number,
+      clickedMouseButton: number,
+      timeSinceLastClick: number,
     ): void;
 
     /**
@@ -6319,12 +6479,12 @@ declare global {
     /**
      * Internal method to run trigger. Not meant for public use
      */
-    drawScreen(mouseX: int, mouseY: int, partialTicks: float): void;
+    drawScreen(mouseX: number, mouseY: number, partialTicks: number): void;
 
     /**
      * Internal method to run trigger. Not meant for public use
      */
-    keyTyped(typedChar: string, keyCode: int): void;
+    keyTyped(typedChar: string, keyCode: number): void;
 
     /**
      * Internal method to run trigger. Not meant for public use
@@ -6382,7 +6542,7 @@ declare global {
      * @param visible the new visibility of the button
      * @return the Gui for method chaining
      */
-    setButtonVisibility(buttonId: int, visible: boolean): Gui;
+    setButtonVisibility(buttonId: number, visible: boolean): Gui;
 
     getButtonEnabled(buttonId: number): boolean;
 
@@ -6455,7 +6615,7 @@ declare global {
      * @param y Y position of the text
      * @param color color of the text
      */
-    drawString(text: string, x: int, y: int, color: int): void;
+    drawString(text: string, x: number, y: number, color: number): void;
 
     /**
      * Draws hovering text that follows the mouse
@@ -6464,16 +6624,20 @@ declare global {
      * @param mouseX X position of mouse
      * @param mouseY Y position of mouse
      */
-    drawCreativeTabHoveringString(text: string, mouseX: int, mouseY: int): void;
+    drawCreativeTabHoveringString(
+      text: string,
+      mouseX: number,
+      mouseY: number,
+    ): void;
 
     /**
-     * Draws hovering tex that doesn't follow the mouse
+     * Draws hovering text that doesn't follow the mouse
      *
      * @param text the text's to draw
      * @param x X position of the text
      * @param y Y position of the text
      */
-    drawHoveringString(text: string[], x: int, y: int): void;
+    drawHoveringString(text: string[], x: number, y: number): void;
   }
 
   class Image {
@@ -6481,17 +6645,76 @@ declare global {
 
     readonly image: JavaBufferedImage;
 
+    /**
+     * @deprecated API is ambiguous, especially when called from JavaScript, and is relative to the assets directory.
+     * Instead use Image.fromFile() or Image.fromURL().
+     */
     constructor(name: string, url?: string);
 
-    getTextureWidth(): int;
+    /**
+     * @deprecated Use static method for consistency: Image.fromFile().
+     */
+    constructor(file: JavaFile);
 
-    getTextureHeight(): int;
+    getTextureWidth(): number;
+
+    getTextureHeight(): number;
 
     getTexture(): MCDynamicTexture;
 
+    /**
+     * Clears the image from GPU memory and removes its references CT side
+     * that way it can be garbage collected if not referenced in js code.
+     */
+    destroy(): void;
+
     onRender(event: ForgeRenderGameOverlayEvent): void;
 
-    draw(x: double, y: double, width: double, height: double): Image;
+    draw(x: number, y: number, width: number, height: number): Image;
+
+    /**
+     * Create an image object from a java.io.File object. Throws an exception
+     * if the file cannot be found.
+     */
+    fromFile(file: JavaFile): Image;
+    /**
+     * Create an image object from a java.io.File object. Throws an exception
+     * if the file cannot be found.
+     */
+    static fromFile(file: JavaFile): Image;
+
+    /**
+     * Create an image object from a file path. Throws an exception
+     * if the file cannot be found.
+     */
+    fromFile(file: string): Image;
+    /**
+     * Create an image object from a file path. Throws an exception
+     * if the file cannot be found.
+     */
+    static fromFile(file: string): Image;
+
+    /**
+     * Create an image object from a file path, relative to the assets directory.
+     * Throws an exception if the file cannot be found.
+     */
+    fromAsset(name: string): Image;
+    /**
+     * Create an image object from a file path, relative to the assets directory.
+     * Throws an exception if the file cannot be found.
+     */
+    static fromAsset(name: string): Image;
+
+    /**
+     * Creates an image object from a URL. Throws an exception if an image
+     * cannot be created from the URL. Will cache the image in the assets
+     */
+    fromUrl(url: string): Image;
+    /**
+     * Creates an image object from a URL. Throws an exception if an image
+     * cannot be created from the URL. Will cache the image in the assets
+     */
+    static fromUrl(url: string): Image;
   }
 
   class PlayerMP extends EntityLivingBase {
@@ -6503,7 +6726,7 @@ declare global {
 
     getActivePotionEffects(): PotionEffect[];
 
-    getPing(): int;
+    getPing(): number;
 
     /**
      * Gets the item currently in the player's specified inventory slot.
@@ -6513,7 +6736,9 @@ declare global {
      * @param slot the slot to access
      * @return the item in said slot
      */
-    getItemInSlot(slot: int): Item;
+    getItemInSlot(slot: number): Item;
+
+    getTeam(): Team | null;
 
     /**
      * Gets the display name for this player,
@@ -6536,8 +6761,8 @@ declare global {
      * Draws the player in the GUI
      */
     draw(
-      x: int,
-      y: int,
+      x: number,
+      y: number,
       rotate?: boolean,
       showNametag?: boolean,
       showArmor?: boolean,
@@ -6551,291 +6776,66 @@ declare global {
     getName(): string;
   }
 
-  class Particle {
+  class Particle extends Entity {
     constructor(underlyingEntity: MCEntityFX);
 
     readonly underlyingEntity: MCEntityFX;
+    getUnderlyingEntity(): MCEntityFX;
 
-    getX(): double;
-    getY(): double;
-    getZ(): double;
+    setX(x: number): Particle;
+    setY(y: number): Particle;
+    setZ(z: number): Particle;
 
-    setX(x: double): Particle;
-    setY(y: double): Particle;
-    setZ(z: double): Particle;
+    scale(scale: number): Particle;
 
-    scale(scale: float): Particle;
+    multiplyVelocity(multiplier: number): Particle;
 
-    multiplyVelocity(multiplier: float): Particle;
+    /**
+     * Sets the color of the particle.
+     * @param red the red value between 0 and 1.
+     * @param green the green value between 0 and 1.
+     * @param blue the blue value between 0 and 1.
+     */
+    setColor(red: number, green: number, blue: number): Particle;
 
-    setColor(r: float, g: float, b: float): Particle;
+    /**
+     * Sets the color of the particle.
+     * @param red the red value between 0 and 1.
+     * @param green the green value between 0 and 1.
+     * @param blue the blue value between 0 and 1.
+     * @param alpha the alpha value between 0 and 1.
+     */
+    setColor(red: number, green: number, blue: number, alpha: number): Particle;
 
-    setColor(r: float, g: float, b: float, a: float): Particle;
+    setColor(color: number): Particle;
 
-    setColor(color: long): Particle;
+    /**
+     * Sets the alpha of the particle.
+     * @param alpha the alpha value between 0 and 1.
+     */
+    setAlpha(alpha: number): Particle;
 
-    setAlpha(a: float): Particle;
+    /**
+     * Returns the color of the Particle
+     *
+     * @return A [java.awt.Color] with the R, G, B and A values
+     */
+    getColor(): JavaColor;
 
     /**
      * Sets the amount of ticks this particle will live for
      *
      * @param maxAge the particle's max age (in ticks)
      */
-    setMaxAge(maxAge: int): Particle;
+    setMaxAge(maxAge: number): Particle;
 
     remove(): Particle;
 
     toString(): string;
   }
-  enum Priority {
-    HIGHEST,
-    HIGH,
-    NORMAL,
-    LOW,
-    LOWEST,
-  }
-
-  class OnTrigger {
-    /**
-     * Sets a trigger's priority using [Priority].
-     * Highest runs first.
-     * @param priority the priority of the trigger
-     * @return the trigger for method chaining
-     */
-    setPriority(priority: Priority): OnTrigger;
-
-    /**
-     * Registers a trigger based on its type.
-     * This is done automatically with TriggerRegister.
-     * @return the trigger for method chaining
-     */
-    register(): OnTrigger;
-
-    /**
-     * Unregisters a trigger.
-     * @return the trigger for method chaining
-     */
-    unregister(): OnTrigger;
-
-    compareTo(other: OnTrigger): int;
-  }
-
-  namespace OnTrigger {
-    enum Priority {
-      HIGHEST,
-      HIGH,
-      NORMAL,
-      LOW,
-      LOWEST,
-    }
-  }
-
-  class OnRegularTrigger extends OnTrigger {
-    trigger(args: any[]): void;
-  }
-
-  class OnChatTrigger extends OnTrigger {
-    constructor(method: Function, type: TriggerType, loader: ILoader);
-
-    /**
-     * Sets if the chat trigger should run if the chat event has already been canceled.
-     * True by default.
-     * @param bool Boolean to set
-     * @return the trigger object for method chaining
-     */
-    triggerIfCanceled(bool: boolean): OnChatTrigger;
-
-    /**
-     * Sets the chat criteria for [matchesChatCriteria].
-     * Arguments for the trigger's method can be passed in using ${variable}.
-     * Example: `OnChatTrigger.setChatCriteria("<${name}> ${message}");`
-     * Use ${*} to match a chat message but ignore the pass through.
-     * @param chatCriteria the chat criteria to set
-     * @return the trigger object for method chaining
-     */
-    setChatCriteria(chatCriteria: string | RegExp): OnChatTrigger;
-
-    /**
-     * Alias for [setChatCriteria].
-     * @param chatCriteria the chat criteria to set
-     * @return the trigger object for method chaining
-     */
-    setCriteria(chatCriteria: string | RegExp): OnChatTrigger;
-
-    /**
-     * Sets the chat parameter for [Parameter].
-     * Clears current parameter list.
-     * @param parameter the chat parameter to set
-     * @return the trigger object for method chaining
-     */
-    setParameter(parameter: "contains" | "start" | "end"): OnChatTrigger;
-
-    /**
-     * Sets multiple chat parameters for [Parameter].
-     * Clears current parameter list.
-     * @param parameters the chat parameters to set
-     * @return the trigger object for method chaining
-     */
-    setParameters(
-      ...parameters: ("contains" | "start" | "end")[]
-    ): OnChatTrigger;
-
-    /**
-     * Adds chat parameter for [Parameter].
-     * @param parameter the chat parameter to add
-     * @return the trigger object for method chaining
-     */
-    addParameter(parameter: "contains" | "start" | "end"): OnChatTrigger;
-
-    /**
-     * Adds multiple chat parameters for [Parameter].
-     * @param parameters the chat parameters to add
-     * @return the trigger object for method chaining
-     */
-    addParameters(
-      ...parameters: ("contains" | "start" | "end")[]
-    ): OnChatTrigger;
-
-    /**
-     * Adds the "start" parameter
-     * @return the trigger object for method chaining
-     */
-    setStart(): OnChatTrigger;
-
-    /**
-     * Adds the "contains" parameter
-     * @return the trigger object for method chaining
-     */
-    setContains(): OnChatTrigger;
-
-    /**
-     * Adds the "end" parameter
-     * @return the trigger object for method chaining
-     */
-    setEnd(): OnChatTrigger;
-
-    /**
-     * Makes the trigger match the entire chat message
-     * @return the trigger object for method chaining
-     */
-    setExact(): OnChatTrigger;
-
-    /**
-     * Makes the chat criteria case insensitive
-     * @return the trigger object for method chaining
-     */
-    setCaseInsensitive(): OnChatTrigger;
-
-    /**
-     * Argument 1 (String) The chat message received
-     * Argument 2 (ClientChatReceivedEvent) the chat event fired
-     * @param args list of arguments as described
-     */
-    trigger(args: any[]): void;
-  }
-
-  class OnSoundPlayTrigger extends OnTrigger {
-    constructor(method: Function, loader: ILoader);
-
-    soundNameCriteria: string;
-
-    /**
-     * Sets the sound name criteria.
-     *
-     * @param soundNameCriteria the sound name
-     * @return the trigger for method chaining
-     */
-    setCriteria(soundNameCriteria: string): OnSoundPlayTrigger;
-
-    trigger(args: any[]): void;
-  }
-
-  class OnStepTrigger extends OnTrigger {
-    constructor(method: Function, loader: ILoader);
-
-    /**
-     * Sets the frames per second that the trigger activates.
-     * This has a maximum one step per second.
-     * @param fps the frames per second to set
-     * @return the trigger for method chaining
-     */
-    setFps(fps: long): OnStepTrigger;
-
-    /**
-     * Sets the delay in seconds between the trigger activation.
-     * This has a minimum of one step every second. This will override [setFps].
-     * @param delay The delay in seconds
-     * @return the trigger for method chaining
-     */
-    setDelay(delay: long): OnStepTrigger;
-
-    trigger(args: any[]): void;
-  }
-
-  class OnRenderTrigger extends OnTrigger {
-    constructor(method: Function, triggerType: TriggerType, loader: ILoader);
-
-    /**
-     * Sets if the render trigger should run if the event has already been canceled.
-     * True by default.
-     * @param bool Boolean to set
-     * @return the trigger object for method chaining
-     */
-    triggerIfCanceled(bool: boolean): OnRenderTrigger;
-
-    trigger(args: any[]): void;
-  }
-
-  class OnCommandTrigger extends OnTrigger {
-    constructor(method: Function, loader: ILoader);
-
-    trigger(args: any[]): void;
-
-    /**
-     * Sets the tab completion options for the command.
-     * This method must be used before setting the command name, otherwise, the tab completions will not be set.
-     *
-     * @param args all the tab completion options.
-     */
-    setTabCompletions(...args: string[]): OnCommandTrigger;
-
-    /**
-     * Sets the tab completion options for the command.
-     * This method must be used before setting the command name, otherwise, the tab completions will not be set.
-     *
-     * @param args all the tab completion options.
-     */
-    setTabCompletions(args: string[]): OnCommandTrigger;
-
-    /**
-     * Sets the aliases for the command.
-     *
-     * @param args all the aliases.
-     */
-    setAliases(...args: string[]): OnCommandTrigger;
-
-    /**
-     * Sets the command name.
-     * Example:
-     * OnCommandTrigger.setCommandName("test")
-     * would result in the command being /test
-     *
-     * @param commandName The command name
-     * @return the trigger for additional modification
-     */
-    setCommandName(commandName: string): OnCommandTrigger;
-
-    /**
-     * Alias for [setCommandName]
-     *
-     * @param commandName The command name
-     * @return the trigger for additional modification
-     */
-    setName(commandName: string): OnCommandTrigger;
-  }
 }
 
-declare interface javaTypePath {
+declare interface JavaTypePath {
   // obfuscated paths
   (
     path: "net.minecraft.client.gui.inventory.GuiContainer",
@@ -6894,6 +6894,9 @@ declare interface javaTypePath {
   (path: "net.minecraft.client.multiplayer.WorldClient"): typeof MCWorldClient;
   (path: "net.minecraft.scoreboard.Score"): typeof MCScore;
   // forge paths
+  (
+    path: "net.minecraftforge.fml.common.network.FMLNetworkEvent",
+  ): FMLNetworkEventStatic;
   (
     path: "net.minecraftforge.client.event.ClientChatReceivedEvent",
   ): typeof ForgeClientChatReceivedEvent;
@@ -6972,130 +6975,161 @@ declare interface javaTypePath {
 }
 
 declare interface Java {
-  type: javaTypePath;
+  type: JavaTypePath;
 }
+
+declare class NotFullyTyped {
+  [s: string]: any;
+  static [s: string]: any;
+}
+
+type NBTType =
+  | string
+  | number
+  | number[]
+  | { [key: string]: NBTType }
+  | NBTType[];
 
 ////////////////////////
 // obfuscated classes //
 ////////////////////////
 //#region
+declare class MCScoreboard extends NotFullyTyped {
+  class: JavaClass<MCScoreboard>;
+  static class: JavaClass<typeof MCScoreboard>;
+}
 
-declare class MCTileEntity {
+declare class MCScore extends NotFullyTyped {
+  class: JavaClass<MCScore>;
+  static class: JavaClass<typeof MCScore>;
+}
+
+declare class MCScoreObjective extends NotFullyTyped {
+  class: JavaClass<MCScoreObjective>;
+  static class: JavaClass<typeof MCScoreObjective>;
+}
+
+declare class MCScorePlayerTeam extends NotFullyTyped {
+  class: JavaClass<MCScorePlayerTeam>;
+  static class: JavaClass<typeof MCScorePlayerTeam>;
+}
+
+declare class MCTileEntity extends NotFullyTyped {
   class: JavaClass<MCTileEntity>;
   static class: JavaClass<typeof MCTileEntity>;
 }
 
-declare class MCSlot {
+declare class MCSlot extends NotFullyTyped {
   class: JavaClass<MCSlot>;
   static class: JavaClass<typeof MCSlot>;
 }
 
-declare class MCGuiContainer {
+declare class MCGuiContainer extends NotFullyTyped {
   class: JavaClass<MCGuiContainer>;
   static class: JavaClass<typeof MCGuiContainer>;
 }
 
 // TODO probalby should be extending from base object, need to fix issue with static members
-declare class MCVec3 {
+declare class MCVec3 extends NotFullyTyped {
   class: JavaClass<MCVec3>;
   static class: JavaClass<typeof MCVec3>;
 }
 
-declare class MCGlStateManager {
+declare class MCGlStateManager extends NotFullyTyped {
   class: JavaClass<MCGlStateManager>;
   static class: JavaClass<typeof MCGlStateManager>;
 }
 
-declare class MCBlock {
+declare class MCBlock extends NotFullyTyped {
   class: JavaClass<MCBlock>;
   static class: JavaClass<typeof MCBlock>;
 }
-declare class MCBlockPos {
+declare class MCBlockPos extends NotFullyTyped {
   class: JavaClass<MCBlockPos>;
   static class: JavaClass<typeof MCBlockPos>;
 }
-declare class MCItem {
+declare class MCItem extends NotFullyTyped {
   class: JavaClass<MCItem>;
   static class: JavaClass<typeof MCItem>;
 }
-declare class MCItemStack {
+declare class MCItemStack extends NotFullyTyped {
   class: JavaClass<MCItemStack>;
   static class: JavaClass<typeof MCItemStack>;
 }
-declare class MCEntityItem {
+declare class MCEntityItem extends NotFullyTyped {
   class: JavaClass<MCEntityItem>;
   static class: JavaClass<typeof MCEntityItem>;
 }
-declare class MCIBlockState {
+declare class MCIBlockState extends NotFullyTyped {
   class: JavaClass<MCIBlockState>;
   static class: JavaClass<typeof MCIBlockState>;
 }
-declare class MCIInventory {
+declare class MCIInventory extends NotFullyTyped {
   class: JavaClass<MCIInventory>;
   static class: JavaClass<typeof MCIInventory>;
 }
-declare class MCContainer {
+declare class MCContainer extends NotFullyTyped {
   class: JavaClass<MCContainer>;
   static class: JavaClass<typeof MCContainer>;
 }
-declare class MCEntity {
+declare class MCEntity extends NotFullyTyped {
   class: JavaClass<MCEntity>;
   static class: JavaClass<typeof MCEntity>;
 }
-declare class MCIChatComponent {
+declare class MCIChatComponent extends NotFullyTyped {
   class: JavaClass<MCIChatComponent>;
   static class: JavaClass<typeof MCIChatComponent>;
 }
-declare class MCNBTBase {
+declare class MCNBTBase extends NotFullyTyped {
   class: JavaClass<MCNBTBase>;
   static class: JavaClass<typeof MCNBTBase>;
 }
-declare class MCNBTTagCompound {
+declare class MCNBTTagCompound extends NotFullyTyped {
   class: JavaClass<MCNBTTagCompound>;
   static class: JavaClass<typeof MCNBTTagCompound>;
 }
-declare class MCChunk {
+declare class MCChunk extends NotFullyTyped {
   class: JavaClass<MCChunk>;
   static class: JavaClass<typeof MCChunk>;
 }
 // TODO
-declare class MCEnumFacing {
+declare class MCEnumFacing extends NotFullyTyped {
   class: JavaClass<MCEnumFacing>;
   static class: JavaClass<typeof MCEnumFacing>;
   Axis: any;
 }
-declare class MCNBTTagList {
+declare class MCNBTTagList extends NotFullyTyped {
   class: JavaClass<MCNBTTagList>;
   static class: JavaClass<typeof MCNBTTagList>;
 }
-declare class MCMinecraft {
+declare class MCMinecraft extends NotFullyTyped {
   class: JavaClass<MCMinecraft>;
   static class: JavaClass<typeof MCMinecraft>;
 }
-declare class MCNetHandlerPlayClient {
+declare class MCNetHandlerPlayClient extends NotFullyTyped {
   class: JavaClass<MCNetHandlerPlayClient>;
   static class: JavaClass<typeof MCNetHandlerPlayClient>;
 }
-declare class MCGuiNewChat {
+declare class MCGuiNewChat extends NotFullyTyped {
   class: JavaClass<MCGuiNewChat>;
   static class: JavaClass<typeof MCGuiNewChat>;
 }
-declare class MCGuiPlayerTabOverlay {
+declare class MCGuiPlayerTabOverlay extends NotFullyTyped {
   class: JavaClass<MCGuiPlayerTabOverlay>;
   static class: JavaClass<typeof MCGuiPlayerTabOverlay>;
 }
-declare class MCINetHandler {
+declare class MCINetHandler extends NotFullyTyped {
   class: JavaClass<MCINetHandler>;
   static class: JavaClass<typeof MCINetHandler>;
 }
-declare interface MCPacket<T extends MCINetHandler> {
+declare interface MCPacket<T extends MCINetHandler> extends NotFullyTyped {
   class: JavaClass<MCPacket<T>>;
 }
-declare class MCGuiScreen {
+declare class MCGuiScreen extends NotFullyTyped {
   class: JavaClass<MCGuiScreen>;
   static class: JavaClass<typeof MCGuiScreen>;
 }
-declare class MCGameSettings {
+declare class MCGameSettings extends NotFullyTyped {
   class: JavaClass<MCGameSettings>;
   static class: JavaClass<typeof MCGameSettings>;
 }
@@ -7105,18 +7139,18 @@ declare enum EnumChatVisibility {
   SYSTEM,
   HIDDEN,
 }
-declare class MCEntityPlayer {
+declare class MCEntityPlayer extends NotFullyTyped {
   class: JavaClass<MCEntityPlayer>;
   static class: JavaClass<typeof MCEntityPlayer>;
   EnumChatVisibility: EnumChatVisibility;
 }
 
-declare class MCEntityPlayerSP {
+declare class MCEntityPlayerSP extends NotFullyTyped {
   class: JavaClass<MCEntityPlayerSP>;
   static class: JavaClass<typeof MCEntityPlayerSP>;
 }
 
-declare class MCKeyBinding {
+declare class MCKeyBinding extends NotFullyTyped {
   class: JavaClass<MCKeyBinding>;
   static class: JavaClass<typeof MCKeyBinding>;
 }
@@ -7125,7 +7159,7 @@ declare class MCGuiButton extends MCGuiScreen {
   class: JavaClass<MCGuiButton>;
   static class: JavaClass<typeof MCGuiButton>;
 }
-declare class MCAbstractTexture {
+declare class MCAbstractTexture extends NotFullyTyped {
   class: JavaClass<MCAbstractTexture>;
   static class: JavaClass<typeof MCAbstractTexture>;
 }
@@ -7135,7 +7169,7 @@ declare class MCDynamicTexture extends MCAbstractTexture {
   static class: JavaClass<typeof MCDynamicTexture>;
 }
 
-declare class MCSoundCategory {
+declare class MCSoundCategory extends NotFullyTyped {
   class: JavaClass<MCSoundCategory>;
   static class: JavaClass<typeof MCSoundCategory>;
 
@@ -7150,26 +7184,26 @@ declare class MCSoundCategory {
   static AMBIENT: MCSoundCategory;
 }
 
-declare class MCPotion {
+declare class MCPotion extends NotFullyTyped {
   class: JavaClass<MCPotion>;
   static class: JavaClass<typeof MCPotion>;
 }
 
-declare class MCPotionEffect {
+declare class MCPotionEffect extends NotFullyTyped {
   class: JavaClass<MCSoundCategory>;
   static class: JavaClass<typeof MCSoundCategory>;
 }
-declare class MCWorld {
+declare class MCWorld extends NotFullyTyped {
   class: JavaClass<MCWorld>;
   static class: JavaClass<typeof MCWorld>;
 }
 
-declare class MCEntityFX {
+declare class MCEntityFX extends NotFullyTyped {
   class: JavaClass<MCEntityFX>;
   static class: JavaClass<typeof MCEntityFX>;
 }
 
-declare class MCEnumParticleTypes {
+declare class MCEnumParticleTypes extends NotFullyTyped {
   class: JavaClass<MCEnumParticleTypes>;
   static class: JavaClass<typeof MCEnumParticleTypes>;
 
@@ -7216,22 +7250,22 @@ declare class MCEnumParticleTypes {
   static MOB_APPEARANCE: MCEnumParticleTypes;
 }
 
-declare class MCFontRenderer {
+declare class MCFontRenderer extends NotFullyTyped {
   class: JavaClass<MCFontRenderer>;
   static class: JavaClass<typeof MCFontRenderer>;
 }
 
-declare class MCRenderManager {
+declare class MCRenderManager extends NotFullyTyped {
   class: JavaClass<MCRenderManager>;
   static class: JavaClass<typeof MCRenderManager>;
 }
 
-declare class MCEntityLivingBase {
+declare class MCEntityLivingBase extends NotFullyTyped {
   class: JavaClass<MCEntityLivingBase>;
   static class: JavaClass<typeof MCEntityLivingBase>;
 }
 
-declare class MCWorldClient {
+declare class MCWorldClient extends NotFullyTyped {
   class: JavaClass<MCWorldClient>;
   static class: JavaClass<typeof MCWorldClient>;
 }
@@ -7241,60 +7275,188 @@ declare class MCWorldClient {
 // Forge Classes //
 ///////////////////
 //#region
-declare class FMLNetworkEvent$ClientConnectedToServerEvent {
+declare class ForgeEvent {
+  static readonly Result: typeof ForgeEvent$Result;
+
+  constructor();
+
+  /**
+   * Determine if this function is cancelable at all.
+   * @return If access to setCanceled should be allowed
+   *
+   * Note:
+   * Events with the Cancelable annotation will have this method automatically added to return true.
+   */
+  isCancelable(): boolean;
+
+  /**
+   * Determine if this event is canceled and should stop executing.
+   * @return The current canceled state
+   */
+  isCanceled(): boolean;
+
+  /**
+   * Sets the state of this event, not all events are cancelable, and any attempt to
+   * cancel a event that can't be will result in a IllegalArgumentException.
+   *
+   * The functionality of setting the canceled state is defined on a per-event bases.
+   *
+   * @param cancel The new canceled value
+   */
+  setCanceled(cancel: boolean): void;
+
+  /**
+   * Determines if this event expects a significant result value.
+   *
+   * Note:
+   * Events with the HasResult annotation will have this method automatically added to return true.
+   */
+  hasResult(): boolean;
+
+  /**
+   * Returns the value set as the result of this event
+   */
+  getResult(): ForgeEvent$Result;
+
+  /**
+   * Sets the result value for this event, not all events can have a result set, and any attempt to
+   * set a result for a event that isn't expecting it will result in a IllegalArgumentException.
+   *
+   * The functionality of setting the result is defined on a per-event bases.
+   *
+   * @param value The new result
+   */
+  setResult(value: ForgeEvent$Result): void;
+
+  /**
+   * Called by the base constructor, this is used by ASM generated
+   * event classes to setup various functionality such as the listenerlist.
+   */
+  protected setup(): void;
+
+  /**
+   * Returns a ListenerList object that contains all listeners
+   * that are registered to this event.
+   *
+   * @return Listener List
+   */
+  getListenerList(): NotFullyTyped;
+
+  getPhase(): NotFullyTyped;
+}
+
+declare enum ForgeEvent$Result {
+  DENY,
+  DEFAULT,
+  ALLOW,
+}
+
+declare class FMLNetworkEvent$ClientConnectedToServerEvent extends ForgeEvent {
   readonly isLocal: boolean;
   readonly connectionType: string;
+
+  constructor(manager: any, connectionType: string);
 }
 
-declare class FMLNetworkEvent$ServerConnectionFromClientEvent {
+declare class FMLNetworkEvent$ServerConnectionFromClientEvent extends ForgeEvent {
   readonly isLocal: boolean;
+  constructor(manager: any);
 }
 
-declare class FMLNetworkEvent$ServerDisconnectionFromClientEvent {}
-
-declare class FMLNetworkEvent$ClientDisconnectionFromServerEvent {}
-
-declare class FMLNetworkEvent$CustomPacketRegistrationEvent {}
-
-declare class FMLNetworkEvent$CustomPacketEvent {}
-
-declare class FMLNetworkEvent$ClientCustomPacketEvent {}
-
-declare class FMLNetworkEvent$ServerCustomPacketEvent {}
-
-declare class FMLNetworkEvent$CustomNetworkEvent {
-  readonly wrappedEevent: object;
+declare class FMLNetworkEvent$ServerDisconnectionFromClientEvent extends ForgeEvent {
+  constructor(manager: any);
 }
 
-declare class FMLNetworkEvent {
-  class: JavaClass<FMLNetworkEvent>;
-  static class: JavaClass<typeof FMLNetworkEvent>;
+declare class FMLNetworkEvent$ClientDisconnectionFromServerEvent extends ForgeEvent {
+  constructor(manager: any);
+}
+
+declare class FMLNetworkEvent$CustomPacketRegistrationEvent extends ForgeEvent {
+  readonly registrations: string[];
+  readonly operation: string;
+  readonly side: any;
+
+  new<T>(
+    manager: any,
+    registrations: string[],
+    operation: string,
+    side: any,
+    type: JavaClass<T>,
+  ): FMLNetworkEvent$CustomPacketRegistrationEvent;
+}
+
+declare abstract class FMLNetworkEvent$CustomPacketEvent extends ForgeEvent {
+  /**
+   * The packet that generated the event
+   */
+  readonly packet: any;
+
+  /**
+   * Set this packet to reply to the originator
+   */
+  readonly reply: any;
+
+  new<T>(
+    thing: T,
+    type: JavaClass<T>,
+    manager: any,
+    packet: any,
+  ): FMLNetworkEvent$CustomPacketEvent;
+
+  abstract side(): any;
+}
+
+declare class FMLNetworkEvent$ClientCustomPacketEvent extends FMLNetworkEvent$CustomPacketEvent {
+  constructor(manager: any, packet: any);
+
+  side(): any;
+}
+
+declare class FMLNetworkEvent$ServerCustomPacketEvent extends FMLNetworkEvent$CustomPacketEvent {
+  constructor(manager: any, packet: any);
+
+  side(): any;
+}
+
+declare class FMLNetworkEvent$CustomNetworkEvent extends ForgeEvent {
+  readonly wrappedEevent: any;
+
+  constructor(wrappedEvent: any);
+}
+
+declare interface FMLNetworkEvent extends ForgeEvent, NotFullyTyped {
+  readonly class: JavaClass<FMLNetworkEvent>;
+}
+declare interface FMLNetworkEventStatic extends NotFullyTyped {
+  readonly class: JavaClass<FMLNetworkEventStatic>;
+
+  new <T>(thing: T, type: JavaClass<T>, manager: any): FMLNetworkEvent;
 
   /**
    * Fired at the client when a client connects to a server
    */
-  static readonly ClientConnectedToServerEvent: typeof FMLNetworkEvent$ClientConnectedToServerEvent;
+  readonly ClientConnectedToServerEvent: typeof FMLNetworkEvent$ClientConnectedToServerEvent;
   /**
    * Fired at the server when a client connects to the server.
    *
    * @author cpw
    *
    */
-  static readonly ServerConnectionFromClientEvent: typeof FMLNetworkEvent$ServerConnectionFromClientEvent;
+  readonly ServerConnectionFromClientEvent: typeof FMLNetworkEvent$ServerConnectionFromClientEvent;
   /**
    * Fired at the server when a client disconnects.
    *
    * @author cpw
    *
    */
-  static readonly ServerDisconnectionFromClientEvent: typeof FMLNetworkEvent$ServerDisconnectionFromClientEvent;
+  readonly ServerDisconnectionFromClientEvent: typeof FMLNetworkEvent$ServerDisconnectionFromClientEvent;
   /**
    * Fired at the client when the client is disconnected from the server.
    *
    * @author cpw
    *
    */
-  static readonly ClientDisconnectionFromServerEvent: typeof FMLNetworkEvent$ClientDisconnectionFromServerEvent;
+  readonly ClientDisconnectionFromServerEvent: typeof FMLNetworkEvent$ClientDisconnectionFromServerEvent;
   /**
    * Fired when the REGISTER/UNREGISTER for custom channels is received.
    *
@@ -7302,98 +7464,145 @@ declare class FMLNetworkEvent {
    *
    * @param <S> The side
    */
-  static readonly CustomPacketRegistrationEvent: typeof FMLNetworkEvent$CustomPacketRegistrationEvent;
+  readonly CustomPacketRegistrationEvent: typeof FMLNetworkEvent$CustomPacketRegistrationEvent;
 
-  static readonly CustomPacketEvent: typeof FMLNetworkEvent$CustomPacketEvent;
+  readonly CustomPacketEvent: typeof FMLNetworkEvent$CustomPacketEvent;
 
   /**
    * Fired when a custom packet is received on the client for the channel
    * @author cpw
    *
    */
-  static readonly ClientCustomPacketEvent: typeof FMLNetworkEvent$ClientCustomPacketEvent;
+  readonly ClientCustomPacketEvent: typeof FMLNetworkEvent$ClientCustomPacketEvent;
 
   /**
    * Fired when a custom packet is received at the server for the channel
    * @author cpw
    *
    */
-  static readonly ServerCustomPacketEvent: typeof FMLNetworkEvent$ServerCustomPacketEvent;
+  readonly ServerCustomPacketEvent: typeof FMLNetworkEvent$ServerCustomPacketEvent;
   /**
    * Fired when a custom event, such as {@link NetworkHandshakeEstablished} is fired for the channel
    *
    * @author cpw
    *
    */
-  static readonly CustomNetworkEvent: typeof FMLNetworkEvent$CustomNetworkEvent;
+  readonly CustomNetworkEvent: typeof FMLNetworkEvent$CustomNetworkEvent;
 }
 
-declare class ForgeClientChatReceivedEvent {
+declare class ForgeClientChatReceivedEvent extends ForgeEvent {
   class: JavaClass<ForgeClientChatReceivedEvent>;
   static class: JavaClass<typeof ForgeClientChatReceivedEvent>;
 
-  setCanceled(canceled: boolean): void;
+  /**
+   * Introduced in 1.8:
+   * 0 : Standard Text Message
+   * 1 : 'System' message, displayed as standard text.
+   * 2 : 'Status' message, displayed above action bar, where song notifications are.
+   */
+  type: number;
+  message: MCIChatComponent;
+
+  constructor(type: number, message: MCIChatComponent);
 }
 
-declare class ForgeRenderGameOverlayEvent {
+declare class ForgeRenderGameOverlayEvent extends ForgeEvent {
   class: JavaClass<ForgeRenderGameOverlayEvent>;
   static class: JavaClass<typeof ForgeRenderGameOverlayEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 declare class CancellableEventHelper {
   setCanceled: (cancelable: boolean) => void;
 }
 
-declare class ForgeMouseEvent {
+declare class ForgeMouseEvent extends ForgeEvent {
   class: JavaClass<ForgeMouseEvent>;
   static class: JavaClass<typeof ForgeMouseEvent>;
 
-  setCanceled(canceled: boolean): void;
+  readonly x: number;
+  readonly y: number;
+  readonly dx: number;
+  readonly dy: number;
+  readonly dwheel: number;
+  readonly button: number;
+  readonly buttonstate: boolean;
+  readonly nanoseconds: number;
+
+  constructor();
 }
-declare class ForgePlaySoundEvent {
+
+/***
+ * Raised when the SoundManager tries to play a normal sound.
+ *
+ * If you return null from this function it will prevent the sound from being played,
+ * you can return a different entry if you want to change the sound being played.
+ */
+declare class ForgePlaySoundEvent extends ForgeEvent {
   class: JavaClass<ForgePlaySoundEvent>;
   static class: JavaClass<typeof ForgePlaySoundEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
-declare class ForgeConfigChangedEvent {
+declare class ForgeConfigChangedEvent extends ForgeEvent {
   class: JavaClass<ForgeConfigChangedEvent>;
   static class: JavaClass<typeof ForgeConfigChangedEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
-declare namespace ForgeConfigChangedEvent {
-  class OnConfigChangedEvent extends ForgeConfigChangedEvent {
-    class: JavaClass<ForgeConfigChangedEvent.OnConfigChangedEvent>;
-    static class: JavaClass<
-      typeof ForgeConfigChangedEvent.OnConfigChangedEvent
-    >;
-  }
-}
-
-declare class ForgeTickEvent {
+declare class ForgeTickEvent extends ForgeEvent {
   class: JavaClass<ForgeTickEvent>;
   static class: JavaClass<typeof ForgeTickEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 declare namespace ForgeTickEvent {
-  class ClientTickEvent {
+  class ClientTickEvent extends ForgeTickEvent {
     class: JavaClass<ForgeTickEvent.ClientTickEvent>;
     static class: JavaClass<typeof ForgeTickEvent.ClientTickEvent>;
+
+    // TODO
+    [s: string]: any;
+    static [s: string]: any;
   }
 }
 
-declare class ForgeNoteBlockEvent {
+// TODO extend the right class
+declare class ForgeNoteBlockEvent extends ForgeEvent {
   class: JavaClass<ForgeNoteBlockEvent>;
   static class: JavaClass<typeof ForgeNoteBlockEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 declare namespace ForgeNoteBlockEvent {
   class Octave {
+    // TODO
+    [s: string]: any;
+    static [s: string]: any;
     static LOW: ForgeNoteBlockEvent.Octave;
     static MID: ForgeNoteBlockEvent.Octave;
     static HIGH: ForgeNoteBlockEvent.Octave;
 
-    static fromId(id: int): ForgeNoteBlockEvent.Octave;
+    static fromId(id: number): ForgeNoteBlockEvent.Octave;
     class: JavaClass<ForgeNoteBlockEvent.Octave>;
     static class: JavaClass<typeof ForgeNoteBlockEvent.Octave>;
   }
   class Note {
+    // TODO
+    [s: string]: any;
+    static [s: string]: any;
     static F_SHARP: ForgeNoteBlockEvent.Note;
     static G: ForgeNoteBlockEvent.Note;
     static G_SHARP: ForgeNoteBlockEvent.Note;
@@ -7409,14 +7618,20 @@ declare namespace ForgeNoteBlockEvent {
 
     static values: ForgeNoteBlockEvent.Note[];
 
-    static fromId(id: int): ForgeNoteBlockEvent.Note;
+    static fromId(id: number): ForgeNoteBlockEvent.Note;
   }
   class Play extends ForgeNoteBlockEvent {
+    // TODO
+    [s: string]: any;
+    static [s: string]: any;
     setCanceled(canceled: boolean): void;
     class: JavaClass<ForgeNoteBlockEvent.Play>;
     static class: JavaClass<typeof ForgeNoteBlockEvent.Play>;
   }
   class Change extends ForgeNoteBlockEvent {
+    // TODO
+    [s: string]: any;
+    static [s: string]: any;
     setCanceled(canceled: boolean): void;
     class: JavaClass<ForgeNoteBlockEvent.Change>;
     static class: JavaClass<typeof ForgeNoteBlockEvent.Change>;
@@ -7426,24 +7641,45 @@ declare namespace ForgeNoteBlockEvent {
   }
 }
 
-declare class ForgeDrawBlockHighlightEvent {
+declare class ForgeDrawBlockHighlightEvent extends ForgeEvent {
   class: JavaClass<ForgeDrawBlockHighlightEvent>;
   static class: JavaClass<typeof ForgeDrawBlockHighlightEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
-declare class ForgeGuiOpenEvent {
+declare class ForgeGuiOpenEvent extends ForgeEvent {
   class: JavaClass<ForgeGuiOpenEvent>;
   static class: JavaClass<typeof ForgeGuiOpenEvent>;
+
+  gui: MCGuiScreen;
+  constructor(gui: MCGuiScreen);
 }
 
-declare class ForgeEntityItemPickupEvent {
+// TODO: extend the right class
+declare class ForgeEntityItemPickupEvent extends ForgeEvent {
   class: JavaClass<ForgeEntityItemPickupEvent>;
   static class: JavaClass<typeof ForgeEntityItemPickupEvent>;
+
+  readonly item: MCEntityItem;
+
+  constructor(player: MCEntityPlayer, item: MCEntityItem);
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
-declare class ForgePlayerInteractEvent {
+// TODO extend the right class
+declare class ForgePlayerInteractEvent extends ForgeEvent {
   class: JavaClass<ForgePlayerInteractEvent>;
   static class: JavaClass<typeof ForgePlayerInteractEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 
   readonly action: ForgePlayerInteractEvent.Action;
   readonly world: MCWorld;
@@ -7466,27 +7702,35 @@ declare namespace ForgePlayerInteractEvent {
   }
 }
 
-declare class ForgeGuiScreenEvent {
+declare class ForgeGuiScreenEvent extends ForgeEvent {
   class: JavaClass<ForgeGuiScreenEvent>;
   static class: JavaClass<typeof ForgeGuiScreenEvent>;
+
+  readonly gui: MCGuiScreen;
+
+  constructor(gui: MCGuiScreen);
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
 declare namespace ForgeGuiScreenEvent {
   class BackgroundDrawnEvent extends ForgeGuiScreenEvent {
     constructor(gui: MCGuiScreen);
 
-    getMouseX(): int;
-    getMouseY(): int;
+    getMouseX(): number;
+    getMouseY(): number;
   }
   class DrawScreenEvent extends ForgeGuiScreenEvent {
-    readonly mouseX: int;
-    readonly mouseY: int;
-    readonly renderPartialTicks: float;
+    readonly mouseX: number;
+    readonly mouseY: number;
+    readonly renderPartialTicks: number;
     constructor(
       gui: MCGuiScreen,
-      mouseX: int,
-      mouseY: int,
-      renderPartialTicks: float,
+      mouseX: number,
+      mouseY: number,
+      renderPartialTicks: number,
     );
   }
 }
@@ -7494,24 +7738,28 @@ declare namespace ForgeGuiScreenEvent.DrawScreenEvent {
   class Post extends ForgeGuiScreenEvent.DrawScreenEvent {
     constructor(
       gui: MCGuiScreen,
-      mouseX: int,
-      mouseY: int,
-      renderPartialTicks: float,
+      mouseX: number,
+      mouseY: number,
+      renderPartialTicks: number,
     );
   }
   class Pre extends ForgeGuiScreenEvent.DrawScreenEvent {
     constructor(
       gui: MCGuiScreen,
-      mouseX: int,
-      mouseY: int,
-      renderPartialTicks: float,
+      mouseX: number,
+      mouseY: number,
+      renderPartialTicks: number,
     );
   }
 }
 
-declare class ForgeBlockEvent {
+declare class ForgeBlockEvent extends ForgeEvent {
   class: JavaClass<ForgeBlockEvent>;
   static class: JavaClass<typeof ForgeBlockEvent>;
+
+  // TODO
+  [s: string]: any;
+  static [s: string]: any;
 }
 
 declare namespace ForgeBlockEvent {
@@ -7525,32 +7773,21 @@ declare namespace ForgeBlockEvent {
 
     getPlayer(): MCEntityPlayer;
 
-    getExpToDrop(): int;
+    getExpToDrop(): number;
 
-    setExpToDrop(exp: int): void;
+    setExpToDrop(exp: number): void;
   }
 }
 
-declare class MCScore {
-  class: JavaClass<MCScore>;
-  static class: JavaClass<typeof MCScore>;
-}
 //#endregion
 
 //////////////////
 // Java Classes //
 //////////////////
 //#region
-declare type char = number;
-declare type short = number;
-declare type byte = number;
-declare type int = number;
-declare type float = number;
-declare type long = number;
-declare type double = number;
 
 //TODO
-declare class JavaColor {
+declare class JavaColor extends NotFullyTyped {
   /**
    * The color black.
    */
@@ -7659,27 +7896,27 @@ declare class JavaColor {
   /**
    * Creates a color in the specified ColorSpace with the color components specified in the float array and the specified alpha.
    */
-  constructor(cspace: any, components: float[], alpha: float);
+  constructor(cspace: any, components: number[], alpha: number);
   /**
    * Creates an opaque sRGB color with the specified red, green, and blue values in the range (0.0 - 1.0).
    */
-  constructor(r: float, g: float, b: float);
+  constructor(r: number, g: number, b: number);
   /**
    * Creates an opaque sRGB color with the specified combined RGB value consisting of the red component in bits 16-23, the green component in bits 8-15, and the blue component in bits 0-7.
    */
-  constructor(rgb: int);
+  constructor(rgb: number);
   /**
    * Creates an sRGB color with the specified combined RGBA value consisting of the alpha component in bits 24-31, the red component in bits 16-23, the green component in bits 8-15, and the blue component in bits 0-7.
    */
-  constructor(rgb: int, hasalpha: boolean);
+  constructor(rgb: number, hasalpha: boolean);
   /**
    * Creates an opaque sRGB color with the specified red, green, and blue values in the range (0 - 255).
    */
-  constructor(r: int, g: int, b: int);
+  constructor(r: number, g: number, b: number);
   /**
    * Creates an sRGB color with the specified red, green, blue, and alpha values in the range (0 - 255).
    */
-  constructor(r: int, g: int, b: int, a: int);
+  constructor(r: number, g: number, b: number, a: number);
 
   /**
    * Creates a new Color that is a brighter version of this Color.
@@ -7704,17 +7941,17 @@ declare class JavaColor {
   /**
    * Determines whether another object is equal to this Color.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Returns the alpha component in the range 0-255.
    */
-  getAlpha(): int;
+  getAlpha(): number;
 
   /**
    * Returns the blue component in the range 0-255 in the default sRGB space.
    */
-  getBlue(): int;
+  getBlue(): number;
 
   /**
    * Finds a color in the system properties.
@@ -7729,17 +7966,17 @@ declare class JavaColor {
   /**
    * Finds a color in the system properties.
    */
-  static getColor(nm: string, v: int): JavaColor;
+  static getColor(nm: string, v: number): JavaColor;
 
   /**
    * Returns a float array containing only the color components of the Color in the ColorSpace specified by the cspace parameter.
    */
-  getColorComponents(cspace: any, compArray: float[]): float[];
+  getColorComponents(cspace: any, compArray: number[]): number[];
 
   /**
    * Returns a float array containing only the color components of the Color, in the ColorSpace of the Color.
    */
-  getColorComponents(compArray: float[]): float[];
+  getColorComponents(compArray: number[]): number[];
 
   /**
    * Returns the ColorSpace of this Color.
@@ -7749,62 +7986,62 @@ declare class JavaColor {
   /**
    * Returns a float array containing the color and alpha components of the Color, in the ColorSpace specified by the cspace parameter.
    */
-  getComponents(cspace: any, compArray: float[]): float[];
+  getComponents(cspace: any, compArray: number[]): number[];
 
   /**
    * Returns a float array containing the color and alpha components of the Color, in the ColorSpace of the Color.
    */
-  getComponents(compArray: float[]): float[];
+  getComponents(compArray: number[]): number[];
 
   /**
    * Returns the green component in the range 0-255 in the default sRGB space.
    */
-  getGreen(): int;
+  getGreen(): number;
 
   /**
    * Creates a Color object based on the specified values for the HSB color model.
    */
-  static getHSBColor(h: float, s: float, b: float): JavaColor;
+  static getHSBColor(h: number, s: number, b: number): JavaColor;
 
   /**
    * Returns the red component in the range 0-255 in the default sRGB space.
    */
-  getRed(): int;
+  getRed(): number;
 
   /**
    * Returns the RGB value representing the color in the default sRGB ColorModel.
    */
-  getRGB(): int;
+  getRGB(): number;
 
   /**
    * Returns a float array containing only the color components of the Color, in the default sRGB color space.
    */
-  getRGBColorComponents(compArray: float[]): float[];
+  getRGBColorComponents(compArray: number[]): number[];
 
   /**
    * Returns a float array containing the color and alpha components of the Color, as represented in the default sRGB color space.
    */
-  getRGBComponents(compArray: float[]): float[];
+  getRGBComponents(compArray: number[]): number[];
 
   /**
    * Returns the transparency mode for this Color.
    */
-  getTransparency(): int;
+  getTransparency(): number;
 
   /**
    * Computes the hash code for this Color.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Converts the components of a color, as specified by the HSB model, to an equivalent set of values for the default RGB model.
    */
-  static HSBtoRGB(hue: float, saturation: float, brightness: float): int;
+  static HSBtoRGB(hue: number, saturation: number, brightness: number): number;
 
   /**
    * Converts the components of a color, as specified by the default RGB model, to an equivalent set of values for hue, saturation, and brightness that are the three components of the HSB model.
    */
-  static RGBtoHSB(r: int, g: int, b: int, hsbvals: float[]): float[];
+  static RGBtoHSB(r: number, g: number, b: number, hsbvals: number[]): number[];
 
   /**
    * Returns a string representation of this Color.
@@ -7813,19 +8050,19 @@ declare class JavaColor {
 }
 
 declare class Vector3f {
-  x: float;
-  y: float;
-  z: float;
+  x: number;
+  y: number;
+  z: number;
 
-  constructor(x: float, y: float, z: float);
+  constructor(x: number, y: number, z: number);
 
-  set(x: float, y: float): void;
+  set(x: number, y: number): void;
 
-  set(x: float, y: float, z: float): void;
+  set(x: number, y: number, z: number): void;
   /**
    * @return the length squared of the vector
    */
-  lengthSquared(): float;
+  lengthSquared(): number;
 
   /**
    * Translate a vector
@@ -7833,7 +8070,7 @@ declare class Vector3f {
    * @param y the translation in y
    * @return this
    */
-  translate(x: float, y: float, z: float): Vector3f;
+  translate(x: number, y: number, z: number): Vector3f;
 
   /**
    * Add a vector to another vector and place the result in a destination
@@ -7886,7 +8123,7 @@ declare class Vector3f {
    * @param right The RHS vector
    * @return left dot right
    */
-  static dot(left: Vector3f, right: Vector3f): float;
+  static dot(left: Vector3f, right: Vector3f): number;
 
   /**
    * Calculate the angle between two vectors, in radians
@@ -7894,23 +8131,23 @@ declare class Vector3f {
    * @param b The other vector
    * @return the angle between the two vectors, in radians
    */
-  static angle(a: Vector3f, b: Vector3f): float;
+  static angle(a: Vector3f, b: Vector3f): number;
 
   toString(): string;
 
-  getX(): float;
-  getY(): float;
-  setX(x: float): void;
-  setY(y: float): void;
-  setZ(z: float): void;
-  getZ(): float;
+  getX(): number;
+  getY(): number;
+  setX(x: number): void;
+  setY(y: number): void;
+  setZ(z: number): void;
+  getZ(): number;
 
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 }
 
 declare class Vector2f {
-  x: float;
-  y: float;
+  x: number;
+  y: number;
   /**
    * Constructor for Vector3f.
    */
@@ -7918,9 +8155,9 @@ declare class Vector2f {
 
   constructor(src: Vector2f);
 
-  constructor(x: float, y: float);
+  constructor(x: number, y: number);
 
-  set(x: float, y: float): void;
+  set(x: number, y: number): void;
 
   /**
    * Load from another Vector2f
@@ -7932,7 +8169,7 @@ declare class Vector2f {
   /**
    * @return the length squared of the vector
    */
-  lengthSquared(): float;
+  lengthSquared(): number;
 
   /**
    * Translate a vector
@@ -7940,7 +8177,7 @@ declare class Vector2f {
    * @param y the translation in y
    * @return this
    */
-  translate(x: float, y: float): Vector2f;
+  translate(x: number, y: number): Vector2f;
 
   /**
    * Negate a vector
@@ -7969,7 +8206,7 @@ declare class Vector2f {
    * @param right The RHS vector
    * @return left dot right
    */
-  static dot(left: Vector2f, right: Vector2f): float;
+  static dot(left: Vector2f, right: Vector2f): number;
 
   /**
    * Calculate the angle between two vectors, in radians
@@ -7977,7 +8214,7 @@ declare class Vector2f {
    * @param b The other vector
    * @return the angle between the two vectors, in radians
    */
-  static angle(a: Vector2f, b: Vector2f): float;
+  static angle(a: Vector2f, b: Vector2f): number;
 
   /**
    * Add a vector to another vector and place the result in a destination
@@ -7999,53 +8236,53 @@ declare class Vector2f {
    */
   static sub(left: Vector2f, right: Vector2f, dest: Vector2f): Vector2f;
 
-  scale(scale: float): Vector2f;
+  scale(scale: number): Vector2f;
 
   toString(): string;
 
   /**
    * @return x
    */
-  getX(): float;
+  getX(): number;
 
   /**
    * @return Y
    */
-  getY(): float;
+  getY(): number;
 
   /**
    * Set X
    * @param x
    */
-  setX(x: float): void;
+  setX(x: number): void;
 
   /**
    * Set Y
    * @param y
    */
-  setY(y: float): void;
+  setY(y: number): void;
 
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 }
-declare class JavaBufferedImage {}
+declare class JavaBufferedImage extends NotFullyTyped {}
 
-declare class JavaGL11 {}
-declare class JavaGL12 {}
-declare class JavaGL13 {}
-declare class JavaGL14 {}
-declare class JavaGL15 {}
-declare class JavaGL20 {}
-declare class JavaGL21 {}
-declare class JavaGL30 {}
-declare class JavaGL31 {}
-declare class JavaGL32 {}
-declare class JavaGL33 {}
-declare class JavaGL40 {}
-declare class JavaGL41 {}
-declare class JavaGL42 {}
-declare class JavaGL43 {}
-declare class JavaGL44 {}
-declare class JavaGL45 {}
+declare class JavaGL11 extends NotFullyTyped {}
+declare class JavaGL12 extends NotFullyTyped {}
+declare class JavaGL13 extends NotFullyTyped {}
+declare class JavaGL14 extends NotFullyTyped {}
+declare class JavaGL15 extends NotFullyTyped {}
+declare class JavaGL20 extends NotFullyTyped {}
+declare class JavaGL21 extends NotFullyTyped {}
+declare class JavaGL30 extends NotFullyTyped {}
+declare class JavaGL31 extends NotFullyTyped {}
+declare class JavaGL32 extends NotFullyTyped {}
+declare class JavaGL33 extends NotFullyTyped {}
+declare class JavaGL40 extends NotFullyTyped {}
+declare class JavaGL41 extends NotFullyTyped {}
+declare class JavaGL42 extends NotFullyTyped {}
+declare class JavaGL43 extends NotFullyTyped {}
+declare class JavaGL44 extends NotFullyTyped {}
+declare class JavaGL45 extends NotFullyTyped {}
 
 declare class JavaThread {
   /**
@@ -8056,7 +8293,7 @@ declare class JavaThread {
   /**
    * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of milliseconds plus the specified number of nanoseconds, subject to the precision and accuracy of system timers and schedulers.
    */
-  static sleep(millis: long, nanos?: int): void;
+  static sleep(millis: number, nanos?: number): void;
 
   /**
    * Returns a reference to the currently executing thread object.
@@ -8071,7 +8308,7 @@ declare class JavaThread {
   /**
    * Returns an estimate of the number of active threads in the current thread's thread group and its subgroups
    */
-  static activeCount(): int;
+  static activeCount(): number;
 
   /**
    * Determines if the currently running thread has permission to modify this thread.
@@ -8081,7 +8318,7 @@ declare class JavaThread {
   /**
    * The definition of this call depends on suspend(), which is deprecated. Further, the results of this call were never well-defined.
    */
-  countStackFrames(): int;
+  countStackFrames(): number;
 
   /**
    * This method was originally designed to destroy this thread without any cleanup. Any monitors it held would have remained locked. However, the method was never implemented. If if were to be implemented, it would be deadlock-prone in much the manner of suspend(). If the target thread held a lock protecting a critical system resource when it was destroyed, no thread could ever access this resource again. If another thread ever attempted to lock this resource, deadlock would result. Such deadlocks typically manifest themselves as "frozen" processes. For more information, see Why are Thread.stop, Thread.suspend and Thread.resume Deprecated?.
@@ -8096,12 +8333,12 @@ declare class JavaThread {
   /**
    * Copies into the specified array every active thread in the current thread's thread group and its subgroups.
    */
-  static enumerate(tarray: Thread[]): int;
+  static enumerate(tarray: Thread[]): number;
 
   /**
    * Returns the identifier of this Thread.
    */
-  getId(): long;
+  getId(): number;
 
   /**
    * Returns this thread's name.
@@ -8111,12 +8348,12 @@ declare class JavaThread {
   /**
    * Returns this thread's priority.
    */
-  getPriority(): int;
+  getPriority(): number;
 
   /**
    * Returns true if and only if the current thread holds the monitor lock on the specified object.
    */
-  static holdsLock(obj: object): boolean;
+  static holdsLock(obj: any): boolean;
 
   /**
    * Interrupts this thread.
@@ -8151,12 +8388,12 @@ declare class JavaThread {
   /**
    * Waits at most millis milliseconds for this thread to die.
    */
-  join(millis: long): void;
+  join(millis: number): void;
 
   /**
    * Waits at most millis milliseconds plus nanos nanoseconds for this thread to die.
    */
-  join(millis: long, nanos: int): void;
+  join(millis: number, nanos: number): void;
 
   /**
    * This method exists solely for use with suspend(), which has been deprecated because it is deadlock-prone. For more information, see Why are Thread.stop, Thread.suspend and Thread.resume Deprecated?.
@@ -8181,7 +8418,7 @@ declare class JavaThread {
   /**
    * Changes the priority of this thread.
    */
-  setPriority(newPriority: int): void;
+  setPriority(newPriority: number): void;
 
   /**
    * Causes this thread to begin execution; the Java Virtual Machine calls the run method of this thread.
@@ -8213,7 +8450,7 @@ declare class JavaUUID {
   /**
    * Constructs a new UUID using the specified data.
    */
-  constructor(mostSigBitswNBT: long, leastSigBits: long);
+  constructor(mostSigBitswNBT: number, leastSigBits: number);
 
   /**
    * Creates a UUID from the string standard representation as described in the toString() method.
@@ -8223,7 +8460,7 @@ declare class JavaUUID {
   /**
    * Static factory to retrieve a type 3 (name based) UUID based on the specified byte array.
    */
-  static nameUUIDFromBytes(name: byte[]): JavaUUID;
+  static nameUUIDFromBytes(name: number[]): JavaUUID;
 
   /**
    * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
@@ -8233,40 +8470,40 @@ declare class JavaUUID {
   /**
    * The clock sequence value associated with this UUID.
    */
-  clockSequence(): int;
+  clockSequence(): number;
   /**
    * Compares this UUID with the specified UUID.
    */
-  compareTo(val: JavaUUID): int;
+  compareTo(val: JavaUUID): number;
 
   /**
    * Compares this object to the specified object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
   /**
    * Returns the least significant 64 bits of this UUID's 128 bit value.
    */
-  getLeastSignificantBits(): long;
+  getLeastSignificantBits(): number;
 
   /**
    * Returns the most significant 64 bits of this UUID's 128 bit value.
    */
-  getMostSignificantBits(): long;
+  getMostSignificantBits(): number;
 
   /**
    * Returns a hash code for this UUID.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * The node value associated with this UUID.
    */
-  node(): long;
+  node(): number;
 
   /**
    * The timestamp value associated with this UUID.
    */
-  timestamp(): long;
+  timestamp(): number;
 
   /**
    * Returns a String object representing this UUID.
@@ -8276,12 +8513,12 @@ declare class JavaUUID {
   /**
    * The variant number associated with this UUID.
    */
-  variant(): int;
+  variant(): number;
 
   /**
    * The version number associated with this UUID.
    */
-  version(): int;
+  version(): number;
 }
 /**An abstract representation of file and directory pathnames. */
 declare class JavaFile {
@@ -8292,7 +8529,7 @@ declare class JavaFile {
   /**
    * The system-dependent path-separator character.
    */
-  static pathSeperatorChar: char;
+  static pathSeperatorChar: number;
   /**
    * The system-dependent default name-separator character, represented as a string for convenience.
    */
@@ -8300,7 +8537,7 @@ declare class JavaFile {
   /**
    * The system-dependent default name-separator character.
    */
-  static separatorChar: char;
+  static separatorChar: number;
 
   /**
    * Creates a new File instance from a parent abstract pathname and a child pathname string.
@@ -8340,7 +8577,7 @@ declare class JavaFile {
   /**
    * Compares two abstract pathnames lexicographically.
    */
-  compareTo(pathname: JavaFile): int;
+  compareTo(pathname: JavaFile): number;
 
   /**
    * Atomically creates a new, empty file named by this abstract pathname if and only if a file with this name does not yet exist.
@@ -8374,7 +8611,7 @@ declare class JavaFile {
   /**
    * Tests this abstract pathname for equality with the given object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Tests whether the file or directory denoted by this abstract pathname exists.
@@ -8404,7 +8641,7 @@ declare class JavaFile {
   /**
    * Returns the number of unallocated bytes in the partition named by this abstract path name.
    */
-  getFreeSpace(): long;
+  getFreeSpace(): number;
 
   /**
    * Returns the name of the file or directory denoted by this abstract pathname.
@@ -8429,17 +8666,17 @@ declare class JavaFile {
   /**
    * Returns the size of the partition named by this abstract pathname.
    */
-  getTotalSpace(): long;
+  getTotalSpace(): number;
 
   /**
    * Returns the number of bytes available to this virtual machine on the partition named by this abstract pathname.
    */
-  getUsableSpace(): long;
+  getUsableSpace(): number;
 
   /**
    * Computes a hash code for this abstract pathname.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Tests whether this abstract pathname is absolute.
@@ -8464,12 +8701,12 @@ declare class JavaFile {
   /**
    * Returns the time that the file denoted by this abstract pathname was last modified.
    */
-  lastModified(): long;
+  lastModified(): number;
 
   /**
    * Returns the length of the file denoted by this abstract pathname.
    */
-  length(): long;
+  length(): number;
 
   /**
    * Returns an array of strings naming the files and directories in the directory denoted by this abstract pathname.
@@ -8524,7 +8761,7 @@ declare class JavaFile {
   /**
    * Sets the last-modified time of the file or directory named by this abstract pathname.
    */
-  setLastModified(time: long): boolean;
+  setLastModified(time: number): boolean;
 
   /**
    * A convenience method to set the owner's read permission for this abstract pathname.
@@ -8573,11 +8810,11 @@ declare class JavaFile {
 }
 //TODO
 /**An object that may be used to locate a file in a file system. It will typically represent a system dependent file path. */
-declare interface JavaPath {
+declare interface JavaPath extends NotFullyTyped {
   /**
    * Compares two abstract paths lexicographically.
    */
-  compareTo(other: JavaPath): int;
+  compareTo(other: JavaPath): number;
 
   /**
    * Tests if this path ends with the given path.
@@ -8592,7 +8829,7 @@ declare interface JavaPath {
   /**
    * Tests this path for equality with the given object.
    */
-  equals(other: object): boolean;
+  equals(other: any): boolean;
 
   /**
    * Returns the name of the file or directory denoted by this path as a Path object.
@@ -8616,7 +8853,7 @@ declare class JavaClass<T> {
   /**
    * Casts an object to the class or interface represented by this Class object.
    */
-  cast(obj: object): T;
+  cast(obj: any): T;
 
   /**
    * Returns the assertion status that would be assigned to this class if it were to be initialized at the time this method is invoked.
@@ -8719,7 +8956,7 @@ declare class JavaClass<T> {
   /**
    * Returns the Java language modifiers for this class or interface, encoded in an integer.
    */
-  getModifiers(): int;
+  getModifiers(): number;
 
   /**
    * Returns the name of the entity (class, interface, array class, primitive type, or void) represented by this Class object, as a String.
@@ -8739,7 +8976,7 @@ declare class JavaClass<T> {
   /**
    * Gets the signers of this class.
    */
-  getSigners(): object[];
+  getSigners(): any[] | null;
 
   /**
    * Returns the simple name of the underlying class as given in the source code.
@@ -8784,7 +9021,7 @@ declare class JavaClass<T> {
   /**
    * Determines if the specified Object is assignment-compatible with the object represented by this Class.
    */
-  isInstance(obj: object): boolean;
+  isInstance(obj: any): boolean;
 
   /**
    * Determines if the specified Class object represents an interface type.
@@ -8836,7 +9073,7 @@ declare class JavaURL {
   /**
    * Creates a URL object from the specified protocol, host, port number, and file.
    */
-  constructor(protocol: string, host: string, port: int, file: string);
+  constructor(protocol: string, host: string, port: number, file: string);
 
   /**
    * Creates a URL object from the specified protocol, host, port number, file, and handler.
@@ -8844,7 +9081,7 @@ declare class JavaURL {
   constructor(
     protocol: string,
     host: string,
-    port: int,
+    port: number,
     file: string,
     handler: JavaURLStreamHandler,
   );
@@ -8867,7 +9104,7 @@ declare class JavaURL {
   /**
    * Compares this URL for equality with another object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Gets the authority part of this URL.
@@ -8877,17 +9114,17 @@ declare class JavaURL {
   /**
    * Gets the contents of this URL.
    */
-  getContent(): object;
+  getContent(): any;
 
   /**
    * Gets the contents of this URL.
    */
-  getContent(classes: JavaClass<any>[]): object;
+  getContent(classes: JavaClass<any>[]): any;
 
   /**
    * Gets the default port number of the protocol associated with this URL.
    */
-  getDefaultPort(): int;
+  getDefaultPort(): number;
 
   /**
    * Gets the file name of this URL.
@@ -8907,7 +9144,7 @@ declare class JavaURL {
   /**
    * Gets the port number of this URL.
    */
-  getPort(): int;
+  getPort(): number;
 
   /**
    * Gets the protocol name of this URL.
@@ -8937,7 +9174,7 @@ declare class JavaURL {
   /**
    * Creates an integer suitable for hash table indexing.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Same as openConnection(), except that the connection will be made through the specified proxy; Protocol handlers that do not support proxing will ignore the proxy parameter and make a normal connection.
@@ -8993,7 +9230,7 @@ declare class JavaURI {
     scheme: string,
     userInfo: string,
     host: string,
-    port: int,
+    port: number,
     path: string,
     query: string,
     fragment: string,
@@ -9018,7 +9255,7 @@ declare class JavaURI {
   /**
    * Compares this URI to another object, which must be a URI.
    */
-  compareTo(that: JavaURI): int;
+  compareTo(that: JavaURI): number;
 
   /**
    * Creates a URI by parsing the given string.
@@ -9028,7 +9265,7 @@ declare class JavaURI {
   /**
    * Tests this URI for equality with another object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Returns the decoded authority component of this URI.
@@ -9053,7 +9290,7 @@ declare class JavaURI {
   /**
    * Returns the port number of this URI.
    */
-  getPort(): int;
+  getPort(): number;
 
   /**
    * Returns the decoded query component of this URI.
@@ -9108,7 +9345,7 @@ declare class JavaURI {
   /**
    * Returns a hash-code value for this URI.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Tells whether or not this URI is absolute.
@@ -9174,7 +9411,7 @@ declare class JavaInputStream {
   /**
    * Returns an estimate of the number of bytes that can be read (or skipped over) from this input stream without blocking by the next invocation of a method for this input stream.
    */
-  available(): int;
+  available(): number;
 
   /**
    * Closes this input stream and releases any system resources associated with the stream.
@@ -9184,7 +9421,7 @@ declare class JavaInputStream {
   /**
    * Marks the current position in this input stream.
    */
-  mark(readLimit: int): void;
+  mark(readLimit: number): void;
 
   /**
    * Tests if this input stream supports the mark and reset methods.
@@ -9193,17 +9430,17 @@ declare class JavaInputStream {
   /**
    * Reads the next byte of data from the input stream.
    */
-  read(): int;
+  read(): number;
 
   /**
    * Reads some number of bytes from the input stream and stores them into the buffer array b.
    */
-  read(b: byte[]): int;
+  read(b: number[]): number;
 
   /**
    * Reads up to len bytes of data from the input stream into an array of bytes.
    */
-  read(b: byte[], off: int, len: int): int;
+  read(b: number[], off: number, len: number): number;
 
   /**
    * Repositions this stream to the position at the time the mark method was last called on this input stream.
@@ -9213,10 +9450,10 @@ declare class JavaInputStream {
   /**
    * Skips over and discards n bytes of data from this input stream.
    */
-  skip(n: long): long;
+  skip(n: number): number;
 }
 
-declare class JavaURLConnection {}
+declare class JavaURLConnection extends NotFullyTyped {}
 /**
  * This class represents a proxy setting, typically a type (http, socks) and a socket address. A Proxy is an immutable object.
  */
@@ -9238,12 +9475,12 @@ declare class JavaProxy {
   /**
    * Compares this object against the specified object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Returns a hashcode for this Proxy.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Constructs a string representation of this Proxy.
@@ -9289,27 +9526,27 @@ declare class JavaField {
   /**
    * Compares this Field against the specified object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Returns the value of the field represented by this Field, on the specified object.
    */
-  get(obj: object): object;
+  get(obj: any): any;
 
   /**
    * Gets the value of a static or instance boolean field.
    */
-  getBoolean(obj: object): boolean;
+  getBoolean(obj: any): boolean;
 
   /**
    * Gets the value of a static or instance byte field.
    */
-  getByte(obj: object): byte;
+  getByte(obj: any): number;
 
   /**
    * Gets the value of a static or instance field of type char or of another primitive type convertible to type char via a widening conversion.
    */
-  getChar(obj: object): char;
+  getChar(obj: any): number;
 
   /**
    * Returns the Class object representing the class or interface that declares the field represented by this Field object.
@@ -9319,65 +9556,65 @@ declare class JavaField {
   /**
    * Gets the value of a static or instance field of type double or of another primitive type convertible to type double via a widening conversion.
    */
-  getDouble(obj: object): double;
+  getDouble(obj: any): number;
 
   /**
    * Gets the value of a static or instance field of type float or of another primitive type convertible to type float via a widening conversion.
    */
-  getFloat(obj: object): float;
+  getFloat(obj: any): number;
   /**
    *Gets the value of a static or instance field of type int or of another primitive type convertible to type int via a widening conversion.
    */
-  getInt(obj: object): int;
+  getInt(obj: any): number;
 
   /**
    * Gets the value of a static or instance field of type long or of another primitive type convertible to type long via a widening conversion.
    */
-  getLong(obj: object): long;
+  getLong(obj: any): number;
 
   /**
    * Sets the field represented by this Field object on the specified object argument to the specified new value.
    */
-  set(obj: object, value: object): void;
+  set(obj: any, value: any): void;
   /**
    * Sets the value of a field as a boolean on the specified object.
    */
-  setBoolean(obj: object, z: boolean): void;
+  setBoolean(obj: any, z: boolean): void;
 
   /**
    * Sets the value of a field as a byte on the specified object.
    */
-  setByte(obj: object, b: byte): void;
+  setByte(obj: any, b: number): void;
 
   /**
    * Sets the value of a field as a char on the specified object.
    */
-  setChar(obj: object, c: char): void;
+  setChar(obj: any, c: number): void;
 
   /**
    * Sets the value of a field as a double on the specified object.
    */
-  setDouble(obj: object, d: double): void;
+  setDouble(obj: any, d: number): void;
 
   /**
    * Sets the value of a field as a float on the specified object.
    */
-  setFloat(obj: object, f: float): void;
+  setFloat(obj: any, f: number): void;
 
   /**
    * Sets the value of a field as an int on the specified object.
    */
-  setInt(obj: object, i: int): void;
+  setInt(obj: any, i: number): void;
 
   /**
    * Sets the value of a field as a long on the specified object.
    */
-  setLong(obj: object, l: long): void;
+  setLong(obj: any, l: number): void;
 
   /**
    * Sets the value of a field as a short on the specified object.
    */
-  setShort(obj: object, s: short): void;
+  setShort(obj: any, s: number): void;
 
   /**
    * Returns a string describing this Field, including its generic type.
@@ -9396,7 +9633,7 @@ declare class JavaMethod {
   /**
    * Compares this Method against the specified object.
    */
-  equals(obj: object): boolean;
+  equals(obj: any): boolean;
 
   /**
    * Returns the Class object representing the class or interface that declares the executable represented by this object.
@@ -9406,7 +9643,7 @@ declare class JavaMethod {
   /**
    * Returns the default value for the annotation member represented by this Method instance.
    */
-  getDefaultValue(): object;
+  getDefaultValue(): any;
 
   /**
    * Returns an array of Class objects that represent the types of exceptions declared to be thrown by the underlying executable represented by this object.
@@ -9416,7 +9653,7 @@ declare class JavaMethod {
   /**
    * Returns the Java language modifiers for the executable represented by this object.
    */
-  getModifiers(): int;
+  getModifiers(): number;
 
   /**
    * Returns the name of the method represented by this Method object, as a String.
@@ -9426,7 +9663,7 @@ declare class JavaMethod {
   /**
    * Returns the number of formal parameters (whether explicitly declared or implicitly declared or neither) for the executable represented by this object.
    */
-  getParameterCount(): int;
+  getParameterCount(): number;
 
   /**
    * Returns an array of Class objects that represent the formal parameter types, in declaration order, of the executable represented by this object.
@@ -9441,12 +9678,12 @@ declare class JavaMethod {
   /**
    * Returns a hashcode for this Method.
    */
-  hashCode(): int;
+  hashCode(): number;
 
   /**
    * Invokes the underlying method represented by this Method object, on the specified object with the specified parameters.
    */
-  invoke(obj: object, ...args: object[]): object;
+  invoke(obj: any, ...args: any[]): any;
 
   /**
    * Returns true if this method is a bridge method; returns false otherwise.
@@ -9484,12 +9721,752 @@ declare class JavaMethod {
 // CT non-included //
 /////////////////////
 //#region
+declare class Trigger {
+  /**
+   * Sets a trigger's priority using [Priority].
+   * Highest runs first.
+   * @param priority the priority of the trigger
+   * @return the trigger for method chaining
+   */
+  setPriority(priority: Trigger.Priority): Trigger;
+
+  /**
+   * Registers a trigger based on its type.
+   * This is done automatically with TriggerRegister.
+   * @return the trigger for method chaining
+   */
+  register(): Trigger;
+
+  /**
+   * Unregisters a trigger.
+   * @return the trigger for method chaining
+   */
+  unregister(): Trigger;
+
+  compareTo(other: Trigger): number;
+}
+declare namespace Trigger {
+  enum Priority {
+    HIGHEST,
+    HIGH,
+    NORMAL,
+    LOW,
+    LOWEST,
+  }
+}
+
+declare class ChatTrigger extends Trigger {
+  constructor(method: Function, type: TriggerType, loader: ILoader);
+
+  /**
+   * Sets if the chat trigger should run if the chat event has already been canceled.
+   * True by default.
+   * @param bool Boolean to set
+   * @return the trigger object for method chaining
+   */
+  triggerIfCanceled(bool: boolean): ChatTrigger;
+
+  /**
+   * Sets the chat criteria for [matchesChatCriteria].
+   * Arguments for the trigger's method can be passed in using ${variable}.
+   * Example: `ChatTrigger.setChatCriteria("<${name}> ${message}");`
+   * Use ${*} to match a chat message but ignore the pass through.
+   * @param chatCriteria the chat criteria to set
+   * @return the trigger object for method chaining
+   */
+  setChatCriteria(chatCriteria: string | RegExp): ChatTrigger;
+
+  /**
+   * Alias for [setChatCriteria].
+   * @param chatCriteria the chat criteria to set
+   * @return the trigger object for method chaining
+   */
+  setCriteria(chatCriteria: string | RegExp): ChatTrigger;
+
+  /**
+   * Sets the chat parameter for [Parameter].
+   * Clears current parameter list.
+   * @param parameter the chat parameter to set
+   * @return the trigger object for method chaining
+   */
+  setParameter(parameter: "contains" | "start" | "end"): ChatTrigger;
+
+  /**
+   * Sets multiple chat parameters for [Parameter].
+   * Clears current parameter list.
+   * @param parameters the chat parameters to set
+   * @return the trigger object for method chaining
+   */
+  setParameters(...parameters: ("contains" | "start" | "end")[]): ChatTrigger;
+
+  /**
+   * Adds chat parameter for [Parameter].
+   * @param parameter the chat parameter to add
+   * @return the trigger object for method chaining
+   */
+  addParameter(parameter: "contains" | "start" | "end"): ChatTrigger;
+
+  /**
+   * Adds multiple chat parameters for [Parameter].
+   * @param parameters the chat parameters to add
+   * @return the trigger object for method chaining
+   */
+  addParameters(...parameters: ("contains" | "start" | "end")[]): ChatTrigger;
+
+  /**
+   * Adds the "start" parameter
+   * @return the trigger object for method chaining
+   */
+  setStart(): ChatTrigger;
+
+  /**
+   * Adds the "contains" parameter
+   * @return the trigger object for method chaining
+   */
+  setContains(): ChatTrigger;
+
+  /**
+   * Adds the "end" parameter
+   * @return the trigger object for method chaining
+   */
+  setEnd(): ChatTrigger;
+
+  /**
+   * Makes the trigger match the entire chat message
+   * @return the trigger object for method chaining
+   */
+  setExact(): ChatTrigger;
+
+  /**
+   * Makes the chat criteria case insensitive
+   * @return the trigger object for method chaining
+   */
+  setCaseInsensitive(): ChatTrigger;
+
+  /**
+   * Argument 1 (String) The chat message received
+   * Argument 2 (ClientChatReceivedEvent) the chat event fired
+   * @param args list of arguments as described
+   */
+  trigger(args: any[]): void;
+}
+
+declare class CommandTrigger extends Trigger {
+  constructor(method: Function, loader: ILoader);
+
+  trigger(args: any[]): void;
+
+  /**
+   * Sets the tab completion options for the command.
+   * This method must be used before setting the command name, otherwise, the tab completions will not be set.
+   *
+   * @param args all the tab completion options.
+   */
+  setTabCompletions(...args: string[]): CommandTrigger;
+
+  /**
+   * Sets the tab completion options for the command.
+   * This method must be used before setting the command name, otherwise, the tab completions will not be set.
+   *
+   * @param args all the tab completion options.
+   */
+  setTabCompletions(args: string[]): CommandTrigger;
+
+  /**
+   * This sets the possible tab completions for the command.
+   * This method must be used before setting the command name, otherwise, the tab completions will not be set.
+   *
+   * @param callback the callback that returns the tab completion options.
+   *
+   * For example:
+   * ```js
+   * register("command", () => {
+   *
+   * }).setTabCompletions((args) => {
+   *      return ["option1", "option2"];
+   * }).setName("test");
+   *```
+   * The `args` parameter of the callback are the arguments currently passed to the command.
+   * For instance, if you want to not show the options after the user tabs the first time, just add a check
+   * for the length of the arguments and return an empty array.
+   *
+   * The return value of the callback **must be an array of strings**, and in this case will always return the 2
+   * options in the array.
+   */
+  setTabCompletions(callback: (args: string[]) => string[]): CommandTrigger;
+
+  /**
+   * Sets the aliases for the command.
+   *
+   * @param args all the aliases.
+   */
+  setAliases(...args: string[]): CommandTrigger;
+
+  /**
+   * Sets the command name.
+   * Example:
+   * CommandTrigger.setCommandName("test")
+   * would result in the command being /test
+   *
+   * @param commandName The command name
+   * @param overrideExisting Whether existing commands with the same name should be overridden
+   * @return the trigger for additional modification
+   */
+  setCommandName(
+    commandName: string,
+    overrideExisting?: boolean,
+  ): CommandTrigger;
+
+  /**
+   * Alias for [setCommandName]
+   *
+   * @param commandName The command name
+   * * @param overrideExisting Whether existing commands with the same name should be overridden
+   * @return the trigger for additional modification
+   */
+  setName(commandName: string, overrideExisting?: boolean): CommandTrigger;
+}
+
+declare class RegularTrigger extends Trigger {
+  trigger(args: any[]): void;
+}
+
+declare class PacketTrigger extends Trigger {
+  constructor(method: Function, triggerType: TriggerType, loader: ILoader);
+
+  /**
+   * Alias for `setPacketClasses([class_])`
+   */
+  setPacketClass<T>(class_: JavaClass<T>): PacketTrigger;
+
+  /**
+   * Sets which classes this trigger should run for. If the list is empty, it runs
+   * for every packet class.
+   *
+   * @param classes The classes for which this trigger should run for
+   * @return This trigger object for packet chaining
+   */
+  setPacketClasses(classes: JavaClass<any>[]): PacketTrigger;
+
+  trigger(args: any[]): void;
+}
+
+declare class EntityRenderTrigger extends Trigger {
+  constructor(method: Function, triggerType: TriggerType, loader: ILoader);
+
+  /**
+   * Alias for `setEntityClasses([class_])`
+   */
+  setEntityClass<T>(class_: JavaClass<T>): EntityRenderTrigger;
+
+  /**
+   * Sets which classes this Trigger should run for. If the list is empty, it runs
+   * for every entity class.
+   *
+   * @param classes The classes for which this trigger should run for
+   * @return This trigger object for entity chaining
+   */
+  setEntityClasses(classes: JavaClass<any>[]): EntityRenderTrigger;
+}
+
+declare class EventTrigger extends Trigger {
+  constructor(method: Function, triggerType: TriggerType, loader: ILoader);
+
+  /**
+   * Sets if this trigger should run if the event has already been canceled.
+   * True by default.
+   *
+   * @param bool Boolean to set
+   * @return the trigger object for method chaining
+   */
+  triggerIfCanceled(bool: boolean): EventTrigger;
+
+  trigger(args: any[]): void;
+}
+
+declare class SoundPlayTrigger extends Trigger {
+  constructor(method: Function, loader: ILoader);
+
+  soundNameCriteria: string;
+
+  /**
+   * Sets the sound name criteria.
+   *
+   * @param soundNameCriteria the sound name
+   * @return the trigger for method chaining
+   */
+  setCriteria(soundNameCriteria: string): SoundPlayTrigger;
+
+  trigger(args: any[]): void;
+}
+
+declare class StepTrigger extends Trigger {
+  constructor(method: Function, loader: ILoader);
+
+  /**
+   * Sets the frames per second that the trigger activates.
+   * This has a maximum one step per second.
+   * @param fps the frames per second to set
+   * @return the trigger for method chaining
+   */
+  setFps(fps: number): StepTrigger;
+
+  /**
+   * Sets the delay in seconds between the trigger activation.
+   * This has a minimum of one step every second. This will override [setFps].
+   * @param delay The delay in seconds
+   * @return the trigger for method chaining
+   */
+  setDelay(delay: number): StepTrigger;
+
+  trigger(args: any[]): void;
+}
+
+declare class Team {
+  constructor(team: MCScorePlayerTeam);
+
+  readonly team: MCScorePlayerTeam;
+
+  getTeam(): MCScorePlayerTeam;
+
+  /**
+   * Gets the registered name of the team
+   */
+  getRegisteredName(): string;
+
+  /**
+   * Gets the display name of the team
+   */
+  getName(): string;
+
+  /**
+   * Sets the display name of the team
+   * @param name the new display name
+   * @return the team for method chaining
+   */
+  setName(name: string): Team;
+
+  /**
+   * Gets the list of names on the team
+   */
+  getMembers(): String[];
+
+  /**
+   * Gets the team prefix
+   */
+  getPrefix(): string;
+
+  /**
+   * Sets the team prefix
+   * @param prefix the prefix to set
+   * @return the team for method chaining
+   */
+  setPrefix(prefix: string): Team;
+
+  /**
+   * Gets the team suffix
+   */
+  getSuffix(): string;
+
+  /**
+   * Sets the team suffix
+   * @param suffix the suffix to set
+   * @return the team for method chaining
+   */
+  setSuffix(suffix: string): Team;
+
+  /**
+   * Gets the team's friendly fire setting
+   */
+  getFriendlyFire(): boolean;
+
+  /**
+   * Gets whether the team can see invisible players on the same team
+   */
+  canSeeInvisibleTeammates(): boolean;
+
+  /**
+   * Gets the team's name tag visibility
+   */
+  getNameTagVisibility():
+    | "always"
+    | "never"
+    | "hideForOtherTeams"
+    | "hideForOwnTeam";
+
+  /**
+   * Gets the team's death message visibility
+   */
+  getDeathMessageVisibility():
+    | "always"
+    | "never"
+    | "hideForOtherTeams"
+    | "hideForOwnTeam";
+}
+
+declare interface NBT {
+  /**
+   * Creates a new [NBTBase] from the given [nbt]
+   *
+   * @param nbt the value to convert to NBT
+   * @param options optional argument to allow refinement of the NBT data.
+   * Possible options include:
+   * - coerceNumericStrings: Boolean, default false.
+   * E.g. "10b" as a byte, "20s" as a short, "30f" as a float, "40d" as a double,
+   * "50l" as a long
+   * - preferArraysOverLists: Boolean, default false
+   * E.g. a list with all bytes or integers will be converted to an NBTTagByteArray or
+   * NBTTagIntArray accordingly
+   *
+   * @throws [NBTException] if [nbt] can not be parsed as valid NBT
+   *
+   * @return [NBTTagCompound] if [nbt] is an object, [NBTTagList] if [nbt]
+   * is an array and preferArraysOverLists is false, or [NBTBase] otherwise.
+   */
+  parse(
+    nbt: any,
+    options?: {
+      /**
+       * Default false.
+       * E.g. "10b" as a byte, "20s" as a short, "30f" as a float, "40d" as a double,
+       * "50l" as a long
+       */
+      coerceNumericStrings?: boolean;
+      /**
+       * Default false.
+       * E.g. a list with all bytes or integers will be converted to an NBTTagByteArray or
+       * NBTTagIntArray accordingly
+       */
+      preferArraysOverLists?: boolean;
+    },
+  ): NBTBase;
+
+  toObject(nbt: NBTTagCompound): NBTType;
+
+  toArray(nbt: NBTTagList): NBTType[];
+}
+
+declare class Client {
+  /**
+   * Get the [KeyBind] from an already existing Minecraft KeyBinding, otherwise, returns null.
+   *
+   * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
+   * @return the [KeyBind] from a Minecraft KeyBinding, or null if one doesn't exist
+   * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
+   */
+  getKeyBindFromKey(keyCode: number): KeyBind | null;
+
+  /**
+   * Get the [KeyBind] from an already existing Minecraft KeyBinding, else, return a new one.
+   *
+   * @param keyCode the keycode which the keybind will respond to, see Keyboard below. Ex. Keyboard.KEY_A
+   * @param description the description of the keybind
+   * @param category the keybind category the keybind will be in
+   * @return the [KeyBind] from a Minecraft KeyBinding, or a new one if one doesn't exist
+   * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
+   */
+  getKeyBindFromKey(
+    keyCode: number,
+    description: string,
+    category: string,
+  ): KeyBind;
+
+  /**
+   * Get the [KeyBind] from an already existing Minecraft KeyBinding, else, return a new one.
+   * This will create the [KeyBind] with the default category "ChatTriggers".
+   *
+   * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
+   * @param description the description of the keybind
+   * @return the [KeyBind] from a Minecraft KeyBinding, or a new one if one doesn't exist
+   * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
+   */
+  getKeyBindFromKey(keyCode: number, description: string): KeyBind;
+
+  /**
+   * Get the [KeyBind] from an already existing
+   * Minecraft KeyBinding, otherwise, returns null.
+   *
+   * @param description the description of the keybind
+   * @return the [KeyBind], or null if one doesn't exist
+   */
+  getKeyBindFromDescription(description: string): Keyboard | null;
+
+  static readonly INSTANCE: Client;
+  static readonly settings: Settings;
+  readonly INSTANCE: Client;
+  readonly settings: Settings;
+
+  getSettings(): Settings;
+  static getSettings(): Settings;
+
+  /**
+   * Gets Minecraft's Minecraft object
+   *
+   * @return The Minecraft object
+   */
+  getMinecraft(): MCMinecraft;
+  /**
+   * Gets Minecraft's Minecraft object
+   *
+   * @return The Minecraft object
+   */
+  static getMinecraft(): MCMinecraft;
+
+  /**
+   * Gets Minecraft's NetHandlerPlayClient object
+   *
+   * @return The NetHandlerPlayClient object
+   */
+  getConnection(): MCNetHandlerPlayClient | null;
+  /**
+   * Gets Minecraft's NetHandlerPlayClient object
+   *
+   * @return The NetHandlerPlayClient object
+   */
+  static getConnection(): MCNetHandlerPlayClient | null;
+
+  /**
+   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Defaults to the next tick.
+   * @param delay The delay in ticks
+   * @param callback The task to run on the main thread
+   */
+  scheduleTask(delay: number, callback: () => void): void;
+  /**
+   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Defaults to the next tick.
+   * @param delay The delay in ticks
+   * @param callback The task to run on the main thread
+   */
+  static scheduleTask(delay: number, callback: () => void): void;
+
+  /**
+   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Defaults to the next tick.
+   * @param callback The task to run on the main thread
+   */
+  scheduleTask(callback: () => void): void;
+  /**
+   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Defaults to the next tick.
+   * @param callback The task to run on the main thread
+   */
+  static scheduleTask(callback: () => void): void;
+
+  /**
+   * Quits the client back to the main menu.
+   * This acts just like clicking the "Disconnect" or "Save and quit to title" button.
+   */
+  disconnect(): void;
+  /**
+   * Quits the client back to the main menu.
+   * This acts just like clicking the "Disconnect" or "Save and quit to title" button.
+   */
+  static disconnect(): void;
+
+  /**
+   * Connects to the server with the given ip.
+   * @param ip The ip to connect to
+   */
+  connect(ip: string): void;
+  /**
+   * Connects to the server with the given ip.
+   * @param ip The ip to connect to
+   */
+  static connect(ip: string): void;
+
+  /**
+   * Gets the Minecraft GuiNewChat object for the chat gui
+   *
+   * @return The GuiNewChat object for the chat gui
+   */
+  getChatGUI(): MCGuiNewChat;
+  /**
+   * Gets the Minecraft GuiNewChat object for the chat gui
+   *
+   * @return The GuiNewChat object for the chat gui
+   */
+  static getChatGUI(): MCGuiNewChat;
+
+  isInChat(): boolean;
+  static isInChat(): boolean;
+
+  getTabGui(): MCGuiPlayerTabOverlay;
+  static getTabGui(): MCGuiPlayerTabOverlay;
+
+  isInTab(): boolean;
+  static isInTab(): boolean;
+
+  /**
+   * Gets whether the Minecraft window is active
+   * and in the foreground of the user's screen.
+   *
+   * @return true if the game is active, false otherwise
+   */
+  isTabbedIn(): boolean;
+  /**
+   * Gets whether the Minecraft window is active
+   * and in the foreground of the user's screen.
+   *
+   * @return true if the game is active, false otherwise
+   */
+  static isTabbedIn(): boolean;
+
+  isControlDown(): boolean;
+  static isControlDown(): boolean;
+
+  isShiftDown(): boolean;
+  static isShiftDown(): boolean;
+
+  isAltDown(): boolean;
+  static isAltDown(): boolean;
+
+  getFps(): number;
+  static getFps(): number;
+
+  getVersion(): string;
+  static getVersion(): string;
+
+  getMaxMemory(): number;
+  static getMaxMemory(): number;
+
+  getTotalMemory(): number;
+  static getTotalMemory(): number;
+
+  getFreeMemory(): number;
+  static getFreeMemory(): number;
+
+  getMemoryUsage(): number;
+  static getMemoryUsage(): number;
+
+  getSystemTIme(): number;
+  static getSystemTIme(): number;
+
+  getMouseX(): number;
+  static getMouseX(): number;
+
+  getMouseY(): number;
+  static getMouseY(): number;
+
+  isInGui(): boolean;
+  static isInGui(): boolean;
+
+  /**
+   * Gets the chat message currently typed into the chat gui.
+   *
+   * @return A blank string if the gui isn't open, otherwise, the message
+   */
+  getCurrentChatMessage(): string;
+  /**
+   * Gets the chat message currently typed into the chat gui.
+   *
+   * @return A blank string if the gui isn't open, otherwise, the message
+   */
+  static getCurrentChatMessage(): string;
+
+  /**
+   * Sets the current chat message, if the chat gui is not open, one will be opened.
+   *
+   * @param message the message to put in the chat text box.
+   */
+  setCurrentChatMessage(message: string): void;
+  /**
+   * Sets the current chat message, if the chat gui is not open, one will be opened.
+   *
+   * @param message the message to put in the chat text box.
+   */
+  static setCurrentChatMessage(message: string): void;
+
+  sendPacket<T extends MCINetHandler>(packet: MCPacket<T>): void;
+  static sendPacket<T extends MCINetHandler>(packet: MCPacket<T>): void;
+
+  /**
+   * Display a title.
+   *
+   * @param title title text
+   * @param subtitle subtitle text
+   * @param fadeIn time to fade in
+   * @param time time to stay on screen
+   * @param fadeOut time to fade out
+   */
+  showTitle(
+    title: string,
+    subtitle: string,
+    fadeIn: number,
+    time: number,
+    fadeOut: number,
+  ): void;
+  /**
+   * Display a title.
+   *
+   * @param title title text
+   * @param subtitle subtitle text
+   * @param fadeIn time to fade in
+   * @param time time to stay on screen
+   * @param fadeOut time to fade out
+   */
+  static showTitle(
+    title: string,
+    subtitle: string,
+    fadeIn: number,
+    time: number,
+    fadeOut: number,
+  ): void;
+}
+declare namespace Client {
+  class currentGui {
+    /**
+     * Gets the Java class name of the currently open gui, for example, "GuiChest"
+     *
+     * @return the class name of the current gui
+     */
+    static getClassName(): string;
+
+    /**
+     * Gets the Minecraft gui class that is currently open
+     *
+     * @return the Minecraft gui
+     */
+    static get(): MCGuiScreen;
+
+    /**
+     * Gets the slot under the mouse in the current gui, if one exists.
+     *
+     * @return the [Slot] under the mouse
+     */
+    getSlotUnderMouse(): Slot | null;
+    /**
+     * Gets the slot under the mouse in the current gui, if one exists.
+     *
+     * @return the [Slot] under the mouse
+     */
+    static getSlotUnderMouse(): Slot | null;
+
+    /**
+     * Closes the currently open gui
+     */
+    static close(): void;
+  }
+  class camera {
+    static getX(): number;
+    static getY(): number;
+    static getZ(): number;
+  }
+}
+
 declare class Console {
   clearConsole(): void;
 
   printStackTrace(error: Error): void;
 
   showConsole(): void;
+
+  println(
+    obj: any,
+    logType?: LogType,
+    end?: string,
+    customColor?: JavaColor,
+  ): void;
 }
 
 declare class console {
@@ -9586,7 +10563,12 @@ declare interface IConsoleConfig {
   showMessageType: boolean;
   showTimeStamp: boolean;
   useColors: boolean;
-  colorsByLogLevel: object;
+  colorsByLogLevel: {
+    error: string;
+    log: string;
+    info: string;
+    warn: string;
+  };
 }
 
 declare class Config {
@@ -9742,17 +10724,17 @@ declare class Settings {
   static getSettings(): MCGameSettings;
   getSettings(): MCGameSettings;
 
-  static getFOV(): float;
-  getFOV(): float;
+  static getFOV(): number;
+  getFOV(): number;
 
-  static setFOV(fov: float): void;
-  setFOV(fov: float): void;
+  static setFOV(fov: number): void;
+  setFOV(fov: number): void;
 
-  static getDifficulty(): int;
-  getDifficulty(): int;
+  static getDifficulty(): number;
+  getDifficulty(): number;
 
-  static setDifficulty(difficulty: int): void;
-  setDifficulty(difficulty: int): void;
+  static setDifficulty(difficulty: number): void;
+  setDifficulty(difficulty: number): void;
 
   static skin: skin;
   static sound: sound;
@@ -9798,50 +10780,50 @@ declare class skin {
 }
 
 declare class sound {
-  getMasterVolume(): float;
-  static getMasterVolume(): float;
-  setMasterVolume(level: float): void;
-  static setMasterVolume(level: float): void;
+  getMasterVolume(): number;
+  static getMasterVolume(): number;
+  setMasterVolume(level: number): void;
+  static setMasterVolume(level: number): void;
 
-  getMusicVolume(): float;
-  static getMusicVolume(): float;
-  setMusicVolume(level: float): void;
-  static setMusicVolume(level: float): void;
+  getMusicVolume(): number;
+  static getMusicVolume(): number;
+  setMusicVolume(level: number): void;
+  static setMusicVolume(level: number): void;
 
-  getNoteblockVolume(): float;
-  static getNoteblockVolume(): float;
-  setNoteblockVolume(level: float): void;
-  static setNoteblockVolume(level: float): void;
+  getNoteblockVolume(): number;
+  static getNoteblockVolume(): number;
+  setNoteblockVolume(level: number): void;
+  static setNoteblockVolume(level: number): void;
 
-  getWeather(): float;
-  static getWeather(): float;
-  setWeather(level: float): void;
-  static setWeather(level: float): void;
+  getWeather(): number;
+  static getWeather(): number;
+  setWeather(level: number): void;
+  static setWeather(level: number): void;
 
-  getBlocks(): float;
-  static getBlocks(): float;
-  setBlocks(level: float): void;
-  static setBlocks(level: float): void;
+  getBlocks(): number;
+  static getBlocks(): number;
+  setBlocks(level: number): void;
+  static setBlocks(level: number): void;
 
-  getHostileCreatures(): float;
-  static getHostileCreatures(): float;
-  setHostileCreatures(level: float): void;
-  static setHostileCreatures(level: float): void;
+  getHostileCreatures(): number;
+  static getHostileCreatures(): number;
+  setHostileCreatures(level: number): void;
+  static setHostileCreatures(level: number): void;
 
-  getFriendlyCreatures(): float;
-  static getFriendlyCreatures(): float;
-  setFriendlyCreatures(level: float): void;
-  static setFriendlyCreatures(level: float): void;
+  getFriendlyCreatures(): number;
+  static getFriendlyCreatures(): number;
+  setFriendlyCreatures(level: number): void;
+  static setFriendlyCreatures(level: number): void;
 
-  getPlayers(): float;
-  static getPlayers(): float;
-  setPlayers(level: float): void;
-  static setPlayers(level: float): void;
+  getPlayers(): number;
+  static getPlayers(): number;
+  setPlayers(level: number): void;
+  static setPlayers(level: number): void;
 
-  getAmbient(): float;
-  static getAmbient(): float;
-  setAmbient(level: float): void;
-  static setAmbient(level: float): void;
+  getAmbient(): number;
+  static getAmbient(): number;
+  setAmbient(level: number): void;
+  static setAmbient(level: number): void;
 }
 
 declare class video {
@@ -9850,20 +10832,20 @@ declare class video {
   setGraphics(fancy: boolean): void;
   static setGraphics(fancy: boolean): void;
 
-  getRenderDistance(): int;
-  static getRenderDistance(): int;
-  setRenderDistance(distance: int): void;
-  static setRenderDistance(distance: int): void;
+  getRenderDistance(): number;
+  static getRenderDistance(): number;
+  setRenderDistance(distance: number): void;
+  static setRenderDistance(distance: number): void;
 
-  getSmoothLighting(): int;
-  static getSmoothLighting(): int;
-  setSmoothLighting(level: int): void;
-  static setSmoothLighting(level: int): void;
+  getSmoothLighting(): number;
+  static getSmoothLighting(): number;
+  setSmoothLighting(level: number): void;
+  static setSmoothLighting(level: number): void;
 
-  getMaxFrameRate(): int;
-  static getMaxFrameRate(): int;
-  setMaxFrameRate(frameRate: int): void;
-  static setMaxFrameRate(frameRate: int): void;
+  getMaxFrameRate(): number;
+  static getMaxFrameRate(): number;
+  setMaxFrameRate(frameRate: number): void;
+  static setMaxFrameRate(frameRate: number): void;
 
   get3dAnaglyph(): boolean;
   static get3dAnaglyph(): boolean;
@@ -9875,25 +10857,25 @@ declare class video {
   setBobbing(toggled: boolean): void;
   static setBobbing(toggled: boolean): void;
 
-  getGuiScale(): int;
-  static getGuiScale(): int;
-  setGuiScale(scale: int): void;
-  static setGuiScale(scale: int): void;
+  getGuiScale(): number;
+  static getGuiScale(): number;
+  setGuiScale(scale: number): void;
+  static setGuiScale(scale: number): void;
 
-  getBrightness(): float;
-  static getBrightness(): float;
-  setBrightness(brightness: float): void;
-  static setBrightness(brightness: float): void;
+  getBrightness(): number;
+  static getBrightness(): number;
+  setBrightness(brightness: number): void;
+  static setBrightness(brightness: number): void;
 
-  getClouds(): int;
-  static getClouds(): int;
-  setClouds(clouds: int): void;
-  static setClouds(clouds: int): void;
+  getClouds(): number;
+  static getClouds(): number;
+  setClouds(clouds: number): void;
+  static setClouds(clouds: number): void;
 
-  getParticles(): int;
-  static getParticles(): int;
-  setParticles(particles: int): void;
-  static setParticles(particles: int): void;
+  getParticles(): number;
+  static getParticles(): number;
+  setParticles(particles: number): void;
+  static setParticles(particles: number): void;
 
   getFullscreen(): boolean;
   static getFullscreen(): boolean;
@@ -9905,10 +10887,10 @@ declare class video {
   setVsync(toggled: boolean): void;
   static setVsync(toggled: boolean): void;
 
-  getMipmapLevels(): int;
-  static getMipmapLevels(): int;
-  setMipmapLevels(mipmapLevels: int): void;
-  static setMipmapLevels(mipmapLevels: int): void;
+  getMipmapLevels(): number;
+  static getMipmapLevels(): number;
+  setMipmapLevels(mipmapLevels: number): void;
+  static setMipmapLevels(mipmapLevels: number): void;
 
   getAlternateBlocks(): boolean;
   static getAlternateBlocks(): boolean;
@@ -9944,10 +10926,10 @@ declare class chat {
   setWebLinks(toggled: boolean): void;
   static setWebLinks(toggled: boolean): void;
 
-  getOpacity(): float;
-  static getOpacity(): float;
-  setOpacity(opacity: float): void;
-  static setOpacity(opacity: float): void;
+  getOpacity(): number;
+  static getOpacity(): number;
+  setOpacity(opacity: number): void;
+  static setOpacity(opacity: number): void;
 
   getPromptOnWebLinks(): boolean;
   static getPromptOnWebLinks(): boolean;
@@ -9958,73 +10940,83 @@ declare class chat {
 // "enum class"
 declare class TriggerType {
   // client
-  static Chat: TriggerType;
   static ActionBar: TriggerType;
-  static Tick: TriggerType;
-  static Step: TriggerType;
-  static GameUnload: TriggerType;
-  static GameLoad: TriggerType;
-  static Clicked: TriggerType;
-  static Scrolled: TriggerType;
-  static Dragged: TriggerType;
-  static GuiOpened: TriggerType;
-  static ScreenshotTaken: TriggerType;
-  static PickupItem: TriggerType;
-  static DropItem: TriggerType;
-  static MessageSent: TriggerType;
-  static Tooltip: TriggerType;
-  static PlayerInteract: TriggerType;
   static AttackEntity: TriggerType;
-  static HitBlock: TriggerType;
-  static GuiRender: TriggerType;
-  static GuiKey: TriggerType;
-  static GuiMouseClick: TriggerType;
-  static GuiMouseRelease: TriggerType;
-  static GuiMouseDrag: TriggerType;
+  static Chat: TriggerType;
   static ChatComponentClicked: TriggerType;
   static ChatComponentHovered: TriggerType;
-  static PacketSent: TriggerType;
-  static PacketReceived: TriggerType;
-  static ServerConnect: TriggerType;
-  static ServerDisconnect: TriggerType;
+  static Clicked: TriggerType;
+  static Dragged: TriggerType;
+  static DropItem: TriggerType;
+  static GameLoad: TriggerType;
+  static GameUnload: TriggerType;
   static GuiClosed: TriggerType;
   static GuiDrawBackground: TriggerType;
+  static GuiKey: TriggerType;
+  static GuiMouseClick: TriggerType;
+  static GuiMouseDrag: TriggerType;
+  static GuiMouseRelease: TriggerType;
+  static GuiOpened: TriggerType;
+  static GuiRender: TriggerType;
+  static HitBlock: TriggerType;
+  static MessageSent: TriggerType;
+  static PacketReceived: TriggerType;
+  static PacketSent: TriggerType;
+  static PickupItem: TriggerType;
+  static PlayerInteract: TriggerType;
+  static RenderSlot: TriggerType;
+  static ScreenshotTaken: TriggerType;
+  static Scrolled: TriggerType;
+  static ServerConnect: TriggerType;
+  static ServerDisconnect: TriggerType;
+  static Step: TriggerType;
+  static Tick: TriggerType;
+  static Tooltip: TriggerType;
 
   // rendering
-  static RenderWorld: TriggerType;
   static BlockHighlight: TriggerType;
+  static PostGuiRender: TriggerType;
+  static PostRenderEntity: TriggerType;
+  static PostRenderTileEntity: TriggerType;
+  static PreItemRender: TriggerType;
+  static RenderAir: TriggerType;
+  static RenderArmor: TriggerType;
+  static RenderBossHealth: TriggerType;
+  static RenderChat: TriggerType;
+  static RenderCrosshair: TriggerType;
+  static RenderDebug: TriggerType;
+  static RenderEntity: TriggerType;
+  static RenderExperience: TriggerType;
+  static RenderFood: TriggerType;
+  static RenderHand: TriggerType;
+  static RenderHealth: TriggerType;
+  static RenderHelmet: TriggerType;
+  static RenderHotbar: TriggerType;
+  static RenderItemIntoGui: TriggerType;
+  static RenderItemOverlayIntoGui: TriggerType;
+  static RenderJumpBar: TriggerType;
+  static RenderMountHealth: TriggerType;
   static RenderOverlay: TriggerType;
   static RenderPlayerList: TriggerType;
-  static RenderBossHealth: TriggerType;
-  static RenderDebug: TriggerType;
-  static RenderCrosshair: TriggerType;
-  static RenderHotbar: TriggerType;
-  static RenderExperience: TriggerType;
-  static RenderArmor: TriggerType;
-  static RenderHealth: TriggerType;
-  static RenderFood: TriggerType;
-  static RenderMountHealth: TriggerType;
-  static RenderAir: TriggerType;
-  static RenderEntity: TriggerType;
-  static PostGuiRender: TriggerType;
-  static PreItemRender: TriggerType;
+  static RenderPortal: TriggerType;
+  static RenderScoreboard: TriggerType;
   static RenderSlotHighlight: TriggerType;
-  static PostRenderEntity: TriggerType;
   static RenderTileEntity: TriggerType;
-  static PostRenderTileEntity: TriggerType;
+  static RenderTitle: TriggerType;
+  static RenderWorld: TriggerType;
 
   // world
+  static BlockBreak: TriggerType;
+  static EntityDamage: TriggerType;
+  static EntityDeath: TriggerType;
+  static NoteBlockChange: TriggerType;
+  static NoteBlockPlay: TriggerType;
   static PlayerJoin: TriggerType;
   static PlayerLeave: TriggerType;
   static SoundPlay: TriggerType;
-  static NoteBlockPlay: TriggerType;
-  static NoteBlockChange: TriggerType;
+  static SpawnParticle: TriggerType;
   static WorldLoad: TriggerType;
   static WorldUnload: TriggerType;
-  static BlockBreak: TriggerType;
-  static SpawnParticle: TriggerType;
-  static EntityDeath: TriggerType;
-  static EntityDamage: TriggerType;
 
   // misc
   static Command: TriggerType;
@@ -10045,6 +11037,8 @@ declare class GuiHandler {
 
 declare class ClientListener {
   static readonly INSTANCE: ClientListener;
+
+  addTask(delay: number, callback: () => void): void;
 
   onReceiveChat(event: ForgeClientChatReceivedEvent): void;
 
@@ -10070,10 +11064,10 @@ declare class ClientListener {
 }
 declare namespace ClientListener {
   class State {
-    constructor(x: float, y: float);
+    constructor(x: number, y: number);
 
-    getX(): float;
-    getY(): float;
+    getX(): number;
+    getY(): number;
   }
   class PlayerInteractAction {
     static RIGHT_CLICK_BLOCK: ClientListener.PlayerInteractAction;
@@ -10083,20 +11077,20 @@ declare namespace ClientListener {
 }
 
 declare class Module {
-  constructor(name: string, metadata: object, folder: JavaFile);
+  constructor(name: string, metadata: any, folder: JavaFile);
 
   readonly name: string;
   readonly metadata: any;
 
-  draw(x: float, y: float, width: float): float;
+  draw(x: number, y: number, width: number): number;
 
-  click(x: int, y: int, width: float): void;
+  click(x: number, y: number, width: number): void;
 
   toString(): string;
 }
 
 declare interface ILoader {
-  triggers: OnTrigger[];
+  triggers: Trigger[];
 
   /**
    * Performs initial engine setup given a list of jars. Note that
@@ -10125,7 +11119,7 @@ declare interface ILoader {
    *
    * @return a [MethodHandle] with type (Object[])Object
    */
-  asmInvokeLookup(module: Module, functionURI: JavaURI): object;
+  asmInvokeLookup(module: Module, functionURI: JavaURI): any;
 
   /**
    * Tells the loader that it should activate all triggers
@@ -10141,7 +11135,7 @@ declare interface ILoader {
   /**
    * Adds a trigger to this loader to be activated during the game
    */
-  addTrigger(trigger: OnTrigger): void;
+  addTrigger(trigger: Trigger): void;
 
   /**
    * Removes all triggers
@@ -10151,17 +11145,17 @@ declare interface ILoader {
   /**
    * Returns the names of this specific loader's implemented languages
    */
-  getLanguage(): object;
+  getLanguage(): any;
 
   /**
    * Actually calls the method for this trigger in this loader
    */
-  trigger(trigger: OnTrigger, method: Function, args: any[]): void;
+  trigger(trigger: Trigger, method: Function, args: any[]): void;
 
   /**
    * Removes a trigger from the current pool
    */
-  removeTrigger(trigger: OnTrigger): void;
+  removeTrigger(trigger: Trigger): void;
 
   /**
    * Save a resource to the OS's filesystem from inside the jar
@@ -10181,28 +11175,6 @@ declare interface ILoader {
 // TODO: Look at this because its awful and there has to be a way to not have to have so much duplicate code
 declare interface ITriggerRegister {
   /**
-   * Registers a new trigger that runs before a chat message is received.
-   *
-   * Passes through multiple arguments:
-   * - Any number of chat criteria variables
-   * - The chat event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [OnChatTrigger.setParameter] Sets the chat parameter
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerChat(
-    method: (...args: (string | ForgeClientChatReceivedEvent)[]) => void,
-  ): OnChatTrigger;
-
-  /**
    * Registers a new trigger that runs before an action bar message is received.
    *
    * Passes through multiple arguments:
@@ -10210,10 +11182,10 @@ declare interface ITriggerRegister {
    * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [OnChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [OnChatTrigger.setParameter] Sets the chat parameter
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
+   * - [ChatTrigger.setParameter] Sets the chat parameter
+   * - [Trigger.setPriority] Sets the priority
    *
    * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
@@ -10222,28 +11194,83 @@ declare interface ITriggerRegister {
    */
   registerActionBar(
     method: (...params: (string | ForgeClientChatReceivedEvent)[]) => void,
-  ): OnChatTrigger;
+  ): ChatTrigger;
 
   /**
-   * Registers a trigger that runs before the world loads.
+   * Registers a new trigger that runs whenever the player has left clicked on an entity
+   *
+   * Passes through three arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
+   * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerWorldLoad(method: () => void): OnRegularTrigger;
+  registerAttackEntity(
+    method: (entity: Entity, event: CancellableEvent) => void,
+  ): EventTrigger;
+
   /**
-   * Registers a new trigger that runs before the world unloads.
+   * Registers a new trigger that runs before a chat message is received.
+   *
+   * Passes through multiple arguments:
+   * - Any number of chat criteria variables
+   * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
+   * - [ChatTrigger.setParameter] Sets the chat parameter
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerWorldUnload(method: () => void): OnRegularTrigger;
+  registerChat(
+    method: (...args: (string | ForgeClientChatReceivedEvent)[]) => void,
+  ): ChatTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever the user clicks on a clickable
+   * chat component
+   *
+   * Passes through two arguments:
+   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerChatComponentClicked(
+    method: (component: TextComponent, event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever the user hovers over a
+   * hoverable chat component
+   *
+   * Passes through two arguments:
+   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerChatComponentHovered(
+    method: (component: TextComponent, event: CancellableEvent) => void,
+  ): EventTrigger;
+
   /**
    * Registers a new trigger that runs before a mouse button is being pressed or released.
    *
@@ -10254,36 +11281,20 @@ declare interface ITriggerRegister {
    * - The mouse button state (true if button is pressed, false otherwise)
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerClicked(
     method: (
-      mouseX: float,
-      mouseY: float,
-      button: int,
+      mouseX: number,
+      mouseY: number,
+      button: number,
       isButtonDown: boolean,
     ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the mouse is scrolled.
-   *
-   * Passes through three arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The scroll direction: 1, -1
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerScrolled(
-    method: (mouseX: float, mouseY: float, direction: int) => void,
-  ): OnRegularTrigger;
+  ): RegularTrigger;
+
   /**
    * Registers a new trigger that runs while a mouse button is being held down.
    *
@@ -10295,492 +11306,21 @@ declare interface ITriggerRegister {
    * - The mouse button
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerDragged(
     method: (
-      mouseDeltaX: float,
-      mouseDeltaY: float,
-      mouseX: float,
-      mouseY: float,
-      button: int,
+      mouseDeltaX: number,
+      mouseDeltaY: number,
+      mouseX: number,
+      mouseY: number,
+      button: number,
     ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before a sound is played.
-   *
-   * Passes through six arguments:
-   * - The sound event's position
-   * - The sound event's name
-   * - The sound event's volume
-   * - The sound event's pitch
-   * - The sound event's category's name
-   * - The sound event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnSoundPlayTrigger.setCriteria] Sets the sound name criteria
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerSoundPlay(
-    method: (
-      position: Vector3f,
-      name: string,
-      vol: float,
-      pitch: float,
-      category: MCSoundCategory,
-      event: ForgePlaySoundEvent,
-    ) => void,
-  ): OnSoundPlayTrigger;
-  /**
-   * Registers a new trigger that runs before a noteblock is played.
-   *
-   * Passes through four arguments:
-   * - The note block play event's Vector3f position
-   * - The note block play event's note's name
-   * - The note block play event's octave
-   * - The note block play event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerNoteBlockPlay(
-    method: (
-      position: Vector3f,
-      name: string,
-      octave: ForgeNoteBlockEvent.Octave,
-      event: ForgeNoteBlockEvent.Play,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before a noteblock is changed.
-   *
-   * Passes through four arguments:
-   * - The note block change event's Vector3f position
-   * - The note block change event's note's name
-   * - The note block change event's octave
-   * - The note block change event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerNoteBlockChange(
-    method: (
-      position: Vector3f,
-      name: string,
-      octave: ForgeNoteBlockEvent.Octave,
-      event: ForgeNoteBlockEvent.Change,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before every game tick.
-   *
-   * Passes through one argument:
-   * - Ticks elapsed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerTick(method: (elapsed: int) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs in predictable intervals. (60 per second by default)
-   *
-   * Passes through one argument:
-   * - Steps elapsed
-   *
-   * Available modifications:
-   * - [OnStepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
-   *      per second
-   * - [OnStepTrigger.setDelay] Sets the delay in seconds, i.e. how many seconds it takes
-   *      to fire. Overrides [OnStepTrigger.setFps].
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerStep(method: (elapsed: long) => void): OnStepTrigger;
-  /**
-   * Registers a new trigger that runs before the world is drawn.
-   *
-   * Passes through one argument:
-   * - Partial ticks elapsed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderWorld(method: (partialTicks: long) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the overlay is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which cannot be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderOverlay(
-    method: (event: ForgeRenderGameOverlayEvent) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player list is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderPlayerList(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the crosshair is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderCrosshair(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a trigger that runs before the debug screen is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderDebug(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the boss health bar is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderBossHealth(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's health is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderHealth(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's armor bar is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderArmor(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's food is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderFood(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's mount's health is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderMountHealth(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's experience is being drawn.
-   *
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderExperience(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's hotbar is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderHotbar(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the player's air level is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderAir(
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-  /**
-   * Registers a new trigger that runs before the block highlight box is drawn.
-   *
-   * Passes through two arguments:
-   * - The draw block highlight event's position
-   * - The draw block highlight event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerDrawBlockHighlight(
-    method: (position: Vector3f, event: ForgeDrawBlockHighlightEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs after the game loads.
-   *
-   * This runs after the initial loading of the game directly after scripts are
-   * loaded and after "/ct load" happens.
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGameLoad(method: () => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the game unloads.
-   *
-   * This runs before shutdown of the JVM and before "/ct load" happens.
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGameUnload(method: () => void): OnRegularTrigger;
-  /**
-   * Registers a new command that will run the method provided.
-   *
-   * Passes through multiple arguments:
-   * - The arguments supplied to the command by the user
-   *
-   * Available modifications:
-   * - [OnCommandTrigger.setCommandName] Sets the command name
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerCommand(method: (...args: string[]) => void): OnCommandTrigger;
-  /**
-   * Registers a new trigger that runs when a new gui is first opened.
-   *
-   * Passes through one argument:
-   * - The gui opened event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGuiOpened(
-    method: (event: ForgeGuiOpenEvent) => void,
-  ): OnRegularTrigger;
+  ): RegularTrigger;
 
-  /**
-   * Registers a new trigger that runs when a gui is closed.
-   *
-   * Passes through one argument:
-   * - The gui that was closed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGuiClosed(method: (event: MCGuiScreen) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs when a player joins the world.
-   *
-   * Maximum is one per tick. Any extras will queue and run in later ticks.
-   * This trigger is asynchronous.
-   *
-   * Passes through one argument:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPlayerJoined(method: (player: PlayerMP) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs when a player leaves the world.
-   *
-   * Maximum is one per tick. Any extras will queue and run in later ticks.
-   * This trigger is asynchronous.
-   *
-   * Passes through one argument:
-   * - The name of the player that left
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPlayerLeft(method: (name: string) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before an item is picked up.
-   *
-   * Passes through five arguments:
-   * - The [Item] that is picked up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that picked up the item
-   * - The item's position vector
-   * - The item's motion vector
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPickupItem(
-    method: (
-      item: Item,
-      player: PlayerMP,
-      position: Vector3f,
-      motion: Vector3f,
-      event: ForgeEntityItemPickupEvent,
-    ) => void,
-  ): OnRegularTrigger;
   /**
    * Registers a new trigger that runs before an item is dropped.
    *
@@ -10792,134 +11332,55 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerDropItem(
     method: (item: Item, player: PlayerMP, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
+
   /**
-   * Registers a new trigger that runs before a screenshot is taken.
+   * Registers a new trigger that runs after the game loads.
    *
-   * Passes through two arguments:
-   * - The name of the screenshot
-   * - The screenshot event, which can be cancelled
+   * This runs after the initial loading of the game directly after scripts are
+   * loaded and after "/ct load" happens.
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerScreenshotTaken(
-    method: (name: string, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  registerGameLoad(method: () => void): RegularTrigger;
+
   /**
-   * Registers a new trigger that runs before a message is sent in chat.
+   * Registers a new trigger that runs before the game unloads.
    *
-   * Passes through two arguments:
-   * - The message
-   * - The message event, which can be cancelled
+   * This runs before shutdown of the JVM and before "/ct load" happens.
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerMessageSent(
-    method: (message: string, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  registerGameUnload(method: () => void): RegularTrigger;
+
   /**
-   * Registers a new trigger that runs when a tooltip is being rendered.
-   * This allows for the user to modify what text is in the tooltip, and even the
-   * ability to cancel rendering completely.
-   *
-   * Passes through three arguments:
-   * - The list of lore to modify.
-   * - The [Item] that this lore is attached to.
-   * - The cancellable event.
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerItemTooltip(
-    method: (lore: string[], item: Item, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the player interacts.
-   *
-   * In 1.8.9, the following events will activate this trigger:
-   * - Right clicking a block
-   * - Right clicking the air
-   *
-   * In 1.12.2, the following events will activate this trigger:
-   * - Left clicking a block
-   * - Left clicking air
-   * - Right clicking an entity
-   * - Right clicking a block
-   * - Right clicking an item
-   * - Right clicking air
-   *
-   * Passes through three arguments:
-   * - The [ClientListener.PlayerInteractAction]
-   * - The position of the target as a Vector3f
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPlayerInteract(
-    method: (
-      action: ClientListener.PlayerInteractAction,
-      position: Vector3f,
-      event: ForgePlayerInteractEvent,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the player breaks a block
+   * Registers a new trigger that runs when a gui is closed.
    *
    * Passes through one argument:
-   * - The block
+   * - The gui that was closed
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerBlockBreak(method: (block: Block) => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before an entity is damaged
-   *
-   * Passes through two arguments:
-   * - The target Entity that is damaged
-   * - The PlayerMP attacker
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerEntityDamage(
-    method: (target: Entity, attacker: PlayerMP) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before an entity dies
-   *
-   * Passes through one argument:
-   * - The Entity that died
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerEntityDeath(method: (entity: Entity) => void): OnRegularTrigger;
+  registerGuiClosed(method: (event: MCGuiScreen) => void): RegularTrigger;
 
   /**
    * Registers a new trigger that runs before the gui background is drawn
@@ -10931,24 +11392,8 @@ declare interface ITriggerRegister {
    */
   registerGuiDrawBackground(
     method: (gui: MCGuiScreen, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs as a gui is rendered
-   *
-   * Passes through three arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The gui
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGuiRender(
-    method: (mouseX: int, mouseY: int, gui: MCGuiScreen) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
+
   /**
    * Registers a new trigger that runs whenever a key is typed with a gui open
    *
@@ -10959,7 +11404,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -10967,11 +11412,12 @@ declare interface ITriggerRegister {
   registerGuiKey(
     method: (
       char: string,
-      keyCode: int,
+      keyCode: number,
       gui: MCGuiScreen,
       event: CancellableEvent,
     ) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
+
   /**
    * Registers a new trigger that runs whenever the mouse is clicked with a
    * gui open
@@ -10984,46 +11430,21 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerGuiMouseClick(
     method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
+      mouseX: number,
+      mouseY: number,
+      mouseButton: number,
       gui: MCGuiScreen,
       event: CancellableEvent,
     ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever a mouse button is released
-   * with a gui open
-   *
-   * Passes through five arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   * - The gui
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerGuiMouseRelease(
-    method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
-      gui: MCGuiScreen,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
+
   /**
    * Registers a new trigger that runs whenever a mouse button held and dragged
    * with a gui open
@@ -11036,306 +11457,80 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerGuiMouseDrag(
     method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
+      mouseX: number,
+      mouseY: number,
+      mouseButton: number,
       gui: MCGuiScreen,
       event: CancellableEvent,
     ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever a packet is sent from the client to the server
-   *
-   * Passes through two arguments:
-   * - The packet
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPacketSent(
-    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever a packet is sent to the client from the server
-   *
-   * Passes through two arguments:
-   * - The packet
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPacketReceived(
-    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs whenever the player connects to a server
-   *
-   * Passes through one argument:
-   * - The event, which cannot be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerServerConnect(
-    method: (event: FMLNetworkEvent$ClientConnectedToServerEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the player disconnects from a server
-   *
-   * Passes through two arguments:
-   * - The event, which cannot be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerServerDisconnect(
-    method: (event: FMLNetworkEvent$ClientDisconnectionFromServerEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the user clicks on a clickable
-   * chat component
-   *
-   * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerChatComponentClicked(
-    method: (component: TextComponent, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever the user hovers over a
-   * hoverable chat component
-   *
-   * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerChatComponentHovered(
-    method: (component: TextComponent, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever an entity is rendered
-   *
-   * Passes through four arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
-   * - The position as a Vector3f
-   * - The partial ticks
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderEntity(
-    method: (
-      entity: MCEntity,
-      position: Vector3f,
-      partialTicks: float,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs after the current screen is rendered
-   *
-   * Passes through three arguments:
-   * - The mouseX
-   * - The mouseY
-   * - The GuiScreen
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPostGuiRender(
-    method: (mouseX: int, mouseY: int, gui: MCGuiScreen) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs after an entity is rendered
-   *
-   * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
-   * - The position as a Vector3f
-   * - The partial ticks
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPostRenderEntity(
-    method: (entity: Entity, pos: Vector3f, partialTicks: number) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a tile entity is rendered
-   *
-   * Passes through four arguments:
-   * - The TileEntity
-   * - The position as a Vector3f
-   * - The partial ticks
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerRenderTileEntity(
-    method: (
-      entity: MCTileEntity,
-      pos: Vector3f,
-      partialTicks: number,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs after a tile entity is rendered
-   *
-   * Passes through three arguments:
-   * - The TileEntity
-   * - The position as a Vector3f
-   * - The partial ticks
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerPostRenderTileEntity(
-    method: (entity: MCTileEntity, pos: Vector3f, partialTicks: number) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before the items in the gui are drawn
+   * Registers a new trigger that runs whenever a mouse button is released
+   * with a gui open
    *
    * Passes through five arguments:
-   * - The mouseX position
-   * - The mouseY position
-   * - The Slot
-   * - The GuiContainer
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   * - The gui
+   * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerPreItemRender(
+  registerGuiMouseRelease(
     method: (
       mouseX: number,
       mouseY: number,
-      slot: MCSlot,
-      gui: MCGuiContainer,
+      mouseButton: number,
+      gui: MCGuiScreen,
+      event: CancellableEvent,
     ) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs before the hovered slot square is drawn.
+   * Registers a new trigger that runs when a new gui is first opened.
    *
-   * Passes through six arguments:
-   * - The mouseX position
-   * - The mouseY position
-   * - The Slot
-   * - The GuiContainer
-   * - The event, which can be cancelled
+   * Passes through one argument:
+   * - The gui opened event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerRenderSlotHighlight(
-    method: (
-      mouseX: number,
-      mouseY: number,
-      slot: MCSlot,
-      gui: MCGuiContainer,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
+  registerGuiOpened(method: (event: ForgeGuiOpenEvent) => void): EventTrigger;
+
   /**
-   * Registers a new trigger that runs whenever a particle is spawned
+   * Registers a new trigger that runs as a gui is rendered
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.Particle]
-   * - The [net.minecraft.util.EnumParticleTypes]
-   * - The event, which can be cancelled
+   * - The mouse x position
+   * - The mouse y position
+   * - The gui
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  registerSpawnParticle(
-    method: (
-      particle: Particle,
-      type: MCEnumParticleTypes,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs whenever the player has left clicked on an entity
-   *
-   * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  registerAttackEntity(
-    method: (entity: Entity, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  registerGuiRender(
+    method: (mouseX: number, mouseY: number, gui: MCGuiScreen) => void,
+  ): RegularTrigger;
+
   /**
    * Registers a new trigger that runs whenever a block is left clicked
    *
@@ -11347,652 +11542,69 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerHitBlock(
     method: (block: Block, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  register: IRegister;
-}
-
-declare interface IRegister {
-  /**
-   * Registers a new trigger that runs before a chat message is received.
-   *
-   * Passes through multiple arguments:
-   * - Any number of chat criteria variables
-   * - The chat event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [OnChatTrigger.setParameter] Sets the chat parameter
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "chat",
-    method: (...args: (string | ForgeClientChatReceivedEvent)[]) => void,
-  ): OnChatTrigger;
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs before an action bar message is received.
-   *
-   * Passes through multiple arguments:
-   * - Any number of chat criteria variables
-   * - The chat event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [OnChatTrigger.setParameter] Sets the chat parameter
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "actionBar",
-    method: (...params: (string | ForgeClientChatReceivedEvent)[]) => void,
-  ): OnChatTrigger;
-  /**
-   * Registers a trigger that runs before the world loads.
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (triggerType: "worldLoad", method: () => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the world unloads.
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (triggerType: "worldUnload", method: () => void): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before a mouse button is being pressed or released.
-   *
-   * Passes through four arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   * - The mouse button state (true if button is pressed, false otherwise)
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "clicked",
-    method: (
-      mouseX: float,
-      mouseY: float,
-      button: int,
-      isButtonDown: boolean,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before the mouse is scrolled.
-   *
-   * Passes through three arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The scroll direction: 1, -1
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "scrolled",
-    method: (mouseX: float, mouseY: float, direction: int) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs while a mouse button is being held down.
-   *
-   * Passes through five arguments:
-   * - The mouse delta x position (relative to last frame)
-   * - The mouse delta y position (relative to last frame)
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "dragged",
-    method: (
-      mouseDeltaX: float,
-      mouseDeltaY: float,
-      mouseX: float,
-      mouseY: float,
-      button: int,
-    ) => void,
-  ): OnRegularTrigger;
-  /**
-   * Registers a new trigger that runs before a sound is played.
-   *
-   * Passes through six arguments:
-   * - The sound event's position
-   * - The sound event's name
-   * - The sound event's volume
-   * - The sound event's pitch
-   * - The sound event's category's name
-   * - The sound event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnSoundPlayTrigger.setCriteria] Sets the sound name criteria
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "soundPlay",
-    method: (
-      position: Vector3f,
-      name: string,
-      vol: float,
-      pitch: float,
-      category: MCSoundCategory,
-      event: ForgePlaySoundEvent,
-    ) => void,
-  ): OnSoundPlayTrigger;
-
-  /**
-   * Registers a new trigger that runs before a noteblock is played.
-   *
-   * Passes through four arguments:
-   * - The note block play event's Vector3f position
-   * - The note block play event's note's name
-   * - The note block play event's octave
-   * - The note block play event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "noteBlockPlay",
-    method: (
-      position: Vector3f,
-      name: string,
-      octave: ForgeNoteBlockEvent.Octave,
-      event: ForgeNoteBlockEvent.Play,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before a noteblock is changed.
-   *
-   * Passes through four arguments:
-   * - The note block change event's Vector3f position
-   * - The note block change event's note's name
-   * - The note block change event's octave
-   * - The note block change event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "noteBlockChange",
-    method: (
-      position: Vector3f,
-      name: string,
-      octave: ForgeNoteBlockEvent.Octave,
-      event: ForgeNoteBlockEvent.Change,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before every game tick.
-   *
-   * Passes through one argument:
-   * - Ticks elapsed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (triggerType: "tick", method: (elapsed: int) => void): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs in predictable intervals. (60 per second by default)
-   *
-   * Passes through one argument:
-   * - Steps elapsed
-   *
-   * Available modifications:
-   * - [OnStepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
-   *      per second
-   * - [OnStepTrigger.setDelay] Sets the delay in seconds, i.e how many seconds it takes
-   *      to fire. Overrides [OnStepTrigger.setFps].
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (triggerType: "step", method: (elapsed: long) => void): OnStepTrigger;
-
-  /**
-   * Registers a new trigger that runs before the world is drawn.
-   *
-   * Passes through one argument:
-   * - Partial ticks elapsed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderWorld",
-    method: (partialTicks: long) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before the overlay is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which cannot be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderOverlay",
-    method: (event: ForgeRenderGameOverlayEvent) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player list is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderPlayerList",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the crosshair is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderCrosshair",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a trigger that runs before the debug screen is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderDebug",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the boss health bar is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderBossHealth",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's health is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderHealth",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's armor bar is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderArmor",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's food is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderFood",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's mount's health is being drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderMountHealth",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's experience is being drawn.
-   *
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderExperience",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's hotbar is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderHotbar",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the player's air level is drawn.
-   *
-   * Passes through one argument:
-   * - The render event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnRenderTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderAir",
-    method: (
-      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
-    ) => void,
-  ): OnRenderTrigger;
-
-  /**
-   * Registers a new trigger that runs before the block highlight box is drawn.
+   * Registers a new trigger that runs before a message is sent in chat.
    *
    * Passes through two arguments:
-   * - The draw block highlight event's position
-   * - The draw block highlight event, which can be cancelled
+   * - The message
+   * - The message event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (
-    triggerType: "drawBlockHighlight",
-    method: (position: Vector3f, event: ForgeDrawBlockHighlightEvent) => void,
-  ): OnRegularTrigger;
+  registerMessageSent(
+    method: (message: string, event: CancellableEvent) => void,
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs after the game loads.
+   * Registers a new trigger that runs whenever a packet is sent to the client from the server
    *
-   * This runs after the initial loading of the game directly after scripts are
-   * loaded and after "/ct load" happens.
+   * Passes through two arguments:
+   * - The packet
+   * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
+   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   *   gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (triggerType: "gameLoad", method: () => void): OnRegularTrigger;
+  registerPacketReceived(
+    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
+  ): PacketTrigger;
 
   /**
-   * Registers a new trigger that runs before the game unloads.
+   * Registers a new trigger that runs whenever a packet is sent from the client to the server
    *
-   * This runs before shutdown of the JVM and before "/ct load" happens.
+   * Passes through two arguments:
+   * - The packet
+   * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
+   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   *   gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (triggerType: "gameUnload", method: () => void): OnRegularTrigger;
-
-  /**
-   * Registers a new command that will run the method provided.
-   *
-   * Passes through multiple arguments:
-   * - The arguments supplied to the command by the user
-   *
-   * Available modifications:
-   * - [OnCommandTrigger.setCommandName] Sets the command name
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "command",
-    method: (...args: string[]) => void,
-  ): OnCommandTrigger;
-
-  /**
-   * Registers a new trigger that runs when a new gui is first opened.
-   *
-   * Passes through one argument:
-   * - The gui opened event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiOpened",
-    method: (event: ForgeGuiOpenEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs when a gui is closed.
-   *
-   * Passes through one argument:
-   * - The gui that was closed
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiClosed",
-    method: (event: MCGuiScreen) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs when a player joins the world.
-   *
-   * Maximum is one per tick. Any extras will queue and run in later ticks.
-   * This trigger is asynchronous.
-   *
-   * Passes through one argument:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "playerJoined",
-    method: (player: PlayerMP) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs when a player leaves the world.
-   *
-   * Maximum is one per tick. Any extras will queue and run in later ticks.
-   * This trigger is asynchronous.
-   *
-   * Passes through one argument:
-   * - The name of the player that left
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (triggerType: "playerLeft", method: (name: string) => void): OnRegularTrigger;
+  registerPacketSent(
+    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
+  ): PacketTrigger;
 
   /**
    * Registers a new trigger that runs before an item is picked up.
@@ -12005,13 +11617,12 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (
-    triggerType: "pickupItem",
+  registerPickupItem(
     method: (
       item: Item,
       player: PlayerMP,
@@ -12019,28 +11630,57 @@ declare interface IRegister {
       motion: Vector3f,
       event: ForgeEntityItemPickupEvent,
     ) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs before an item is dropped.
+   * Registers a new trigger that runs before the player interacts.
    *
-   * Passes through five arguments:
-   * - The [Item] that is dropped up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that dropped the item
-   * - The item's position vector
-   * - The item's motion vector
+   * In 1.8.9, the following events will activate this trigger:
+   * - Right clicking a block
+   * - Right clicking the air
+   *
+   * In 1.12.2, the following events will activate this trigger:
+   * - Left clicking a block
+   * - Left clicking air
+   * - Right clicking an entity
+   * - Right clicking a block
+   * - Right clicking an item
+   * - Right clicking air
+   *
+   * Passes through three arguments:
+   * - The [ClientListener.PlayerInteractAction]
+   * - The position of the target as a Vector3f
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (
-    triggerType: "dropItem",
-    method: (item: Item, player: PlayerMP, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  registerPlayerInteract(
+    method: (
+      action: ClientListener.PlayerInteractAction,
+      position: Vector3f,
+      event: ForgePlayerInteractEvent,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before a slot is drawn in a container
+   * This is useful for hiding "background" items in containers used as GUIs.
+   *
+   * Passes through three arguments:
+   * - The [Slot] being drawn
+   * - The MC GUIScreen that is being drawn
+   * - The event, which can be cancelled
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderSlot(
+    method: (slot: Slot, gui: MCGuiContainer, event: CancellableEvent) => void,
+  ): EventTrigger;
 
   /**
    * Registers a new trigger that runs before a screenshot is taken.
@@ -12050,33 +11690,96 @@ declare interface IRegister {
    * - The screenshot event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (
-    triggerType: "screenshotTaken",
+  registerScreenshotTaken(
     method: (name: string, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  ): EventTrigger;
 
   /**
-   * Registers a new trigger that runs before a message is sent in chat.
+   * Registers a new trigger that runs before the mouse is scrolled.
    *
-   * Passes through two arguments:
-   * - The message
-   * - The message event, which can be cancelled
+   * Passes through three arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The scroll direction: 1, -1
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (
-    triggerType: "messageSent",
-    method: (message: string, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+  registerScrolled(
+    method: (mouseX: number, mouseY: number, direction: number) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever the player connects to a server
+   *
+   * Passes through one argument:
+   * - The event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerServerConnect(
+    method: (event: FMLNetworkEvent$ClientConnectedToServerEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever the player disconnects from a server
+   *
+   * Passes through two arguments:
+   * - The event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerServerDisconnect(
+    method: (event: FMLNetworkEvent$ClientDisconnectionFromServerEvent) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs in predictable intervals. (60 per second by default)
+   *
+   * Passes through one argument:
+   * - Steps elapsed
+   *
+   * Available modifications:
+   * - [StepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
+   *      per second
+   * - [StepTrigger.setDelay] Sets the delay in seconds, i.e. how many seconds it takes
+   *      to fire. Overrides [StepTrigger.setFps].
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerStep(method: (elapsed: number) => void): StepTrigger;
+
+  /**
+   * Registers a new trigger that runs before every game tick.
+   *
+   * Passes through one argument:
+   * - Ticks elapsed
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerTick(method: (elapsed: number) => void): RegularTrigger;
 
   /**
    * Registers a new trigger that runs when a tooltip is being rendered.
@@ -12089,15 +11792,1245 @@ declare interface IRegister {
    * - The cancellable event.
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerItemTooltip(
+    method: (lore: string[], item: Item, event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the block highlight box is drawn.
+   *
+   * Passes through two arguments:
+   * - The draw block highlight event's position
+   * - The draw block highlight event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerDrawBlockHighlight(
+    method: (position: Vector3f, event: ForgeDrawBlockHighlightEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs after the current screen is rendered
+   *
+   * Passes through three arguments:
+   * - The mouseX
+   * - The mouseY
+   * - The GuiScreen
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPostGuiRender(
+    method: (mouseX: number, mouseY: number, gui: MCGuiScreen) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs after an entity is rendered
+   *
+   * Passes through three arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The position as a Vector3f
+   * - The partial ticks
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPostRenderEntity(
+    method: (entity: Entity, pos: Vector3f, partialTicks: number) => void,
+  ): EntityRenderTrigger;
+
+  /**
+   * Registers a new trigger that runs after a tile entity is rendered
+   *
+   * Passes through three arguments:
+   * - The TileEntity
+   * - The position as a Vector3f
+   * - The partial ticks
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPostRenderTileEntity(
+    method: (entity: MCTileEntity, pos: Vector3f, partialTicks: number) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before the items in the gui are drawn
+   *
+   * Passes through five arguments:
+   * - The mouseX position
+   * - The mouseY position
+   * - The MC Slot
+   * - The GuiContainer
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPreItemRender(
+    method: (
+      mouseX: number,
+      mouseY: number,
+      slot: MCSlot,
+      gui: MCGuiContainer,
+    ) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's air level is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderAir(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's armor bar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderArmor(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the boss health bar is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderBossHealth(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the chat is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderChat(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the crosshair is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderCrosshair(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a trigger that runs before the debug screen is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderDebug(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever an entity is rendered
+   *
+   * Passes through four arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The position as a Vector3f
+   * - The partial ticks
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderEntity(
+    method: (
+      entity: MCEntity,
+      position: Vector3f,
+      partialTicks: number,
+      event: CancellableEvent,
+    ) => void,
+  ): EntityRenderTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's experience is being drawn.
+   *
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderExperience(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's food is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderFood(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's hand is drawn.
+   *
+   * Passes through one argument:
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderHand(method: (event: CancellableEvent) => void): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's health is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderHealth(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's helmet overlay is drawn.
+   * This triggers when a pumpkin is on the player's head
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderHelmet(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's hotbar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderHotbar(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before each item is drawn into a GUI.
+   *
+   * Passes through four arguments:
+   * - The [Item]
+   * - The x position
+   * - The y position
+   * - The event, which can be cancelled.
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderItemIntoGui(
+    method: (item: Item, x: number, y: number, event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before each item overlay (stack size and damage bar) is drawn.
+   *
+   * Passes through four arguments:
+   * - The [Item]
+   * - The x position
+   * - The y position
+   * - The event, which can be cancelled.
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderItemOverlayIntoGui(
+    method: (item: Item, x: number, y: number, event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the jump bar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderJumpBar(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player's mount's health is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderMountHealth(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the overlay is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderOverlay(
+    method: (event: ForgeRenderGameOverlayEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player list is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderPlayerList(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the portal effect is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderPortal(
+    method: (
+      event: ForgeRenderGameOverlayEvent & CancellableEventHelper,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the scoreboard is drawn.
+   *
+   * Passes through one argument:
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderScoreboard(
+    method: (event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the hovered slot square is drawn.
+   *
+   * Passes through six arguments:
+   * - The mouseX position
+   * - The mouseY position
+   * - The Slot
+   * - The GuiContainer
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderSlotHighlight(
+    method: (
+      mouseX: number,
+      mouseY: number,
+      slot: MCSlot,
+      gui: MCGuiContainer,
+      event: CancellableEvent,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever a tile entity is rendered
+   *
+   * Passes through four arguments:
+   * - The TileEntity
+   * - The position as a Vector3f
+   * - The partial ticks
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderTileEntity(
+    method: (
+      entity: MCTileEntity,
+      pos: Vector3f,
+      partialTicks: number,
+      event: CancellableEvent,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the title and subtitle are drawn.
+   *
+   * Passes through three arguments:
+   * - The title
+   * - The subtitle
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderTitle(
+    method: (title: string, subtitle: string, event: CancellableEvent) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before the world is drawn.
+   *
+   * Passes through one argument:
+   * - Partial ticks elapsed
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerRenderWorld(method: (partialTicks: number) => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before the player breaks a block
+   *
+   * Passes through one argument:
+   * - The block
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerBlockBreak(method: (block: Block) => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before an entity is damaged
+   *
+   * Passes through two arguments:
+   * - The target Entity that is damaged
+   * - The PlayerMP attacker
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerEntityDamage(
+    method: (target: Entity, attacker: PlayerMP) => void,
+  ): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before an entity dies
+   *
+   * Passes through one argument:
+   * - The Entity that died
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerEntityDeath(method: (entity: Entity) => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before a noteblock is changed.
+   *
+   * Passes through four arguments:
+   * - The note block change event's Vector3f position
+   * - The note block change event's note's name
+   * - The note block change event's octave
+   * - The note block change event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerNoteBlockChange(
+    method: (
+      position: Vector3f,
+      name: string,
+      octave: ForgeNoteBlockEvent.Octave,
+      event: ForgeNoteBlockEvent.Change,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs before a noteblock is played.
+   *
+   * Passes through four arguments:
+   * - The note block play event's Vector3f position
+   * - The note block play event's note's name
+   * - The note block play event's octave
+   * - The note block play event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerNoteBlockPlay(
+    method: (
+      position: Vector3f,
+      name: string,
+      octave: ForgeNoteBlockEvent.Octave,
+      event: ForgeNoteBlockEvent.Play,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a new trigger that runs when a player joins the world.
+   *
+   * Maximum is one per tick. Any extras will queue and run in later ticks.
+   * This trigger is asynchronous.
+   *
+   * Passes through one argument:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPlayerJoined(method: (player: PlayerMP) => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs when a player leaves the world.
+   *
+   * Maximum is one per tick. Any extras will queue and run in later ticks.
+   * This trigger is asynchronous.
+   *
+   * Passes through one argument:
+   * - The name of the player that left
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerPlayerLeft(method: (name: string) => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before a sound is played.
+   *
+   * Passes through six arguments:
+   * - The sound event's position
+   * - The sound event's name
+   * - The sound event's volume
+   * - The sound event's pitch
+   * - The sound event's category's name
+   * - The sound event, which can be cancelled
+   *
+   * Available modifications:
+   * - [SoundPlayTrigger.setCriteria] Sets the sound name criteria
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerSoundPlay(
+    method: (
+      position: Vector3f,
+      name: string,
+      vol: number,
+      pitch: number,
+      category: MCSoundCategory,
+      event: ForgePlaySoundEvent,
+    ) => void,
+  ): SoundPlayTrigger;
+
+  /**
+   * Registers a new trigger that runs whenever a particle is spawned
+   *
+   * Passes through three arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.Particle]
+   * - The [net.minecraft.util.EnumParticleTypes]
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerSpawnParticle(
+    method: (
+      particle: Particle,
+      type: MCEnumParticleTypes,
+      event: CancellableEvent,
+    ) => void,
+  ): EventTrigger;
+
+  /**
+   * Registers a trigger that runs before the world loads.
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerWorldLoad(method: () => void): RegularTrigger;
+
+  /**
+   * Registers a new trigger that runs before the world unloads.
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerWorldUnload(method: () => void): RegularTrigger;
+
+  /**
+   * Registers a new command that will run the method provided.
+   *
+   * Passes through multiple arguments:
+   * - The arguments supplied to the command by the user
+   *
+   * Available modifications:
+   * - [CommandTrigger.setCommandName] Sets the command name
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  registerCommand(method: (...args: string[]) => void): CommandTrigger;
+
+  register: IRegister;
+}
+
+declare interface IRegister {
+  /**
+   * Registers a new trigger that runs before an action bar message is received.
+   *
+   * Passes through multiple arguments:
+   * - Any number of chat criteria variables
+   * - The chat event, which can be cancelled
+   *
+   * Available modifications:
+   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
+   * - [ChatTrigger.setParameter] Sets the chat parameter
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "itemTooltip",
-    method: (lore: string[], item: Item, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+    triggerType: "actionBar",
+    method: Parameters<ITriggerRegister["registerActionBar"]>[0],
+  ): ReturnType<ITriggerRegister["registerActionBar"]>;
+
+  /**
+   * Registers a new trigger that runs whenever the player has left clicked on an entity
+   *
+   * Passes through three arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "attackEntity",
+    method: Parameters<ITriggerRegister["registerAttackEntity"]>[0],
+  ): ReturnType<ITriggerRegister["registerAttackEntity"]>;
+
+  /**
+   * Registers a new trigger that runs before a chat message is received.
+   *
+   * Passes through multiple arguments:
+   * - Any number of chat criteria variables
+   * - The chat event, which can be cancelled
+   *
+   * Available modifications:
+   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
+   * - [ChatTrigger.setParameter] Sets the chat parameter
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "chat",
+    method: Parameters<ITriggerRegister["registerChat"]>[0],
+  ): ReturnType<ITriggerRegister["registerChat"]>;
+  /**
+   * Registers a new trigger that runs whenever the user clicks on a clickable
+   * chat component
+   *
+   * Passes through two arguments:
+   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "chatComponentClicked",
+    method: Parameters<ITriggerRegister["registerChatComponentClicked"]>[0],
+  ): ReturnType<ITriggerRegister["registerChatComponentClicked"]>;
+
+  /**
+   * Registers a new trigger that runs whenever the user hovers over a
+   * hoverable chat component
+   *
+   * Passes through two arguments:
+   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "chatComponentHovered",
+    method: Parameters<ITriggerRegister["registerChatComponentHovered"]>[0],
+  ): ReturnType<ITriggerRegister["registerChatComponentHovered"]>;
+
+  /**
+   * Registers a new trigger that runs before a mouse button is being pressed or released.
+   *
+   * Passes through four arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   * - The mouse button state (true if button is pressed, false otherwise)
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "clicked",
+    method: Parameters<ITriggerRegister["registerClicked"]>[0],
+  ): ReturnType<ITriggerRegister["registerClicked"]>;
+
+  /**
+   * Registers a new trigger that runs while a mouse button is being held down.
+   *
+   * Passes through five arguments:
+   * - The mouse delta x position (relative to last frame)
+   * - The mouse delta y position (relative to last frame)
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "dragged",
+    method: Parameters<ITriggerRegister["registerDragged"]>[0],
+  ): ReturnType<ITriggerRegister["registerDragged"]>;
+
+  /**
+   * Registers a new trigger that runs before an item is dropped.
+   *
+   * Passes through five arguments:
+   * - The [Item] that is dropped up
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that dropped the item
+   * - The item's position vector
+   * - The item's motion vector
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "dropItem",
+    method: Parameters<ITriggerRegister["registerDropItem"]>[0],
+  ): ReturnType<ITriggerRegister["registerDropItem"]>;
+
+  /**
+   * Registers a new trigger that runs after the game loads.
+   *
+   * This runs after the initial loading of the game directly after scripts are
+   * loaded and after "/ct load" happens.
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "gameLoad",
+    method: Parameters<ITriggerRegister["registerGameLoad"]>[0],
+  ): ReturnType<ITriggerRegister["registerGameLoad"]>;
+
+  /**
+   * Registers a new trigger that runs before the game unloads.
+   *
+   * This runs before shutdown of the JVM and before "/ct load" happens.
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "gameUnload",
+    method: Parameters<ITriggerRegister["registerGameUnload"]>[0],
+  ): ReturnType<ITriggerRegister["registerGameUnload"]>;
+
+  /**
+   * Registers a new trigger that runs when a gui is closed.
+   *
+   * Passes through one argument:
+   * - The gui that was closed
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiClosed",
+    method: Parameters<ITriggerRegister["registerGuiClosed"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiClosed"]>;
+
+  /**
+   * Registers a new trigger that runs before the gui background is drawn
+   * This is useful for drawing custom backgrounds.
+   *
+   * Passes through one argument:
+   * - The [GuiScreen] that is being drawn
+   *
+   */
+  (
+    triggerType: "guiDrawBackground",
+    method: Parameters<ITriggerRegister["registerGuiDrawBackground"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiDrawBackground"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a key is typed with a gui open
+   *
+   * Passes through four arguments:
+   * - The character pressed (e.g. 'd')
+   * - The key code pressed (e.g. 41)
+   * - The gui
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiKey",
+    method: Parameters<ITriggerRegister["registerGuiKey"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiKey"]>;
+
+  /**
+   * Registers a new trigger that runs whenever the mouse is clicked with a
+   * gui open
+   *
+   * Passes through five arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   * - The gui
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiMouseClick",
+    method: Parameters<ITriggerRegister["registerGuiMouseClick"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiMouseClick"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a mouse button held and dragged
+   * with a gui open
+   *
+   * Passes through five arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   * - The gui
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiMouseDrag",
+    method: Parameters<ITriggerRegister["registerGuiMouseDrag"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiMouseDrag"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a mouse button is released
+   * with a gui open
+   *
+   * Passes through five arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The mouse button
+   * - The gui
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiMouseRelease",
+    method: Parameters<ITriggerRegister["registerGuiMouseRelease"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiMouseRelease"]>;
+
+  /**
+   * Registers a new trigger that runs when a new gui is first opened.
+   *
+   * Passes through one argument:
+   * - The gui opened event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiOpened",
+    method: Parameters<ITriggerRegister["registerGuiOpened"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiOpened"]>;
+
+  /**
+   * Registers a new trigger that runs as a gui is rendered
+   *
+   * Passes through three arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The gui
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "guiRender",
+    method: Parameters<ITriggerRegister["registerGuiRender"]>[0],
+  ): ReturnType<ITriggerRegister["registerGuiRender"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a block is left clicked
+   *
+   * Note: this is not continuously called while the block is being broken, only once
+   * when first left clicked.
+   *
+   * Passes through two arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block] being hit
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "hitBlock",
+    method: Parameters<ITriggerRegister["registerHitBlock"]>[0],
+  ): ReturnType<ITriggerRegister["registerHitBlock"]>;
+
+  /**
+   * Registers a new trigger that runs before a message is sent in chat.
+   *
+   * Passes through two arguments:
+   * - The message
+   * - The message event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "messageSent",
+    method: Parameters<ITriggerRegister["registerMessageSent"]>[0],
+  ): ReturnType<ITriggerRegister["registerMessageSent"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a packet is sent to the client from the server
+   *
+   * Passes through two arguments:
+   * - The packet
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "packetReceived",
+    method: Parameters<ITriggerRegister["registerPacketReceived"]>[0],
+  ): ReturnType<ITriggerRegister["registerPacketReceived"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a packet is sent from the client to the server
+   *
+   * Passes through two arguments:
+   * - The packet
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "packetSent",
+    method: Parameters<ITriggerRegister["registerPacketSent"]>[0],
+  ): ReturnType<ITriggerRegister["registerPacketSent"]>;
+
+  /**
+   * Registers a new trigger that runs before an item is picked up.
+   *
+   * Passes through five arguments:
+   * - The [Item] that is picked up
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that picked up the item
+   * - The item's position vector
+   * - The item's motion vector
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "pickupItem",
+    method: Parameters<ITriggerRegister["registerPickupItem"]>[0],
+  ): ReturnType<ITriggerRegister["registerPickupItem"]>;
 
   /**
    * Registers a new trigger that runs before the player interacts.
@@ -12121,19 +13054,713 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
     triggerType: "playerInteract",
-    method: (
-      action: ClientListener.PlayerInteractAction,
-      position: Vector3f,
-      event: ForgePlayerInteractEvent,
-    ) => void,
-  ): OnRegularTrigger;
+    method: Parameters<ITriggerRegister["registerPlayerInteract"]>[0],
+  ): ReturnType<ITriggerRegister["registerPlayerInteract"]>;
+  /**
+   * Registers a new trigger that runs before a slot is drawn in a container
+   * This is useful for hiding "background" items in containers used as GUIs.
+   *
+   * Passes through three arguments:
+   * - The [Slot] being drawn
+   * - The MC GUIScreen that is being drawn
+   * - The event, which can be cancelled
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderSlot",
+    method: Parameters<ITriggerRegister["registerRenderSlot"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderSlot"]>;
+
+  /**
+   * Registers a new trigger that runs before a screenshot is taken.
+   *
+   * Passes through two arguments:
+   * - The name of the screenshot
+   * - The screenshot event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "screenshotTaken",
+    method: Parameters<ITriggerRegister["registerScreenshotTaken"]>[0],
+  ): ReturnType<ITriggerRegister["registerScreenshotTaken"]>;
+
+  /**
+   * Registers a new trigger that runs before the mouse is scrolled.
+   *
+   * Passes through three arguments:
+   * - The mouse x position
+   * - The mouse y position
+   * - The scroll direction: 1, -1
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "scrolled",
+    method: Parameters<ITriggerRegister["registerScrolled"]>[0],
+  ): ReturnType<ITriggerRegister["registerScrolled"]>;
+
+  /**
+   * Registers a new trigger that runs whenever the player connects to a server
+   *
+   * Passes through one argument:
+   * - The event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "serverConnect",
+    method: Parameters<ITriggerRegister["registerServerConnect"]>[0],
+  ): ReturnType<ITriggerRegister["registerServerConnect"]>;
+
+  /**
+   * Registers a new trigger that runs whenever the player disconnects from a server
+   *
+   * Passes through two arguments:
+   * - The event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "serverDisconnect",
+    method: Parameters<ITriggerRegister["registerServerDisconnect"]>[0],
+  ): ReturnType<ITriggerRegister["registerServerDisconnect"]>;
+
+  /**
+   * Registers a new trigger that runs in predictable intervals. (60 per second by default)
+   *
+   * Passes through one argument:
+   * - Steps elapsed
+   *
+   * Available modifications:
+   * - [StepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
+   *      per second
+   * - [StepTrigger.setDelay] Sets the delay in seconds, i.e how many seconds it takes
+   *      to fire. Overrides [StepTrigger.setFps].
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "step",
+    method: Parameters<ITriggerRegister["registerStep"]>[0],
+  ): ReturnType<ITriggerRegister["registerStep"]>;
+
+  /**
+   * Registers a new trigger that runs before every game tick.
+   *
+   * Passes through one argument:
+   * - Ticks elapsed
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "tick",
+    method: Parameters<ITriggerRegister["registerTick"]>[0],
+  ): ReturnType<ITriggerRegister["registerTick"]>;
+
+  /**
+   * Registers a new trigger that runs when a tooltip is being rendered.
+   * This allows for the user to modify what text is in the tooltip, and even the
+   * ability to cancel rendering completely.
+   *
+   * Passes through three arguments:
+   * - The list of lore to modify.
+   * - The [Item] that this lore is attached to.
+   * - The cancellable event.
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "itemTooltip",
+    method: Parameters<ITriggerRegister["registerItemTooltip"]>[0],
+  ): ReturnType<ITriggerRegister["registerItemTooltip"]>;
+
+  /**
+   * Registers a new trigger that runs before the block highlight box is drawn.
+   *
+   * Passes through two arguments:
+   * - The draw block highlight event's position
+   * - The draw block highlight event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "drawBlockHighlight",
+    method: Parameters<ITriggerRegister["registerDrawBlockHighlight"]>[0],
+  ): ReturnType<ITriggerRegister["registerDrawBlockHighlight"]>;
+
+  /**
+   * Registers a new trigger that runs after the current screen is rendered
+   *
+   * Passes through three arguments:
+   * - The mouseX
+   * - The mouseY
+   * - The GuiScreen
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "postGuiRender",
+    method: Parameters<ITriggerRegister["registerPostGuiRender"]>[0],
+  ): ReturnType<ITriggerRegister["registerPostGuiRender"]>;
+
+  /**
+   * Registers a new trigger that runs after an entity is rendered
+   *
+   * Passes through three arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The position as a Vector3f
+   * - The partial ticks
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "postRenderEntity",
+    method: Parameters<ITriggerRegister["registerPostRenderEntity"]>[0],
+  ): ReturnType<ITriggerRegister["registerPostRenderEntity"]>;
+
+  /**
+   * Registers a new trigger that runs after a tile entity is rendered
+   *
+   * Passes through three arguments:
+   * - The TileEntity
+   * - The position as a Vector3f
+   * - The partial ticks
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "postRenderTileEntity",
+    method: Parameters<ITriggerRegister["registerPostRenderTileEntity"]>[0],
+  ): ReturnType<ITriggerRegister["registerPostRenderTileEntity"]>;
+
+  /**
+   * Registers a new trigger that runs before the items in the gui are drawn
+   *
+   * Passes through five arguments:
+   * - The mouseX position
+   * - The mouseY position
+   * - The MC Slot
+   * - The GuiContainer
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "preItemRender",
+    method: Parameters<ITriggerRegister["registerPreItemRender"]>[0],
+  ): ReturnType<ITriggerRegister["registerPreItemRender"]>;
+  /**
+   * Registers a new trigger that runs before the player's air level is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderAir",
+    method: Parameters<ITriggerRegister["registerRenderAir"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderAir"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's armor bar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderArmor",
+    method: Parameters<ITriggerRegister["registerRenderArmor"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderArmor"]>;
+
+  /**
+   * Registers a new trigger that runs before the boss health bar is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderBossHealth",
+    method: Parameters<ITriggerRegister["registerRenderBossHealth"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderBossHealth"]>;
+
+  /**
+   * Registers a new trigger that runs before the chat is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderChat",
+    method: Parameters<ITriggerRegister["registerRenderChat"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderChat"]>;
+
+  /**
+   * Registers a new trigger that runs before the crosshair is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderCrosshair",
+    method: Parameters<ITriggerRegister["registerRenderCrosshair"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderCrosshair"]>;
+
+  /**
+   * Registers a trigger that runs before the debug screen is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderDebug",
+    method: Parameters<ITriggerRegister["registerRenderDebug"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderDebug"]>;
+
+  /**
+   * Registers a new trigger that runs whenever an entity is rendered
+   *
+   * Passes through four arguments:
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The position as a Vector3f
+   * - The partial ticks
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   *   gets fired for
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderEntity",
+    method: Parameters<ITriggerRegister["registerRenderEntity"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderEntity"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's experience is being drawn.
+   *
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderExperience",
+    method: Parameters<ITriggerRegister["registerRenderExperience"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderExperience"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's food is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderFood",
+    method: Parameters<ITriggerRegister["registerRenderFood"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderFood"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's hand is drawn.
+   *
+   * Passes through one argument:
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderHand",
+    method: Parameters<ITriggerRegister["registerRenderHand"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderHand"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's health is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderHealth",
+    method: Parameters<ITriggerRegister["registerRenderHealth"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderHealth"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's helmet overlay is drawn.
+   * This triggers when a pumpkin is on the player's head
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderHelmet",
+    method: Parameters<ITriggerRegister["registerRenderHelmet"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderHelmet"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's hotbar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderHotbar",
+    method: Parameters<ITriggerRegister["registerRenderHotbar"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderHotbar"]>;
+
+  /**
+   * Registers a new trigger that runs before each item is drawn into a GUI.
+   *
+   * Passes through four arguments:
+   * - The [Item]
+   * - The x position
+   * - The y position
+   * - The event, which can be cancelled.
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderItemIntoGui",
+    method: Parameters<ITriggerRegister["registerRenderItemIntoGui"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderItemIntoGui"]>;
+
+  /**
+   * Registers a new trigger that runs before each item overlay (stack size and damage bar) is drawn.
+   *
+   * Passes through four arguments:
+   * - The [Item]
+   * - The x position
+   * - The y position
+   * - The event, which can be cancelled.
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderItemOverlayIntoGui",
+    method: Parameters<ITriggerRegister["registerRenderItemOverlayIntoGui"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderItemOverlayIntoGui"]>;
+
+  /**
+   * Registers a new trigger that runs before the jump bar is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderJumpBar",
+    method: Parameters<ITriggerRegister["registerRenderJumpBar"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderJumpBar"]>;
+
+  /**
+   * Registers a new trigger that runs before the player's mount's health is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderMountHealth",
+    method: Parameters<ITriggerRegister["registerRenderMountHealth"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderMountHealth"]>;
+
+  /**
+   * Registers a new trigger that runs before the overlay is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which cannot be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderOverlay",
+    method: Parameters<ITriggerRegister["registerRenderOverlay"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderOverlay"]>;
+
+  /**
+   * Registers a new trigger that runs before the player list is being drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderPlayerList",
+    method: Parameters<ITriggerRegister["registerRenderPlayerList"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderPlayerList"]>;
+
+  /**
+   * Registers a new trigger that runs before the portal effect is drawn.
+   *
+   * Passes through one argument:
+   * - The render event, which can be cancelled
+   *
+   * Available modifications:
+   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderPortal",
+    method: Parameters<ITriggerRegister["registerRenderPortal"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderPortal"]>;
+
+  /**
+   * Registers a new trigger that runs before the scoreboard is drawn.
+   *
+   * Passes through one argument:
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderScoreboard",
+    method: Parameters<ITriggerRegister["registerRenderScoreboard"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderScoreboard"]>;
+
+  /**
+   * Registers a new trigger that runs before the hovered slot square is drawn.
+   *
+   * Passes through six arguments:
+   * - The mouseX position
+   * - The mouseY position
+   * - The Slot
+   * - The GuiContainer
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderSlotHighlight",
+    method: Parameters<ITriggerRegister["registerRenderSlotHighlight"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderSlotHighlight"]>;
+
+  /**
+   * Registers a new trigger that runs whenever a tile entity is rendered
+   *
+   * Passes through four arguments:
+   * - The TileEntity
+   * - The position as a Vector3f
+   * - The partial ticks
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderTileEntity",
+    method: Parameters<ITriggerRegister["registerRenderTileEntity"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderTileEntity"]>;
+
+  /**
+   * Registers a new trigger that runs before the title and subtitle are drawn.
+   *
+   * Passes through three arguments:
+   * - The title
+   * - The subtitle
+   * - The event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderTitle",
+    method: Parameters<ITriggerRegister["registerRenderTitle"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderTitle"]>;
+
+  /**
+   * Registers a new trigger that runs before the world is drawn.
+   *
+   * Passes through one argument:
+   * - Partial ticks elapsed
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "renderWorld",
+    method: Parameters<ITriggerRegister["registerRenderWorld"]>[0],
+  ): ReturnType<ITriggerRegister["registerRenderWorld"]>;
 
   /**
    * Registers a new trigger that runs before the player breaks a block
@@ -12142,12 +13769,15 @@ declare interface IRegister {
    * - The block
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
-  (triggerType: "blockBreak", method: (block: Block) => void): OnRegularTrigger;
+  (
+    triggerType: "blockBreak",
+    method: Parameters<ITriggerRegister["registerBlockBreak"]>[0],
+  ): ReturnType<ITriggerRegister["registerBlockBreak"]>;
 
   /**
    * Registers a new trigger that runs before an entity is damaged
@@ -12161,8 +13791,8 @@ declare interface IRegister {
    */
   (
     triggerType: "entityDamage",
-    method: (target: Entity, attacker: PlayerMP) => void,
-  ): OnRegularTrigger;
+    method: Parameters<ITriggerRegister["registerEntityDamage"]>[0],
+  ): ReturnType<ITriggerRegister["registerEntityDamage"]>;
 
   /**
    * Registers a new trigger that runs before an entity dies
@@ -12175,416 +13805,111 @@ declare interface IRegister {
    */
   (
     triggerType: "entityDeath",
-    method: (entity: Entity) => void,
-  ): OnRegularTrigger;
+    method: Parameters<ITriggerRegister["registerEntityDeath"]>[0],
+  ): ReturnType<ITriggerRegister["registerEntityDeath"]>;
 
   /**
-   * Registers a new trigger that runs before the gui background is drawn
-   * This is useful for drawing custom backgrounds.
+   * Registers a new trigger that runs before a noteblock is changed.
+   *
+   * Passes through four arguments:
+   * - The note block change event's Vector3f position
+   * - The note block change event's note's name
+   * - The note block change event's octave
+   * - The note block change event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "noteBlockChange",
+    method: Parameters<ITriggerRegister["registerNoteBlockChange"]>[0],
+  ): ReturnType<ITriggerRegister["registerNoteBlockChange"]>;
+
+  /**
+   * Registers a new trigger that runs before a noteblock is played.
+   *
+   * Passes through four arguments:
+   * - The note block play event's Vector3f position
+   * - The note block play event's note's name
+   * - The note block play event's octave
+   * - The note block play event, which can be cancelled
+   *
+   * Available modifications:
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "noteBlockPlay",
+    method: Parameters<ITriggerRegister["registerNoteBlockPlay"]>[0],
+  ): ReturnType<ITriggerRegister["registerNoteBlockPlay"]>;
+
+  /**
+   * Registers a new trigger that runs when a player joins the world.
+   *
+   * Maximum is one per tick. Any extras will queue and run in later ticks.
+   * This trigger is asynchronous.
    *
    * Passes through one argument:
-   * - The [GuiScreen] that is being drawn
-   *
-   */
-  (
-    triggerType: "guiDrawBackground",
-    method: (gui: MCGuiScreen, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs as a gui is rendered
-   *
-   * Passes through three arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The gui
+   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "guiRender",
-    method: (mouseX: int, mouseY: int, gui: MCGuiScreen) => void,
-  ): OnRegularTrigger;
+    triggerType: "playerJoined",
+    method: Parameters<ITriggerRegister["registerPlayerJoined"]>[0],
+  ): ReturnType<ITriggerRegister["registerPlayerJoined"]>;
 
   /**
-   * Registers a new trigger that runs whenever a key is typed with a gui open
+   * Registers a new trigger that runs when a player leaves the world.
    *
-   * Passes through four arguments:
-   * - The character pressed (e.g. 'd')
-   * - The key code pressed (e.g. 41)
-   * - The gui
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiKey",
-    method: (
-      char: string,
-      keyCode: int,
-      gui: MCGuiScreen,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the mouse is clicked with a
-   * gui open
-   *
-   * Passes through five arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   * - The gui
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiMouseClick",
-    method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
-      gui: MCGuiScreen,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a mouse button is released
-   * with a gui open
-   *
-   * Passes through five arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   * - The gui
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiMouseRelease",
-    method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
-      gui: MCGuiScreen,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a mouse button held and dragged
-   * with a gui open
-   *
-   * Passes through five arguments:
-   * - The mouse x position
-   * - The mouse y position
-   * - The mouse button
-   * - The gui
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "guiMouseDrag",
-    method: (
-      mouseX: int,
-      mouseY: int,
-      mouseButton: int,
-      gui: MCGuiScreen,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a packet is sent from the client to the server
-   *
-   * Passes through two arguments:
-   * - The packet
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "packetSent",
-    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a packet is sent to the client from the server
-   *
-   * Passes through two arguments:
-   * - The packet
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "packetReceived",
-    method: (packet: MCPacket<MCINetHandler>, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the player connects to a server
+   * Maximum is one per tick. Any extras will queue and run in later ticks.
+   * This trigger is asynchronous.
    *
    * Passes through one argument:
-   * - The event, which cannot be cancelled
+   * - The name of the player that left
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "serverConnect",
-    method: (event: FMLNetworkEvent$ClientConnectedToServerEvent) => void,
-  ): OnRegularTrigger;
+    triggerType: "playerLeft",
+    method: Parameters<ITriggerRegister["registerPlayerLeft"]>[0],
+  ): ReturnType<ITriggerRegister["registerPlayerLeft"]>;
 
   /**
-   * Registers a new trigger that runs whenever the player disconnects from a server
-   *
-   * Passes through two arguments:
-   * - The event, which cannot be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "serverDisconnect",
-    method: (event: FMLNetworkEvent$ClientDisconnectionFromServerEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the user clicks on a clickable
-   * chat component
-   *
-   * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "chatComponentClicked",
-    method: (component: TextComponent, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever the user hovers over a
-   * hoverable chat component
-   *
-   * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "chatComponentHovered",
-    method: (component: TextComponent, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever an entity is rendered
-   *
-   * Passes through four arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
-   * - The position as a Vector3f
-   * - The partial ticks
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderEntity",
-    method: (
-      entity: MCEntity,
-      position: Vector3f,
-      partialTicks: float,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs after the current screen is rendered
-   *
-   * Passes through three arguments:
-   * - The mouseX
-   * - The mouseY
-   * - The GuiScreen
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "postGuiRender",
-    method: (mouseX: int, mouseY: int, gui: MCGuiScreen) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs after an entity is rendered
-   *
-   * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
-   * - The position as a Vector3f
-   * - The partial ticks
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "postRenderEntity",
-    method: (entity: Entity, pos: Vector3f, partialTicks: number) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs whenever a tile entity is rendered
-   *
-   * Passes through four arguments:
-   * - The TileEntity
-   * - The position as a Vector3f
-   * - The partial ticks
-   * - The event, which can be cancelled
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "renderTileEntity",
-    method: (
-      entity: MCTileEntity,
-      pos: Vector3f,
-      partialTicks: number,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs after a tile entity is rendered
-   *
-   * Passes through three arguments:
-   * - The TileEntity
-   * - The position as a Vector3f
-   * - The partial ticks
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "postRenderTileEntity",
-    method: (entity: MCTileEntity, pos: Vector3f, partialTicks: number) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before the items in the gui are drawn
-   *
-   * Passes through five arguments:
-   * - The mouseX position
-   * - The mouseY position
-   * - The Slot
-   * - The GuiContainer
-   *
-   * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
-   *
-   * @param method The method to call when the event is fired
-   * @return The trigger for additional modification
-   */
-  (
-    triggerType: "preItemRender",
-    method: (
-      mouseX: number,
-      mouseY: number,
-      slot: MCSlot,
-      gui: MCGuiContainer,
-    ) => void,
-  ): OnRegularTrigger;
-
-  /**
-   * Registers a new trigger that runs before the hovered slot square is drawn.
+   * Registers a new trigger that runs before a sound is played.
    *
    * Passes through six arguments:
-   * - The mouseX position
-   * - The mouseY position
-   * - The Slot
-   * - The GuiContainer
-   * - The event, which can be cancelled
+   * - The sound event's position
+   * - The sound event's name
+   * - The sound event's volume
+   * - The sound event's pitch
+   * - The sound event's category's name
+   * - The sound event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [SoundPlayTrigger.setCriteria] Sets the sound name criteria
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "renderSlotHighlight",
-    method: (
-      mouseX: number,
-      mouseY: number,
-      slot: MCSlot,
-      gui: MCGuiContainer,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
+    triggerType: "soundPlay",
+    method: Parameters<ITriggerRegister["registerSoundPlay"]>[0],
+  ): ReturnType<ITriggerRegister["registerSoundPlay"]>;
 
   /**
    * Registers a new trigger that runs whenever a particle is spawned
@@ -12595,56 +13920,59 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
     triggerType: "spawnParticle",
-    method: (
-      particle: Particle,
-      type: MCEnumParticleTypes,
-      event: CancellableEvent,
-    ) => void,
-  ): OnRegularTrigger;
+    method: Parameters<ITriggerRegister["registerSpawnParticle"]>[0],
+  ): ReturnType<ITriggerRegister["registerSpawnParticle"]>;
 
   /**
-   * Registers a new trigger that runs whenever the player has left clicked on an entity
-   *
-   * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
-   * - The event, which can be cancelled
+   * Registers a trigger that runs before the world loads.
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "attackEntity",
-    method: (entity: Entity, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+    triggerType: "worldLoad",
+    method: Parameters<ITriggerRegister["registerWorldLoad"]>[0],
+  ): ReturnType<ITriggerRegister["registerWorldLoad"]>;
 
   /**
-   * Registers a new trigger that runs whenever a block is left clicked
-   *
-   * Note: this is not continuously called while the block is being broken, only once
-   * when first left clicked.
-   *
-   * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block] being hit
-   * - The event, which can be cancelled
+   * Registers a new trigger that runs before the world unloads.
    *
    * Available modifications:
-   * - [OnTrigger.setPriority] Sets the priority
+   * - [Trigger.setPriority] Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   (
-    triggerType: "hitBlock",
-    method: (block: Block, event: CancellableEvent) => void,
-  ): OnRegularTrigger;
+    triggerType: "worldUnload",
+    method: Parameters<ITriggerRegister["registerWorldUnload"]>[0],
+  ): ReturnType<ITriggerRegister["registerWorldUnload"]>;
+
+  /**
+   * Registers a new command that will run the method provided.
+   *
+   * Passes through multiple arguments:
+   * - The arguments supplied to the command by the user
+   *
+   * Available modifications:
+   * - [CommandTrigger.setCommandName] Sets the command name
+   * - [Trigger.setPriority] Sets the priority
+   *
+   * @param method The method to call when the event is fired
+   * @return The trigger for additional modification
+   */
+  (
+    triggerType: "command",
+    method: Parameters<ITriggerRegister["registerCommand"]>[0],
+  ): ReturnType<ITriggerRegister["registerCommand"]>;
 }
