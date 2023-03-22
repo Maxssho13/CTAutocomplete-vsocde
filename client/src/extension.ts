@@ -27,13 +27,12 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("chattriggers.initialize", handleInitializeCommand),
   );
 
-  await handleChangeTextEditor();
   const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
+
   if (enabled) {
-    showEnableNotification();
-    pluginConfig.enabled = true;
-    refreshPluginConfig();
+    enablePlugin();
   }
+  await handleChangeTextEditor();
 }
 
 async function handleInitializeCommand() {
@@ -51,7 +50,7 @@ async function handleInitializeCommand() {
     return;
   }
 
-  const selectedLanguage = await vscode.window.showQuickPick(["Javascript", "Typescript(WIP)"], {
+  const selectedLanguage = await vscode.window.showQuickPick(["Javascript", "Typescript"], {
     ignoreFocusOut: true,
     placeHolder: "Module language template",
   });
@@ -75,30 +74,34 @@ async function handleInitializeCommand() {
   } else {
     creator = configCreator;
   }
-
   if (!creator) return;
 
-  pluginConfig.enabled = true;
-  refreshPluginConfig();
-  await handleChangeTextEditor();
+  enablePlugin();
 
-  const configuration = vscode.workspace.getConfiguration("chattriggers");
   // If automatic detection of workspaces isn't enabled and global enabled isn't set,
   // then set workspace enabled to true.
+  const configuration = vscode.workspace.getConfiguration("chattriggers");
   if (!configuration.get<boolean>("detectWorkspaces") && !configuration.get<boolean>("enabled")) {
-    configuration.update("enabled", true);
+    await configuration.update("enabled", true);
   }
 
-  let workspace = new vscode.WorkspaceEdit();
+  if (selectedLanguage === "Typescript") {
+    await bootstrapTypescript(name, creator);
+  } else {
+    await bootstrapJavascript(name, creator);
+  }
+  await handleChangeTextEditor();
+}
+
+async function bootstrapTypescript(moduleName: string, creatorName: string) {
+  const workspace = new vscode.WorkspaceEdit();
   const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+
+  const tsconfigPath = vscode.Uri.file(workspacePath + "/tsconfig.json");
+  const indexPath = vscode.Uri.file(workspacePath + "/src/index.ts");
   const metadataPath = vscode.Uri.file(workspacePath + "/metadata.json");
 
-  let metadataContent;
-  let indexPath;
-
-  if (selectedLanguage === "Typescript(WIP)") {
-    const tsconfigPath = vscode.Uri.file(workspacePath + "/tsconfig.json");
-    const tsconfigContent = `\
+  const tsconfigContent = `\
 {
   "compilerOptions": {
     "target": "es6",
@@ -114,59 +117,64 @@ async function handleInitializeCommand() {
   }
 }
 `;
-    try {
-      workspace.createFile(tsconfigPath, {
-        ignoreIfExists: true,
-        overwrite: false,
-      });
-      await vscode.workspace.applyEdit(workspace);
-      workspace = new vscode.WorkspaceEdit();
 
-      await vscode.workspace.fs.writeFile(tsconfigPath, new TextEncoder().encode(tsconfigContent));
-    } catch (e) {
-      vscode.window.showErrorMessage("Unable to initialize module.");
-      return;
-    }
-
-    indexPath = vscode.Uri.file(workspacePath + "/src/index.ts");
-
-    metadataContent = `\
+  const metadataContent = `\
 {
-  "name": "${name}",
-  "creator": "${creator}",
+  "name": "${moduleName}",
+  "creator": "${creatorName}",
   "entry": "dist/index.js",
   "version": "0.0.1"
 }
 `;
-  } else {
-    indexPath = vscode.Uri.file(workspacePath + "/index.js");
 
-    metadataContent = `\
+  try {
+    const createFileConfig = {
+      ignoreIfExists: true,
+      overwrite: false,
+    };
+    workspace.createFile(tsconfigPath, createFileConfig);
+    workspace.createFile(indexPath, createFileConfig);
+    workspace.createFile(metadataPath, createFileConfig);
+    await vscode.workspace.applyEdit(workspace);
+
+    await Promise.all([
+      vscode.workspace.fs.writeFile(tsconfigPath, new TextEncoder().encode(tsconfigContent)),
+      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadataContent)),
+    ]);
+  } catch (e) {
+    vscode.window.showErrorMessage("Unable to initialize module.");
+    return;
+  }
+}
+
+async function bootstrapJavascript(moduleName: string, creatorName: string) {
+  const workspace = new vscode.WorkspaceEdit();
+  const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+
+  const indexPath = vscode.Uri.file(workspacePath + "/index.js");
+  const metadataPath = vscode.Uri.file(workspacePath + "/metadata.json");
+
+  const metadataContent = `\
 {
-  "name": "${name}",
-  "creator": "${creator}",
+  "name": "${moduleName}",
+  "creator": "${creatorName}",
   "entry": "index.js",
   "version": "0.0.1"
 }
 `;
-  }
 
   try {
-    workspace.createFile(indexPath, {
+    const createFileConfig = {
       ignoreIfExists: true,
       overwrite: false,
-    });
-    // If the edit doesn't succeed, create a new editing instance for metadata.
-    await vscode.workspace.applyEdit(workspace);
-    workspace = new vscode.WorkspaceEdit();
-
-    workspace.createFile(metadataPath, {
-      ignoreIfExists: true,
-      overwrite: false,
-    });
+    };
+    workspace.createFile(indexPath, createFileConfig);
+    workspace.createFile(metadataPath, createFileConfig);
     await vscode.workspace.applyEdit(workspace);
 
-    await vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadataContent));
+    await Promise.all([
+      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadataContent)),
+    ]);
   } catch (e) {
     vscode.window.showErrorMessage("Unable to initialize module.");
     return;
@@ -177,11 +185,7 @@ async function handleConfigurationChanged(event: vscode.ConfigurationChangeEvent
   if (event.affectsConfiguration("chattriggers.enabled")) {
     const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
 
-    if (enabled && !pluginConfig.enabled) {
-      showEnableNotification();
-    }
-    pluginConfig.enabled = enabled;
-    refreshPluginConfig();
+    enabled ? enablePlugin() : disablePlugin();
   }
 
   if (event.affectsConfiguration("chattriggers.detectWorkspaces")) {
@@ -194,29 +198,20 @@ async function handleChangeTextEditor() {
   const detectWorkspaces = configuration.get<boolean>("detectWorkspaces");
   const enabledSetting = configuration.get<boolean>("enabled");
 
-  if (!enabledSetting && detectWorkspaces) {
-    let metadata = (await vscode.workspace.findFiles("metadata.json"))[0];
-
-    if (!metadata && pluginConfig.enabled) {
-      pluginConfig.enabled = false;
-      refreshPluginConfig();
-    } else if (metadata && !pluginConfig.enabled) {
-      pluginConfig.enabled = true;
-      refreshPluginConfig();
-      showEnableNotification();
-    }
+  if (enabledSetting) {
+    enablePlugin();
     return;
   }
 
-  if (!enabledSetting && !detectWorkspaces) {
-    pluginConfig.enabled = false;
-    refreshPluginConfig();
+  if (detectWorkspaces) {
+    const metadataFile = (await vscode.workspace.findFiles("metadata.json"))[0];
+    if (metadataFile != null) {
+      enablePlugin();
+      return;
+    }
   }
 
-  if (enabledSetting) {
-    pluginConfig.enabled = true;
-    refreshPluginConfig();
-  }
+  disablePlugin();
 }
 
 export function deactivate() {}
@@ -243,6 +238,19 @@ function refreshPluginConfig() {
   tsApi.configurePlugin("tsserver-plugin", pluginConfig);
 }
 
+function enablePlugin() {
+  if (!pluginConfig.enabled) {
+    showEnableNotification();
+  }
+  pluginConfig.enabled = true;
+  refreshPluginConfig();
+}
+
+function disablePlugin() {
+  pluginConfig.enabled = false;
+  refreshPluginConfig();
+}
+
 function showEnableNotification() {
   const progressOptions = {
     location: vscode.ProgressLocation.Notification,
@@ -251,7 +259,7 @@ function showEnableNotification() {
   };
   vscode.window.withProgress(progressOptions, async () => {
     await new Promise<void>(resolve => {
-      setTimeout(resolve, 4000);
+      setTimeout(resolve, 2000);
     });
   });
 }
