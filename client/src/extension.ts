@@ -27,6 +27,9 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("chattriggers.initialize", handleInitializeCommand),
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("chattriggers.setDefaultCreator", handleSetCreatorCommand),
+  );
 
   const enabled = vscode.workspace.getConfiguration("chattriggers").get<boolean>("enabled")!;
 
@@ -34,6 +37,23 @@ export async function activate(context: vscode.ExtensionContext) {
     enablePlugin();
   }
   await handleChangeTextEditor();
+}
+
+async function handleSetCreatorCommand() {
+  const creatorName = await vscode.window.showInputBox({
+    prompt: "Default creator name",
+    title: "Set default creator name to initialize projects with",
+    ignoreFocusOut: true,
+    validateInput(value) {
+      if (!value || value.trim() !== value) {
+        return "Must enter a valid name";
+      }
+    },
+  });
+
+  await vscode.workspace
+    .getConfiguration("chattriggers")
+    .update("defaultCreator", creatorName, vscode.ConfigurationTarget.Global);
 }
 
 async function handleInitializeCommand() {

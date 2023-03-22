@@ -59,6 +59,11 @@
         "command": "chattriggers.initialize",
         "category": "Chattriggers",
         "title": "Initialize CT module"
+      },
+      {
+        "command": "chattriggers.setDefaultCreator",
+        "category": "Chattriggers",
+        "title": "Set Default Creator Name"
       }
     ],
     "jsonValidation": [
