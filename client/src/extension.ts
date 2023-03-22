@@ -101,31 +101,35 @@ async function bootstrapTypescript(moduleName: string, creatorName: string) {
   const indexPath = vscode.Uri.file(workspacePath + "/src/index.ts");
   const metadataPath = vscode.Uri.file(workspacePath + "/metadata.json");
 
-  const tsconfigContent = `\
-{
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": ["es2016"],
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "noImplicitAny": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  }
-}
-`;
+  const tsconfig = JSON.stringify(
+    {
+      compilerOptions: {
+        target: "es6",
+        module: "commonjs",
+        lib: ["es2016"],
+        outDir: "dist",
+        rootDir: "src",
+        strict: true,
+        noImplicitAny: false,
+        esModuleInterop: true,
+        skipLibCheck: true,
+        forceConsistentCasingInFileNames: true,
+      },
+    },
+    null,
+    2,
+  );
 
-  const metadataContent = `\
-{
-  "name": "${moduleName}",
-  "creator": "${creatorName}",
-  "entry": "dist/index.js",
-  "version": "0.0.1"
-}
-`;
+  const metadata = JSON.stringify(
+    {
+      name: moduleName,
+      creator: creatorName,
+      entry: "dist/index.js",
+      version: "0.0.1",
+    },
+    null,
+    2,
+  );
 
   try {
     const createFileConfig = {
@@ -138,8 +142,8 @@ async function bootstrapTypescript(moduleName: string, creatorName: string) {
     await vscode.workspace.applyEdit(workspace);
 
     await Promise.all([
-      vscode.workspace.fs.writeFile(tsconfigPath, new TextEncoder().encode(tsconfigContent)),
-      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadataContent)),
+      vscode.workspace.fs.writeFile(tsconfigPath, new TextEncoder().encode(tsconfig)),
+      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadata)),
     ]);
   } catch (e) {
     vscode.window.showErrorMessage("Unable to initialize module.");
@@ -154,14 +158,16 @@ async function bootstrapJavascript(moduleName: string, creatorName: string) {
   const indexPath = vscode.Uri.file(workspacePath + "/index.js");
   const metadataPath = vscode.Uri.file(workspacePath + "/metadata.json");
 
-  const metadataContent = `\
-{
-  "name": "${moduleName}",
-  "creator": "${creatorName}",
-  "entry": "index.js",
-  "version": "0.0.1"
-}
-`;
+  const metadata = JSON.stringify(
+    {
+      name: moduleName,
+      creator: creatorName,
+      entry: "index.js",
+      version: "0.0.1",
+    },
+    null,
+    2,
+  );
 
   try {
     const createFileConfig = {
@@ -173,7 +179,7 @@ async function bootstrapJavascript(moduleName: string, creatorName: string) {
     await vscode.workspace.applyEdit(workspace);
 
     await Promise.all([
-      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadataContent)),
+      vscode.workspace.fs.writeFile(metadataPath, new TextEncoder().encode(metadata)),
     ]);
   } catch (e) {
     vscode.window.showErrorMessage("Unable to initialize module.");
