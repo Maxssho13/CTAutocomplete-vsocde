@@ -31,6 +31,14 @@ None are known right now but this extension is still very young and there are li
 
 ## Release Notes
 
+### 0.0.2
+
+- Fixed bug where extension would not activate until typing.
+- Added more documentation in settings.
+- Added option to initialize an empty git repository in the `chattriggers.initialize` command.
+- Added command `chattriggers.setDefaultCreator` to set the default creator name used in `initialize`.
+- Updated typings.
+
 ### 0.0.1
 
 Initial release of Chattriggers extension. Still very early in development.
