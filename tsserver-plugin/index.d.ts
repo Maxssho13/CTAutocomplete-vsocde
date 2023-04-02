@@ -9,6 +9,21 @@ export {}; // this line converts this into a module, allowing for importing and 
 declare global {
   const GuiHandler: GuiHandler;
   const Java: Java;
+  /**
+   * Helper method register a trigger.
+   *
+   * Called by taking the original name of the method, i.e. `registerChat`,
+   * removing the word register, and comparing it case-insensitively with
+   * the methods below.
+   *
+   * Can also be passed a class of type
+   * {@link ForgeEvent net.minecraftforge.fml.common.eventhandler.Event} as the first parameter
+   * to register functions for arbitrary forge events.
+   *
+   * @param triggerType the type of trigger
+   * @param method The name of the method or the actual method to callback when the event is fired
+   * @return The trigger for additional modification
+   */
   const register: IRegister;
   const TriggerRegister: ITriggerRegister;
   const InteractAction: typeof ForgePlayerInteractEvent.Action;
@@ -676,7 +691,7 @@ declare global {
 
     /**
      * Rotates the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.rotate]
+     * Similar to {@link Renderer.rotate com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.rotate}
      *
      * @param angle the angle to rotate
      * @param x if the rotation is around the x axis
@@ -687,7 +702,7 @@ declare global {
     rotate(angle: number, x: number, y: number, z: number): Tessellator;
     /**
      * Rotates the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.rotate]
+     * Similar to {@link Renderer.rotate com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.rotate}
      *
      * @param angle the angle to rotate
      * @param x if the rotation is around the x axis
@@ -699,7 +714,7 @@ declare global {
 
     /**
      * Translates the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.translate]
+     * Similar to {@link Renderer.translate com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.translate}
      *
      * @param x the x position
      * @param y the y position
@@ -709,7 +724,7 @@ declare global {
     translate(x: number, y: number, z: number): Tessellator;
     /**
      * Translates the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.translate]
+     * Similar to {@link Renderer.translate com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.translate}
      *
      * @param x the x position
      * @param y the y position
@@ -720,7 +735,7 @@ declare global {
 
     /**
      * Scales the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.scale]
+     * Similar to {@link Renderer.scale com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.scale}
      *
      * @param x scale in the x direction or all directions if y and z are not supplied
      * @param y scale in the y direction
@@ -730,7 +745,7 @@ declare global {
     scale(x: number, y?: number, z?: number): Tessellator;
     /**
      * Scales the Tessellator in 3d space.
-     * Similar to [com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.scale]
+     * Similar to {@link Renderer.scale com.chattriggers.ctjs.minecraft.libs.renderer.Renderer.scale}
      *
      * @param x scale in the x direction or all directions if y and z are not supplied
      * @param y scale in the y direction
@@ -760,7 +775,7 @@ declare global {
 
     /**
      * Sets the texture location on the last defined vertex.
-     * Use directly after using [Tessellator.pos]
+     * Use directly after using {@link Tessellator.pos}
      *
      * @param u the u position in the texture
      * @param v the v position in the texture
@@ -769,7 +784,7 @@ declare global {
     tex(u: number, v: number): Tessellator;
     /**
      * Sets the texture location on the last defined vertex.
-     * Use directly after using [Tessellator.pos]
+     * Use directly after using {@link Tessellator.pos}
      *
      * @param u the u position in the texture
      * @param v the v position in the texture
@@ -936,11 +951,11 @@ declare global {
    * - stream (boolean) - whether or not to stream this sound rather than preload it (should be true for large files), defaults to false
    *
    * CONFIGURABLE (can be set in config object, or changed later, but MAKE SURE THE WORLD HAS LOADED)
-   * - category (String) - which category this sound should be a part of, see [setCategory].
-   * - volume (float) - volume of the sound, see [setVolume]
-   * - pitch (float) - pitch of the sound, see [setPitch]
-   * - x, y, z (float) - location of the sound, see [setPosition]. Defaults to the players position.
-   * - attenuation (int) - fade out model of the sound, see [setAttenuation]
+   * - category (String) - which category this sound should be a part of, see {@link setCategory}.
+   * - volume (float) - volume of the sound, see {@link setVolume}
+   * - pitch (float) - pitch of the sound, see {@link setPitch}
+   * - x, y, z (float) - location of the sound, see {@link setPosition}. Defaults to the players position.
+   * - attenuation (int) - fade out model of the sound, see {@link setAttenuation}
    *
    * @param config the JavaScript config object
    */
@@ -959,7 +974,7 @@ declare global {
 
     /**
      * Sets this sound's volume.
-     * Will override the category if called after [setCategory], but not if called before.
+     * Will override the category if called after {@link setCategory}, but not if called before.
      *
      * @param volume New volume, float value ( 0.0f - 1.0f ).
      */
@@ -1257,7 +1272,7 @@ declare global {
    * An immutable wrapper around Minecraft's Block object. Note
    * that this references a block "type", and not an actual block
    * in the world. If a reference to a particular block is needed,
-   * use [Block]
+   * use {@link Block}
    */
   class BlockType {
     readonly mcBlock: MCBlock;
@@ -1268,11 +1283,11 @@ declare global {
     constructor(item: Item);
 
     /**
-     * Returns a PlacedBlock based on this block and the
+     * Returns a Block based on this block and the
      * provided BlockPos
      *
      * @param blockPos the block position
-     * @return a PlacedBlock object
+     * @return a Block object
      */
     withBlockPos(blockPos: BlockPos): Block;
 
@@ -1795,20 +1810,20 @@ declare global {
 
     /**
      * Gets the current object that the player is looking at,
-     * whether that be a block or an entity. Returns an air block when not looking
+     * whether that be a block or an entity. Returns an air {@link BlockType} when not looking
      * at anything.
      *
-     * @return the [Block], [Sign], or [Entity] being looked at
+     * @return the {@link Block}, {@link Entity}, {@link Sign}, or {@link BlockType} being looked at
      */
-    lookingAt(): Block | Sign | Entity;
+    lookingAt(): Block | Sign | Entity | BlockType;
     /**
      * Gets the current object that the player is looking at,
-     * whether that be a block or an entity. Returns an air block when not looking
+     * whether that be a block or an entity. Returns an air {@link BlockType} when not looking
      * at anything.
      *
-     * @return the [Block], [Sign], or [Entity] being looked at
+     * @return the {@link Block}, {@link Entity}, {@link Sign}, or {@link BlockType} being looked at
      */
-    static lookingAt(): Block | Sign | Entity;
+    static lookingAt(): Block | Sign | Entity | BlockType;
 
     getHeldItem(): Item | null;
     static getHeldItem(): Item | null;
@@ -3048,51 +3063,51 @@ declare global {
       | "default_1_1";
 
     /**
-     * Gets the [BlockType] at a location in the world.
+     * Gets the {@link Block} at a location in the world.
      *
      * @param x the x position
      * @param y the y position
      * @param z the z position
-     * @return the [BlockType] at the location
+     * @return the {@link Block} at the location
      */
     getBlockAt(x: number, y: number, z: number): Block;
     /**
-     * Gets the [Block] at a location in the world.
+     * Gets the {@link Block} at a location in the world.
      *
      * @param x the x position
      * @param y the y position
      * @param z the z position
-     * @return the [Block] at the location
+     * @return the {@link Block} at the location
      */
     static getBlockAt(x: number, y: number, z: number): Block;
 
     /**
-     * Gets the [BlockType] at a location in the world.
+     * Gets the {@link Block} at a location in the world.
      *
      * @param pos The block position
-     * @return the [BlockType] at the location
+     * @return the {@link Block} at the location
      */
     getBlockAt(pos: BlockPos): Block;
     /**
-     * Gets the [BlockType] at a location in the world.
+     * Gets the {@link Block} at a location in the world.
      *
      * @param pos The block position
-     * @return the [BlockType] at the location
+     * @return the {@link Block} at the location
      */
     static getBlockAt(pos: BlockPos): Block;
 
     /**
-     * Gets the [IBlockState] at a location in the world.
+     * Gets the {@link MCIBlockState IBlockState} at a location in the world.
      *
      * @param pos The block position
-     * @return the [BlockType] at the location
+     * @return the {@link MCIBlockState IBlockState} at the location
      */
     getBlockStateAt(pos: BlockPos): MCIBlockState;
     /**
-     * Gets the [IBlockState] at a location in the world.
+     * Gets the {@link MCIBlockState IBlockState} at a location in the world.
      *
      * @param pos The block position
-     * @return the [BlockType] at the location
+     * @return the {@link MCIBlockState IBlockState} at the location
      */
     static getBlockStateAt(pos: BlockPos): MCIBlockState;
 
@@ -3272,14 +3287,14 @@ declare global {
     class particle {
       /**
        * Gets an array of all the different particle names you can pass
-       * to [spawnParticle]
+       * to {@link spawnParticle}
        *
        * @return the array of name strings
        */
       getParticleNames(): string[];
       /**
        * Gets an array of all the different particle names you can pass
-       * to [spawnParticle]
+       * to {@link spawnParticle}
        *
        * @return the array of name strings
        */
@@ -3287,9 +3302,9 @@ declare global {
 
       /**
        * Spawns a particle into the world with the given attributes,
-       * which can be configured further with the returned [Particle]
+       * which can be configured further with the returned {@link Particle}
        *
-       * @param particle the name of the particle to spawn, see [getParticleNames]
+       * @param particle the name of the particle to spawn, see {@link particle.getParticleNames}
        * @param x the x coordinate to spawn the particle at
        * @param y the y coordinate to spawn the particle at
        * @param z the z coordinate to spawn the particle at
@@ -3309,9 +3324,9 @@ declare global {
       ): Particle;
       /**
        * Spawns a particle into the world with the given attributes,
-       * which can be configured further with the returned [Particle]
+       * which can be configured further with the returned {@link Particle}
        *
-       * @param particle the name of the particle to spawn, see [getParticleNames]
+       * @param particle the name of the particle to spawn, see {@link particle.getParticleNames}
        * @param x the x coordinate to spawn the particle at
        * @param y the y coordinate to spawn the particle at
        * @param z the z coordinate to spawn the particle at
@@ -3437,14 +3452,14 @@ declare global {
 
     /**
      * Sets the header text for the TabList.
-     * If [header] is null, it will remove the header entirely
+     * If `header` is null, it will remove the header entirely
      *
      * @param header the header to set, or null to clear
      */
     setHeader(header: string | Message | MCIChatComponent | null): void;
     /**
      * Sets the header text for the TabList.
-     * If [header] is null, it will remove the header entirely
+     * If `header` is null, it will remove the header entirely
      *
      * @param header the header to set, or null to clear
      */
@@ -3461,14 +3476,14 @@ declare global {
 
     /**
      * Sets the footer text for the TabList.
-     * If [footer] is null, it will remove the footer entirely
+     * If `footer` is null, it will remove the footer entirely
      *
      * @param footer the footer to set, or null to clear
      */
     setFooter(footer: string | Message | MCIChatComponent | null): void;
     /**
      * Sets the footer text for the TabList.
-     * If [footer] is null, it will remove the footer entirely
+     * If `footer` is null, it will remove the footer entirely
      *
      * @param footer the footer to set, or null to clear
      */
@@ -3488,13 +3503,13 @@ declare global {
     static getSidebar(): MCScoreObjective | null;
 
     /**
-     * Alias for [getTitle].
+     * Alias for {@link Scoreboard.getTitle}.
      *
      * @return the scoreboard title
      */
     getScoreboardTitle(): string;
     /**
-     * Alias for [getTitle].
+     * Alias for {@link Scoreboard.getTitle}.
      *
      * @return the scoreboard title
      */
@@ -3644,10 +3659,10 @@ declare global {
   }
   /**
    * Creates a new Sign object wrapper.
-   * Returned with [com.chattriggers.ctjs.minecraft.wrappers.Player.lookingAt] when looking at a sign.
-   * Extends [Block].
+   * Returned with {@link Player.lookingAt com.chattriggers.ctjs.minecraft.wrappers.Player.lookingAt} when looking at a sign.
+   * Extends {@link Block}.
    *
-   * @param block the [Block] to convert to a Sign
+   * @param block the {@link Block} to convert to a Sign
    */
   class Sign extends Block {
     constructor(block: Block);
@@ -4205,7 +4220,7 @@ declare global {
 
     /**
      * Creates a new action.
-     * The Inventory must be a container, see [Inventory.isContainer].
+     * The Inventory must be a container, see {@link Inventory.isContainer}.
      * The slot can be -999 for outside of the gui
      *
      * @param inventory the inventory to complete the action on
@@ -4220,7 +4235,7 @@ declare global {
     class Companion {
       /**
        * Creates a new action.
-       * The Inventory must be a container, see [Inventory.isContainer].
+       * The Inventory must be a container, see {@link Inventory.isContainer}.
        * The slot can be -999 for outside of the gui
        *
        * @param inventory the inventory to complete the action on
@@ -4262,7 +4277,7 @@ declare global {
 
     /**
      * Narrows this block to reference a certain face. Used by
-     * [Player.lookingAt] to specify the block face
+     * {@link Player.lookingAt} to specify the block face
      * being looked at.
      */
     withFace(face: BlockFace): Block;
@@ -4309,13 +4324,13 @@ declare global {
      * Gets the item in any slot, starting from 0.
      *
      * @param slot the slot index
-     * @return the [Item] in that slot
+     * @return the {@link Item} in that slot
      */
     getStackInSlot(slot: number): Item | null;
 
     /**
      * Returns the window identifier number of this Inventory.
-     * This Inventory must be backed by a Container [isContainer]
+     * This Inventory must be backed by a Container {@link isContainer}
      *
      * @return the window id
      */
@@ -4333,7 +4348,7 @@ declare global {
     isItemValidForSlot(slot: number, item: Item): boolean;
 
     /**
-     * @return a list of the [Item]s in an inventory
+     * @return a list of the {@link Item}s in an inventory
      */
     getItems(): (Item | null)[];
 
@@ -4372,15 +4387,15 @@ declare global {
     indexOf(id: number): number;
 
     /**
-     * Returns true if this Inventory wraps a [Container] object
-     * rather than an [IInventory] object
+     * Returns true if this Inventory wraps a {@link MCContainer Container} object
+     * rather than an {@link MCIInventory IInventory} object
      *
      * @return if this is a container
      */
     isContainer(): boolean;
 
     /**
-     * Shorthand for [ClickAction]
+     * Shorthand for {@link ClickAction}
      *
      * @param slot the slot to click on
      * @param button the mouse button to use. "LEFT" by default.
@@ -4390,7 +4405,7 @@ declare global {
     click(slot: number, shift?: boolean, button?: string): Inventory;
 
     /**
-     * Shorthand for [DropAction]
+     * Shorthand for {@link DropAction}
      *
      * @param slot the slot to drop
      * @param ctrl whether control should be held (drops whole stack)
@@ -4399,7 +4414,7 @@ declare global {
     drop(slot: number, ctrl: boolean): Inventory;
 
     /**
-     * Shorthand for [DragAction]
+     * Shorthand for {@link DragAction}
      *
      * @param type what click type this should be: LEFT, MIDDLE, RIGHT
      * @param slots all of the slots to drag onto
@@ -4527,7 +4542,7 @@ declare global {
     getLore(): string[];
 
     /**
-     * Sets the item's lore. Does not set the item's name, use [setName] instead.
+     * Sets the item's lore. Does not set the item's name, use {@link setName} instead.
      * @param loreLines the new lore lines
      */
     setLore(...loreLines: string[]): Item;
@@ -4801,7 +4816,7 @@ declare global {
 
     /**
      * Gets the Java UUID object of this entity.
-     * Use of [UUID.toString] in conjunction is recommended.
+     * Use of {@link JavaUUID.toString UUID.toString} in conjunction is recommended.
      *
      * @return the entity's uuid
      */
@@ -4863,7 +4878,7 @@ declare global {
 
     /**
      * Sets the click action and value of the component.
-     * See [TextComponent.setClickAction] for possible click actions.
+     * See {@link TextComponent.setClickAction} for possible click actions.
      * @param action the click action
      * @param value the click value
      */
@@ -4893,14 +4908,14 @@ declare global {
 
     /**
      * Sets the value to be used by the click action.
-     * See [TextComponent.setClickAction] for possible click actions.
+     * See {@link TextComponent.setClickAction} for possible click actions.
      * @param value the click value
      */
     setClickValue(value: string): TextComponent;
 
     /**
      * Sets the hover action and value of the component.
-     * See [TextComponent.setHoverAction] for possible hover actions.
+     * See {@link TextComponent.setHoverAction} for possible hover actions.
      * @param action the hover action
      * @param value the hover value
      */
@@ -4930,18 +4945,18 @@ declare global {
 
     /**
      * Sets the value to be used by the hover action.
-     * See [TextComponent.setHoverAction] for possible hover actions.
+     * See {@link TextComponent.setHoverAction} for possible hover actions.
      * @param value the hover value
      */
     setHoverValue(value: string): TextComponent;
 
     /**
-     * Shows the component in chat as a new [Message]
+     * Shows the component in chat as a new {@link Message}
      */
     chat(): void;
 
     /**
-     * Shows the component on the actionbar as a new [Message]
+     * Shows the component on the actionbar as a new {@link Message}
      */
     actionBar(): void;
 
@@ -5025,7 +5040,7 @@ declare global {
     getUnformattedText(): string;
 
     /**
-     * @return the message [TextComponent] parts as a list.
+     * @return the message {@link TextComponent} parts as a list.
      */
     getMessageParts(): TextComponent[];
 
@@ -5111,14 +5126,14 @@ declare global {
     static readonly INSTANCE: ChatLib;
     /**
      * Prints text in the chat.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text the text to be printed
      */
     static chat(text: Message | string | TextComponent): void;
     /**
      * Prints text in the chat.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text the text to be printed
      */
@@ -5131,14 +5146,14 @@ declare global {
 
     /**
      * Shows text in the action bar.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text the text to show
      */
     static actionBar(text: string | Message | TextComponent): void;
     /**
      * Shows text in the action bar.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text the text to show
      */
@@ -5146,14 +5161,14 @@ declare global {
 
     /**
      * Simulates a chat message to be caught by other triggers for testing.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text The message to simulate
      */
     static simulateChat(text: string | Message | TextComponent): void;
     /**
      * Simulates a chat message to be caught by other triggers for testing.
-     * The text can be a String, a [Message] or a [TextComponent]
+     * The text can be a String, a {@link Message} or a {@link TextComponent}
      *
      * @param text The message to simulate
      */
@@ -5280,14 +5295,14 @@ declare global {
     getCenteredText(text: string): string;
 
     /**
-     * Edits an already sent chat message matched by [regexp].
+     * Edits an already sent chat message matched by {@link regexp}.
      *
      * @param regexp the regex object to match to the message
      * @param replacements the new message(s) to be put in replace of the old one
      */
     editChat(regexp: RegExp, ...replacements: Message[]): void;
     /**
-     * Edits an already sent chat message matched by [regexp].
+     * Edits an already sent chat message matched by {@link regexp}.
      *
      * @param regexp the regex object to match to the message
      * @param replacements the new message(s) to be put in replace of the old one
@@ -5310,14 +5325,14 @@ declare global {
     static editChat(toReplace: string, ...replacements: Message[]): void;
 
     /**
-     * Edits an already sent chat message by the [Message]
+     * Edits an already sent chat message by the {@link Message}
      *
      * @param toReplace the message to be replaced
      * @param replacements the new message(s) to be put in place of the old one
      */
     editChat(toReplace: Message, ...replacements: Message[]): void;
     /**
-     * Edits an already sent chat message by the [Message]
+     * Edits an already sent chat message by the {@link Message}
      *
      * @param toReplace the message to be replaced
      * @param replacements the new message(s) to be put in place of the old one
@@ -5340,13 +5355,13 @@ declare global {
     static editChat(chatLineId: number, ...replacements: Message[]): void;
 
     /**
-     * Deletes an already sent chat message matching [regexp].
+     * Deletes an already sent chat message matching {@link regexp}.
      *
      * @param regexp the regex object to match to the message
      */
     deleteChat(regexp: RegExp): void;
     /**
-     * Deletes an already sent chat message matching [regexp].
+     * Deletes an already sent chat message matching {@link regexp}.
      *
      * @param regexp the regex object to match to the message
      */
@@ -5366,13 +5381,13 @@ declare global {
     static deleteChat(toDelete: string): void;
 
     /**
-     * Deletes an already sent chat message by the [Message]
+     * Deletes an already sent chat message by the {@link Message}
      *
      * @param toDelete the message to be deleted
      */
     deleteChat(toDelete: Message): void;
     /**
-     * Deletes an already sent chat message by the [Message]
+     * Deletes an already sent chat message by the {@link Message}
      *
      * @param toDelete the message to be deleted
      */
@@ -5521,10 +5536,6 @@ declare global {
   }
 
   class KeyBind {
-    registerKeyPress(method: Function): RegularTrigger;
-    registerKeyRelease(method: Function): RegularTrigger;
-    registerKeyDown(method: Function): RegularTrigger;
-
     /**
      * Creates a new keybind, editable in the user's controls.
      *
@@ -5537,6 +5548,14 @@ declare global {
 
     constructor(keyBinding: MCKeyBinding);
 
+    registerKeyPress(method: Function): RegularTrigger;
+    registerKeyRelease(method: Function): RegularTrigger;
+    registerKeyDown(method: Function): RegularTrigger;
+
+    unregisterKeyPress(): KeyBind;
+    unregisterKeyRelease(): KeyBind;
+    unregisterKeyDown(): KeyBind;
+
     /**
      * Returns true if the key is pressed (used for continuous querying).
      *
@@ -5545,7 +5564,7 @@ declare global {
     isKeyDown(): boolean;
 
     /**
-     * Returns true on the initial key press. For continuous querying use [isKeyDown].
+     * Returns true on the initial key press. For continuous querying use {@link isKeyDown}.
      *
      * @return whether the key has just been pressed
      */
@@ -5668,13 +5687,15 @@ declare global {
         button: number,
         pressed: boolean,
       ) => void,
-    ): Trigger;
+    ): RegularTrigger;
 
-    registerHovered(method: (mouseX: number, mouseY: number) => void): Trigger;
+    registerHovered(
+      method: (mouseX: number, mouseY: number) => void,
+    ): RegularTrigger;
 
     registerMouseLeave(
       method: (mouseX: number, mouseY: number) => void,
-    ): Trigger;
+    ): RegularTrigger;
 
     registerDragged(
       method: (
@@ -5684,7 +5705,12 @@ declare global {
         mouseY: number,
         button: number,
       ) => void,
-    ): Trigger;
+    ): RegularTrigger;
+
+    unregisterClicked(): DisplayLine;
+    unregisterHovered(): DisplayLine;
+    unregisterMouseLeave(): DisplayLine;
+    unregisterDragged(): DisplayLine;
 
     drawLeft(
       x: number,
@@ -5925,7 +5951,7 @@ declare global {
 
     /**
      * Sets the stage of this drag.
-     * Possible values are: BEGIN, SLOT, END [stage]
+     * Possible values are: BEGIN, SLOT, END {@link stage}
      *
      * @param stage the stage
      * @return the current Action for method chaining
@@ -6818,7 +6844,7 @@ declare global {
     /**
      * Returns the color of the Particle
      *
-     * @return A [java.awt.Color] with the R, G, B and A values
+     * @return A {@link JavaColor java.awt.Color} with the R, G, B and A values
      */
     getColor(): JavaColor;
 
@@ -9723,7 +9749,7 @@ declare class JavaMethod {
 //#region
 declare class Trigger {
   /**
-   * Sets a trigger's priority using [Priority].
+   * Sets a trigger's priority using {@link Priority}.
    * Highest runs first.
    * @param priority the priority of the trigger
    * @return the trigger for method chaining
@@ -9767,7 +9793,7 @@ declare class ChatTrigger extends Trigger {
   triggerIfCanceled(bool: boolean): ChatTrigger;
 
   /**
-   * Sets the chat criteria for [matchesChatCriteria].
+   * Sets the chat criteria for `matchesChatCriteria`.
    * Arguments for the trigger's method can be passed in using ${variable}.
    * Example: `ChatTrigger.setChatCriteria("<${name}> ${message}");`
    * Use ${*} to match a chat message but ignore the pass through.
@@ -9777,14 +9803,14 @@ declare class ChatTrigger extends Trigger {
   setChatCriteria(chatCriteria: string | RegExp): ChatTrigger;
 
   /**
-   * Alias for [setChatCriteria].
+   * Alias for {@link setChatCriteria}.
    * @param chatCriteria the chat criteria to set
    * @return the trigger object for method chaining
    */
   setCriteria(chatCriteria: string | RegExp): ChatTrigger;
 
   /**
-   * Sets the chat parameter for [Parameter].
+   * Sets the chat parameter for `Parameter`.
    * Clears current parameter list.
    * @param parameter the chat parameter to set
    * @return the trigger object for method chaining
@@ -9792,7 +9818,7 @@ declare class ChatTrigger extends Trigger {
   setParameter(parameter: "contains" | "start" | "end"): ChatTrigger;
 
   /**
-   * Sets multiple chat parameters for [Parameter].
+   * Sets multiple chat parameters for `Parameter`.
    * Clears current parameter list.
    * @param parameters the chat parameters to set
    * @return the trigger object for method chaining
@@ -9800,14 +9826,14 @@ declare class ChatTrigger extends Trigger {
   setParameters(...parameters: ("contains" | "start" | "end")[]): ChatTrigger;
 
   /**
-   * Adds chat parameter for [Parameter].
+   * Adds chat parameter for `Parameter`.
    * @param parameter the chat parameter to add
    * @return the trigger object for method chaining
    */
   addParameter(parameter: "contains" | "start" | "end"): ChatTrigger;
 
   /**
-   * Adds multiple chat parameters for [Parameter].
+   * Adds multiple chat parameters for `Parameter`.
    * @param parameters the chat parameters to add
    * @return the trigger object for method chaining
    */
@@ -9918,7 +9944,7 @@ declare class CommandTrigger extends Trigger {
   ): CommandTrigger;
 
   /**
-   * Alias for [setCommandName]
+   * Alias for {@link setCommandName}
    *
    * @param commandName The command name
    * * @param overrideExisting Whether existing commands with the same name should be overridden
@@ -9931,42 +9957,50 @@ declare class RegularTrigger extends Trigger {
   trigger(args: any[]): void;
 }
 
-declare class PacketTrigger extends Trigger {
+declare abstract class ClassFilterTrigger extends Trigger {
   constructor(method: Function, triggerType: TriggerType, loader: ILoader);
 
+  readonly triggerType: TriggerType;
+
   /**
-   * Alias for `setPacketClasses([class_])`
+   * @deprecated Prefer `setFilteredClass(MyClass.class)` instead
    */
-  setPacketClass<T>(class_: JavaClass<T>): PacketTrigger;
+  setPacketClass<T>(clazz: JavaClass<T>): this;
+
+  /**
+   * @deprecated Prefer `setFilteredClasses([A.class, B.class, C.class])` instead
+   */
+  setPacketClasses(classes: JavaClass<any>[]): this;
+
+  /**
+   * Alias for `setClasses([A.class, B.class])`
+   *
+   * @param clazz The class for which this trigger should run for
+   */
+  setFilteredClass<T>(clazz: JavaClass<T>): this;
 
   /**
    * Sets which classes this trigger should run for. If the list is empty, it runs
-   * for every packet class.
+   * for every class.
    *
    * @param classes The classes for which this trigger should run for
-   * @return This trigger object for packet chaining
+   * @return This trigger object for chaining
    */
-  setPacketClasses(classes: JavaClass<any>[]): PacketTrigger;
+  setFilteredClasses(classes: JavaClass<any>[]): this;
 
-  trigger(args: any[]): void;
+  abstract evalTriggerType(args: any[]): any;
 }
 
-declare class EntityRenderTrigger extends Trigger {
-  constructor(method: Function, triggerType: TriggerType, loader: ILoader);
+declare class RenderEntityTrigger extends ClassFilterTrigger {
+  evalTriggerType(args: any[]): MCEntity;
+}
 
-  /**
-   * Alias for `setEntityClasses([class_])`
-   */
-  setEntityClass<T>(class_: JavaClass<T>): EntityRenderTrigger;
+declare class RenderTileEntityTrigger extends ClassFilterTrigger {
+  evalTriggerType(args: any[]): MCTileEntity;
+}
 
-  /**
-   * Sets which classes this Trigger should run for. If the list is empty, it runs
-   * for every entity class.
-   *
-   * @param classes The classes for which this trigger should run for
-   * @return This trigger object for entity chaining
-   */
-  setEntityClasses(classes: JavaClass<any>[]): EntityRenderTrigger;
+declare class PacketTrigger extends ClassFilterTrigger {
+  evalTriggerType(args: any[]): MCPacket<any>;
 }
 
 declare class EventTrigger extends Trigger {
@@ -10013,13 +10047,17 @@ declare class StepTrigger extends Trigger {
 
   /**
    * Sets the delay in seconds between the trigger activation.
-   * This has a minimum of one step every second. This will override [setFps].
+   * This has a minimum of one step every second. This will override {@link setFps}.
    * @param delay The delay in seconds
    * @return the trigger for method chaining
    */
   setDelay(delay: number): StepTrigger;
 
   trigger(args: any[]): void;
+}
+
+declare class ForgeTrigger extends Trigger {
+  constructor(method: Function, eventClass: JavaClass<any>, loader: ILoader);
 }
 
 declare class Team {
@@ -10106,7 +10144,7 @@ declare class Team {
 
 declare interface NBT {
   /**
-   * Creates a new [NBTBase] from the given [nbt]
+   * Creates a new {@link NBTBase} from the given {@link nbt}
    *
    * @param nbt the value to convert to NBT
    * @param options optional argument to allow refinement of the NBT data.
@@ -10118,10 +10156,10 @@ declare interface NBT {
    * E.g. a list with all bytes or integers will be converted to an NBTTagByteArray or
    * NBTTagIntArray accordingly
    *
-   * @throws [NBTException] if [nbt] can not be parsed as valid NBT
+   * @throws `NBTException` if {@link nbt} can not be parsed as valid NBT
    *
-   * @return [NBTTagCompound] if [nbt] is an object, [NBTTagList] if [nbt]
-   * is an array and preferArraysOverLists is false, or [NBTBase] otherwise.
+   * @return {@link NBTTagCompound} if {@link nbt} is an object, {@link NBTTagList} if {@link nbt}
+   * is an array and preferArraysOverLists is false, or {@link NBTBase} otherwise.
    */
   parse(
     nbt: any,
@@ -10148,21 +10186,21 @@ declare interface NBT {
 
 declare class Client {
   /**
-   * Get the [KeyBind] from an already existing Minecraft KeyBinding, otherwise, returns null.
+   * Get the {@link KeyBind} from an already existing Minecraft KeyBinding, otherwise, returns null.
    *
    * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
-   * @return the [KeyBind] from a Minecraft KeyBinding, or null if one doesn't exist
+   * @return the {@link KeyBind} from a Minecraft KeyBinding, or null if one doesn't exist
    * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
    */
   getKeyBindFromKey(keyCode: number): KeyBind | null;
 
   /**
-   * Get the [KeyBind] from an already existing Minecraft KeyBinding, else, return a new one.
+   * Get the {@link KeyBind} from an already existing Minecraft KeyBinding, else, return a new one.
    *
    * @param keyCode the keycode which the keybind will respond to, see Keyboard below. Ex. Keyboard.KEY_A
    * @param description the description of the keybind
    * @param category the keybind category the keybind will be in
-   * @return the [KeyBind] from a Minecraft KeyBinding, or a new one if one doesn't exist
+   * @return the {@link KeyBind} from a Minecraft KeyBinding, or a new one if one doesn't exist
    * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
    */
   getKeyBindFromKey(
@@ -10172,22 +10210,22 @@ declare class Client {
   ): KeyBind;
 
   /**
-   * Get the [KeyBind] from an already existing Minecraft KeyBinding, else, return a new one.
-   * This will create the [KeyBind] with the default category "ChatTriggers".
+   * Get the {@link KeyBind} from an already existing Minecraft KeyBinding, else, return a new one.
+   * This will create the {@link KeyBind} with the default category "ChatTriggers".
    *
    * @param keyCode the keycode to search for, see Keyboard below. Ex. Keyboard.KEY_A
    * @param description the description of the keybind
-   * @return the [KeyBind] from a Minecraft KeyBinding, or a new one if one doesn't exist
+   * @return the {@link KeyBind} from a Minecraft KeyBinding, or a new one if one doesn't exist
    * @see [org.lwjgl.input.Keyboard](http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)
    */
   getKeyBindFromKey(keyCode: number, description: string): KeyBind;
 
   /**
-   * Get the [KeyBind] from an already existing
+   * Get the {@link KeyBind} from an already existing
    * Minecraft KeyBinding, otherwise, returns null.
    *
    * @param description the description of the keybind
-   * @return the [KeyBind], or null if one doesn't exist
+   * @return the {@link KeyBind}, or null if one doesn't exist
    */
   getKeyBindFromDescription(description: string): Keyboard | null;
 
@@ -10226,14 +10264,14 @@ declare class Client {
   static getConnection(): MCNetHandlerPlayClient | null;
 
   /**
-   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Schedule's a task to run on Minecraft's main thread in {@link delay} ticks.
    * Defaults to the next tick.
    * @param delay The delay in ticks
    * @param callback The task to run on the main thread
    */
   scheduleTask(delay: number, callback: () => void): void;
   /**
-   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Schedule's a task to run on Minecraft's main thread in {@link delay} ticks.
    * Defaults to the next tick.
    * @param delay The delay in ticks
    * @param callback The task to run on the main thread
@@ -10241,13 +10279,13 @@ declare class Client {
   static scheduleTask(delay: number, callback: () => void): void;
 
   /**
-   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Schedule's a task to run on Minecraft's main thread in {@link delay} ticks.
    * Defaults to the next tick.
    * @param callback The task to run on the main thread
    */
   scheduleTask(callback: () => void): void;
   /**
-   * Schedule's a task to run on Minecraft's main thread in [delay] ticks.
+   * Schedule's a task to run on Minecraft's main thread in {@link delay} ticks.
    * Defaults to the next tick.
    * @param callback The task to run on the main thread
    */
@@ -10432,13 +10470,13 @@ declare namespace Client {
     /**
      * Gets the slot under the mouse in the current gui, if one exists.
      *
-     * @return the [Slot] under the mouse
+     * @return the {@link Slot} under the mouse
      */
     getSlotUnderMouse(): Slot | null;
     /**
      * Gets the slot under the mouse in the current gui, if one exists.
      *
-     * @return the [Slot] under the mouse
+     * @return the {@link Slot}Slot] under the mouse
      */
     static getSlotUnderMouse(): Slot | null;
 
@@ -11019,6 +11057,7 @@ declare class TriggerType {
   static WorldUnload: TriggerType;
 
   // misc
+  static Forge: TriggerType;
   static Command: TriggerType;
   static Other: TriggerType;
 
@@ -11117,7 +11156,7 @@ declare interface ILoader {
    *
    * This method lets each specific engine handle function invocation specifics themselves.
    *
-   * @return a [MethodHandle] with type (Object[])Object
+   * @return a `MethodHandle` with type (Object[])Object
    */
   asmInvokeLookup(module: Module, functionURI: JavaURI): any;
 
@@ -11182,10 +11221,10 @@ declare interface ITriggerRegister {
    * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [ChatTrigger.setParameter] Sets the chat parameter
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link ChatTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link ChatTrigger.setChatCriteria} Sets the chat criteria
+   * - {@link ChatTrigger.setParameter} Sets the chat parameter
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
@@ -11200,11 +11239,11 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs whenever the player has left clicked on an entity
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity} that is being hit
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11221,10 +11260,10 @@ declare interface ITriggerRegister {
    * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [ChatTrigger.setParameter] Sets the chat parameter
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link ChatTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link ChatTrigger.setChatCriteria} Sets the chat criteria
+   * - {@link ChatTrigger.setParameter} Sets the chat parameter
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
@@ -11240,11 +11279,11 @@ declare interface ITriggerRegister {
    * chat component
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The {@link TextComponent com.chattriggers.ctjs.minecraft.objects.message.TextComponent}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11258,11 +11297,11 @@ declare interface ITriggerRegister {
    * hoverable chat component
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The {@link TextComponent com.chattriggers.ctjs.minecraft.objects.message.TextComponent}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11281,7 +11320,7 @@ declare interface ITriggerRegister {
    * - The mouse button state (true if button is pressed, false otherwise)
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11306,7 +11345,7 @@ declare interface ITriggerRegister {
    * - The mouse button
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11325,14 +11364,14 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs before an item is dropped.
    *
    * Passes through five arguments:
-   * - The [Item] that is dropped up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that dropped the item
+   * - The {@link Item} that is dropped up
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} that dropped the item
    * - The item's position vector
    * - The item's motion vector
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11348,7 +11387,7 @@ declare interface ITriggerRegister {
    * loaded and after "/ct load" happens.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11361,7 +11400,7 @@ declare interface ITriggerRegister {
    * This runs before shutdown of the JVM and before "/ct load" happens.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11375,7 +11414,7 @@ declare interface ITriggerRegister {
    * - The gui that was closed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11387,7 +11426,7 @@ declare interface ITriggerRegister {
    * This is useful for drawing custom backgrounds.
    *
    * Passes through one argument:
-   * - The [GuiScreen] that is being drawn
+   * - The {@link MCGuiScreen GuiScreen} that is being drawn
    *
    */
   registerGuiDrawBackground(
@@ -11404,7 +11443,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11430,7 +11469,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11457,7 +11496,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11484,7 +11523,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11506,7 +11545,7 @@ declare interface ITriggerRegister {
    * - The gui opened event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11522,7 +11561,7 @@ declare interface ITriggerRegister {
    * - The gui
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11538,11 +11577,11 @@ declare interface ITriggerRegister {
    * when first left clicked.
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block] being hit
+   * - The {@link Block com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block} being hit
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11559,7 +11598,7 @@ declare interface ITriggerRegister {
    * - The message event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11576,8 +11615,8 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the packet classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -11595,8 +11634,8 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the packet classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -11610,14 +11649,14 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs before an item is picked up.
    *
    * Passes through five arguments:
-   * - The [Item] that is picked up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that picked up the item
+   * - The {@link Item} that is picked up
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} that picked up the item
    * - The item's position vector
    * - The item's motion vector
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11648,12 +11687,12 @@ declare interface ITriggerRegister {
    * - Right clicking air
    *
    * Passes through three arguments:
-   * - The [ClientListener.PlayerInteractAction]
+   * - The {@link ClientListener.PlayerInteractAction}
    * - The position of the target as a Vector3f
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11671,7 +11710,7 @@ declare interface ITriggerRegister {
    * This is useful for hiding "background" items in containers used as GUIs.
    *
    * Passes through three arguments:
-   * - The [Slot] being drawn
+   * - The {@link Slot} being drawn
    * - The MC GUIScreen that is being drawn
    * - The event, which can be cancelled
    *
@@ -11690,7 +11729,7 @@ declare interface ITriggerRegister {
    * - The screenshot event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11708,7 +11747,7 @@ declare interface ITriggerRegister {
    * - The scroll direction: 1, -1
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11724,7 +11763,7 @@ declare interface ITriggerRegister {
    * - The event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11740,7 +11779,7 @@ declare interface ITriggerRegister {
    * - The event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11756,11 +11795,11 @@ declare interface ITriggerRegister {
    * - Steps elapsed
    *
    * Available modifications:
-   * - [StepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
+   * - {@link StepTrigger.setFps} Sets the fps, i.e. how many times this trigger will fire
    *      per second
-   * - [StepTrigger.setDelay] Sets the delay in seconds, i.e. how many seconds it takes
-   *      to fire. Overrides [StepTrigger.setFps].
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link StepTrigger.setDelay} Sets the delay in seconds, i.e. how many seconds it takes
+   *      to fire. Overrides {@link StepTrigger.setFps}.
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11774,7 +11813,7 @@ declare interface ITriggerRegister {
    * - Ticks elapsed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11788,11 +11827,11 @@ declare interface ITriggerRegister {
    *
    * Passes through three arguments:
    * - The list of lore to modify.
-   * - The [Item] that this lore is attached to.
+   * - The {@link Item} that this lore is attached to.
    * - The cancellable event.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11809,7 +11848,7 @@ declare interface ITriggerRegister {
    * - The draw block highlight event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11827,7 +11866,7 @@ declare interface ITriggerRegister {
    * - The GuiScreen
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11840,13 +11879,13 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs after an entity is rendered
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity}
    * - The position as a Vector3f
    * - The partial ticks
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the entity classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -11854,7 +11893,7 @@ declare interface ITriggerRegister {
    */
   registerPostRenderEntity(
     method: (entity: Entity, pos: Vector3f, partialTicks: number) => void,
-  ): EntityRenderTrigger;
+  ): RenderEntityTrigger;
 
   /**
    * Registers a new trigger that runs after a tile entity is rendered
@@ -11865,14 +11904,15 @@ declare interface ITriggerRegister {
    * - The partial ticks
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the tile entity classes which this trigger gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
    */
   registerPostRenderTileEntity(
     method: (entity: MCTileEntity, pos: Vector3f, partialTicks: number) => void,
-  ): RegularTrigger;
+  ): RenderTileEntityTrigger;
 
   /**
    * Registers a new trigger that runs before the items in the gui are drawn
@@ -11884,7 +11924,7 @@ declare interface ITriggerRegister {
    * - The GuiContainer
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11905,8 +11945,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11924,8 +11964,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11943,8 +11983,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11962,8 +12002,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -11981,8 +12021,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12000,8 +12040,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12016,14 +12056,14 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs whenever an entity is rendered
    *
    * Passes through four arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity}
    * - The position as a Vector3f
    * - The partial ticks
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the entity classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -12036,7 +12076,7 @@ declare interface ITriggerRegister {
       partialTicks: number,
       event: CancellableEvent,
     ) => void,
-  ): EntityRenderTrigger;
+  ): RenderEntityTrigger;
 
   /**
    * Registers a new trigger that runs before the player's experience is being drawn.
@@ -12046,8 +12086,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12065,8 +12105,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12084,7 +12124,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12098,8 +12138,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12118,8 +12158,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12137,8 +12177,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12153,7 +12193,7 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs before each item is drawn into a GUI.
    *
    * Passes through four arguments:
-   * - The [Item]
+   * - The {@link Item}
    * - The x position
    * - The y position
    * - The event, which can be cancelled.
@@ -12169,7 +12209,7 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs before each item overlay (stack size and damage bar) is drawn.
    *
    * Passes through four arguments:
-   * - The [Item]
+   * - The {@link Item}
    * - The x position
    * - The y position
    * - The event, which can be cancelled.
@@ -12188,8 +12228,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12207,8 +12247,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12226,7 +12266,7 @@ declare interface ITriggerRegister {
    * - The render event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12242,8 +12282,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12261,8 +12301,8 @@ declare interface ITriggerRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12280,7 +12320,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12300,7 +12340,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12325,7 +12365,8 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the tile entity classes which this trigger gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12337,7 +12378,7 @@ declare interface ITriggerRegister {
       partialTicks: number,
       event: CancellableEvent,
     ) => void,
-  ): EventTrigger;
+  ): RenderTileEntityTrigger;
 
   /**
    * Registers a new trigger that runs before the title and subtitle are drawn.
@@ -12348,7 +12389,7 @@ declare interface ITriggerRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12364,7 +12405,7 @@ declare interface ITriggerRegister {
    * - Partial ticks elapsed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12378,7 +12419,7 @@ declare interface ITriggerRegister {
    * - The block
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12420,7 +12461,7 @@ declare interface ITriggerRegister {
    * - The note block change event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12444,7 +12485,7 @@ declare interface ITriggerRegister {
    * - The note block play event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12465,10 +12506,10 @@ declare interface ITriggerRegister {
    * This trigger is asynchronous.
    *
    * Passes through one argument:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} object
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12485,7 +12526,7 @@ declare interface ITriggerRegister {
    * - The name of the player that left
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12504,8 +12545,8 @@ declare interface ITriggerRegister {
    * - The sound event, which can be cancelled
    *
    * Available modifications:
-   * - [SoundPlayTrigger.setCriteria] Sets the sound name criteria
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link SoundPlayTrigger.setCriteria} Sets the sound name criteria
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12525,12 +12566,12 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs whenever a particle is spawned
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.Particle]
-   * - The [net.minecraft.util.EnumParticleTypes]
+   * - The {@link Particle com.chattriggers.ctjs.minecraft.wrappers.objects.Particle}
+   * - The {@link MCEnumParticleTypes net.minecraft.util.EnumParticleTypes}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12547,7 +12588,7 @@ declare interface ITriggerRegister {
    * Registers a trigger that runs before the world loads.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12558,7 +12599,7 @@ declare interface ITriggerRegister {
    * Registers a new trigger that runs before the world unloads.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12572,8 +12613,8 @@ declare interface ITriggerRegister {
    * - The arguments supplied to the command by the user
    *
    * Available modifications:
-   * - [CommandTrigger.setCommandName] Sets the command name
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link CommandTrigger.setCommandName} Sets the command name
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12592,10 +12633,10 @@ declare interface IRegister {
    * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [ChatTrigger.setParameter] Sets the chat parameter
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link ChatTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link ChatTrigger.setChatCriteria} Sets the chat criteria
+   * - {@link ChatTrigger.setParameter} Sets the chat parameter
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
@@ -12611,11 +12652,11 @@ declare interface IRegister {
    * Registers a new trigger that runs whenever the player has left clicked on an entity
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity] that is being hit
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity} that is being hit
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12633,10 +12674,10 @@ declare interface IRegister {
    * - The chat event, which can be cancelled
    *
    * Available modifications:
-   * - [ChatTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [ChatTrigger.setChatCriteria] Sets the chat criteria
-   * - [ChatTrigger.setParameter] Sets the chat parameter
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link ChatTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link ChatTrigger.setChatCriteria} Sets the chat criteria
+   * - {@link ChatTrigger.setParameter} Sets the chat parameter
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * A NOTE ON AUTOCOMPLETE: DUE TO LIMITATIONS WITH REST PARAMETERS, TYPINGS FOR THE PARAMETERS OF THE FUNCTION ARE SLIGHTLY OFF
    *
@@ -12652,11 +12693,11 @@ declare interface IRegister {
    * chat component
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The {@link TextComponent com.chattriggers.ctjs.minecraft.objects.message.TextComponent}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12671,11 +12712,11 @@ declare interface IRegister {
    * hoverable chat component
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.objects.message.TextComponent]
+   * - The {@link TextComponent com.chattriggers.ctjs.minecraft.objects.message.TextComponent}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12695,7 +12736,7 @@ declare interface IRegister {
    * - The mouse button state (true if button is pressed, false otherwise)
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12716,7 +12757,7 @@ declare interface IRegister {
    * - The mouse button
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12730,14 +12771,14 @@ declare interface IRegister {
    * Registers a new trigger that runs before an item is dropped.
    *
    * Passes through five arguments:
-   * - The [Item] that is dropped up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that dropped the item
+   * - The {@link Item} that is dropped up
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} that dropped the item
    * - The item's position vector
    * - The item's motion vector
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12754,7 +12795,7 @@ declare interface IRegister {
    * loaded and after "/ct load" happens.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12770,7 +12811,7 @@ declare interface IRegister {
    * This runs before shutdown of the JVM and before "/ct load" happens.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12787,7 +12828,7 @@ declare interface IRegister {
    * - The gui that was closed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12802,7 +12843,7 @@ declare interface IRegister {
    * This is useful for drawing custom backgrounds.
    *
    * Passes through one argument:
-   * - The [GuiScreen] that is being drawn
+   * - The {@link MCGuiScreen GuiScreen} that is being drawn
    *
    */
   (
@@ -12820,7 +12861,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12842,7 +12883,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12864,7 +12905,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12886,7 +12927,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12903,7 +12944,7 @@ declare interface IRegister {
    * - The gui opened event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12922,7 +12963,7 @@ declare interface IRegister {
    * - The gui
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12939,11 +12980,11 @@ declare interface IRegister {
    * when first left clicked.
    *
    * Passes through two arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block] being hit
+   * - The {@link Block com.chattriggers.ctjs.minecraft.wrappers.objects.block.Block} being hit
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12961,7 +13002,7 @@ declare interface IRegister {
    * - The message event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -12979,8 +13020,8 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the packet classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -12999,8 +13040,8 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [PacketTrigger.setPacketClasses] Sets the packet classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the packet classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -13015,14 +13056,14 @@ declare interface IRegister {
    * Registers a new trigger that runs before an item is picked up.
    *
    * Passes through five arguments:
-   * - The [Item] that is picked up
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] that picked up the item
+   * - The {@link Item} that is picked up
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} that picked up the item
    * - The item's position vector
    * - The item's motion vector
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13049,12 +13090,12 @@ declare interface IRegister {
    * - Right clicking air
    *
    * Passes through three arguments:
-   * - The [ClientListener.PlayerInteractAction]
+   * - The {@link ClientListener.PlayerInteractAction}
    * - The position of the target as a Vector3f
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13068,7 +13109,7 @@ declare interface IRegister {
    * This is useful for hiding "background" items in containers used as GUIs.
    *
    * Passes through three arguments:
-   * - The [Slot] being drawn
+   * - The Slot] being drawn
    * - The MC GUIScreen that is being drawn
    * - The event, which can be cancelled
    *
@@ -13088,7 +13129,7 @@ declare interface IRegister {
    * - The screenshot event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13107,7 +13148,7 @@ declare interface IRegister {
    * - The scroll direction: 1, -1
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13124,7 +13165,7 @@ declare interface IRegister {
    * - The event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13141,7 +13182,7 @@ declare interface IRegister {
    * - The event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13158,11 +13199,11 @@ declare interface IRegister {
    * - Steps elapsed
    *
    * Available modifications:
-   * - [StepTrigger.setFps] Sets the fps, i.e. how many times this trigger will fire
+   * - {@link StepTrigger.setFps} Sets the fps, i.e. how many times this trigger will fire
    *      per second
-   * - [StepTrigger.setDelay] Sets the delay in seconds, i.e how many seconds it takes
-   *      to fire. Overrides [StepTrigger.setFps].
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link StepTrigger.setDelay} Sets the delay in seconds, i.e how many seconds it takes
+   *      to fire. Overrides {@link StepTrigger.setFps}.
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13179,7 +13220,7 @@ declare interface IRegister {
    * - Ticks elapsed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13196,11 +13237,11 @@ declare interface IRegister {
    *
    * Passes through three arguments:
    * - The list of lore to modify.
-   * - The [Item] that this lore is attached to.
+   * - The {@link Item} that this lore is attached to.
    * - The cancellable event.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13218,7 +13259,7 @@ declare interface IRegister {
    * - The draw block highlight event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13237,7 +13278,7 @@ declare interface IRegister {
    * - The GuiScreen
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13251,13 +13292,13 @@ declare interface IRegister {
    * Registers a new trigger that runs after an entity is rendered
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity}
    * - The position as a Vector3f
    * - The partial ticks
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the entity classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -13277,7 +13318,8 @@ declare interface IRegister {
    * - The partial ticks
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the tile entity classes which this trigger gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13297,7 +13339,7 @@ declare interface IRegister {
    * - The GuiContainer
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13313,8 +13355,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13331,8 +13373,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13349,8 +13391,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13367,8 +13409,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13385,8 +13427,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13403,8 +13445,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13418,14 +13460,14 @@ declare interface IRegister {
    * Registers a new trigger that runs whenever an entity is rendered
    *
    * Passes through four arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity]
+   * - The {@link Entity com.chattriggers.ctjs.minecraft.wrappers.objects.entity.Entity}
    * - The position as a Vector3f
    * - The partial ticks
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
-   * - [EntityRenderTrigger.setEntityClasses] Sets the entity classes which this trigger
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the entity classes which this trigger
    *   gets fired for
    *
    * @param method The method to call when the event is fired
@@ -13444,8 +13486,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13462,8 +13504,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13480,7 +13522,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13497,8 +13539,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13516,8 +13558,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13534,8 +13576,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13549,7 +13591,7 @@ declare interface IRegister {
    * Registers a new trigger that runs before each item is drawn into a GUI.
    *
    * Passes through four arguments:
-   * - The [Item]
+   * - The {@link Item}
    * - The x position
    * - The y position
    * - The event, which can be cancelled.
@@ -13566,7 +13608,7 @@ declare interface IRegister {
    * Registers a new trigger that runs before each item overlay (stack size and damage bar) is drawn.
    *
    * Passes through four arguments:
-   * - The [Item]
+   * - The {@link Item}
    * - The x position
    * - The y position
    * - The event, which can be cancelled.
@@ -13586,8 +13628,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13604,8 +13646,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13622,7 +13664,7 @@ declare interface IRegister {
    * - The render event, which cannot be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13639,8 +13681,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13657,8 +13699,8 @@ declare interface IRegister {
    * - The render event, which can be cancelled
    *
    * Available modifications:
-   * - [EventTrigger.triggerIfCanceled] Sets if triggered if event is already cancelled
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link EventTrigger.triggerIfCanceled} Sets if triggered if event is already cancelled
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13675,7 +13717,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13696,7 +13738,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13716,7 +13758,8 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
+   * - {@link ClassFilterTrigger.setFilteredClasses} Sets the tile entity classes which this trigger gets fired for
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13735,7 +13778,7 @@ declare interface IRegister {
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13752,7 +13795,7 @@ declare interface IRegister {
    * - Partial ticks elapsed
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13769,7 +13812,7 @@ declare interface IRegister {
    * - The block
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13818,7 +13861,7 @@ declare interface IRegister {
    * - The note block change event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13838,7 +13881,7 @@ declare interface IRegister {
    * - The note block play event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13855,10 +13898,10 @@ declare interface IRegister {
    * This trigger is asynchronous.
    *
    * Passes through one argument:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP] object
+   * - The {@link PlayerMP com.chattriggers.ctjs.minecraft.wrappers.objects.PlayerMP} object
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13878,7 +13921,7 @@ declare interface IRegister {
    * - The name of the player that left
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13900,8 +13943,8 @@ declare interface IRegister {
    * - The sound event, which can be cancelled
    *
    * Available modifications:
-   * - [SoundPlayTrigger.setCriteria] Sets the sound name criteria
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link SoundPlayTrigger.setCriteria} Sets the sound name criteria
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13915,12 +13958,12 @@ declare interface IRegister {
    * Registers a new trigger that runs whenever a particle is spawned
    *
    * Passes through three arguments:
-   * - The [com.chattriggers.ctjs.minecraft.wrappers.objects.Particle]
-   * - The [net.minecraft.util.EnumParticleTypes]
+   * - The {@link Particle com.chattriggers.ctjs.minecraft.wrappers.objects.Particle}
+   * - The {@link MCEnumParticleTypes net.minecraft.util.EnumParticleTypes}
    * - The event, which can be cancelled
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13934,7 +13977,7 @@ declare interface IRegister {
    * Registers a trigger that runs before the world loads.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13948,7 +13991,7 @@ declare interface IRegister {
    * Registers a new trigger that runs before the world unloads.
    *
    * Available modifications:
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13965,8 +14008,8 @@ declare interface IRegister {
    * - The arguments supplied to the command by the user
    *
    * Available modifications:
-   * - [CommandTrigger.setCommandName] Sets the command name
-   * - [Trigger.setPriority] Sets the priority
+   * - {@link CommandTrigger.setCommandName} Sets the command name
+   * - {@link Trigger.setPriority} Sets the priority
    *
    * @param method The method to call when the event is fired
    * @return The trigger for additional modification
@@ -13975,4 +14018,6 @@ declare interface IRegister {
     triggerType: "command",
     method: Parameters<ITriggerRegister["registerCommand"]>[0],
   ): ReturnType<ITriggerRegister["registerCommand"]>;
+
+  <T>(triggerType: JavaClass<T>, method: Function): ForgeTrigger;
 }
